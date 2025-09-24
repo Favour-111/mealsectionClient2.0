@@ -1,152 +1,306 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom"; // ✅ import navigate
-import CartItem from "../components/CartItem";
+// import { useState } from "react";
+// import { useCartContext } from "../context/CartContext";
 
-// ✅ Simple message component
-function Message({ text, type }) {
-  return (
-    <div
-      className={`fixed bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-md shadow-md text-sm font-medium ${
-        type === "error"
-          ? "bg-red-100 text-red-600 border border-red-400"
-          : "bg-green-100 text-green-600 border border-green-400"
-      }`}
-    >
-      {text}
-    </div>
-  );
-}
+// function Cart() {
+//   const { cart, removeFromCart, updateQuantity, totalAmount } = useCartContext();
+
+//   // Extra fees
+//   const serviceFee = 200;
+//   const [deliveryFee, setDeliveryFee] = useState(200);
+
+//   // Final total
+//   const grandTotal = totalAmount + serviceFee + deliveryFee;
+
+//   return (
+//     <div className="max-w-md mx-auto bg-white shadow-md p-4 rounded-lg">
+//       <h2 className="text-xl font-bold mb-3">🛒 Cart</h2>
+
+//       {cart.length === 0 ? (
+//         <p className="text-gray-500 text-center">Your cart is empty.</p>
+//       ) : (
+//         <>
+//           {/* Cart Items */}
+//           {cart.map((item) => (
+//             <div
+//               key={item.id}
+//               className="flex items-center justify-between border rounded-lg p-3 mb-3 shadow-sm"
+//             >
+//               <div className="flex items-center gap-3">
+//                 <img
+//                   src={item.image || "https://via.placeholder.com/60"}
+//                   alt={item.name}
+//                   className="w-14 h-14 rounded-md object-cover"
+//                 />
+//                 <div>
+//                   <h3 className="font-semibold">{item.name}</h3>
+//                   <p className="text-gray-500 text-sm">
+//                     ${item.price} × {item.quantity}
+//                   </p>
+//                 </div>
+//               </div>
+
+//               <div className="flex items-center gap-2">
+//                 <button
+//                   onClick={() => updateQuantity(item.id, -1)}
+//                   className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full"
+//                 >
+//                   -
+//                 </button>
+//                 <span className="font-semibold">{item.quantity}</span>
+//                 <button
+//                   onClick={() => updateQuantity(item.id, 1)}
+//                   className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full"
+//                 >
+//                   +
+//                 </button>
+//                 <button
+//                   onClick={() => removeFromCart(item.id)}
+//                   className="text-red-500 ml-2"
+//                 >
+//                   🗑
+//                 </button>
+//               </div>
+//             </div>
+//           ))}
+
+//           {/* Add Another Pack */}
+//           <button className="text-red-500 text-sm font-semibold mb-4">
+//             + Add Another Pack
+//           </button>
+
+//           {/* Delivery Address */}
+//           <div className="mb-4">
+//             <label className="block text-gray-600 text-sm mb-1">
+//               Delivery Address
+//             </label>
+//             <input
+//               type="text"
+//               placeholder="Enter Delivery Address"
+//               className="w-full border rounded-md p-2"
+//             />
+//           </div>
+
+//           {/* Fees */}
+//           <div className="space-y-1 text-sm text-gray-600 mb-4">
+//             <div className="flex justify-between">
+//               <span>Subtotal</span>
+//               <span>${totalAmount.toFixed(2)}</span>
+//             </div>
+//             <div className="flex justify-between">
+//               <span>Service Fee</span>
+//               <span>${serviceFee}</span>
+//             </div>
+//             <div className="flex justify-between">
+//               <span>Delivery Fee</span>
+//               <span>${deliveryFee}</span>
+//             </div>
+//           </div>
+
+//           {/* Adjust Delivery Fee */}
+//           <div className="mb-4">
+//             <label className="block text-gray-600 text-sm mb-1">
+//               Adjust Delivery Fee (Min: $50)
+//             </label>
+//             <input
+//               type="range"
+//               min="50"
+//               max="500"
+//               value={deliveryFee}
+//               onChange={(e) => setDeliveryFee(Number(e.target.value))}
+//               className="w-full accent-red-500"
+//             />
+//             <p className="text-sm text-gray-500">Selected: ${deliveryFee}</p>
+//           </div>
+
+//           {/* Total */}
+//           <div className="flex justify-between items-center font-bold text-lg mb-4">
+//             <span className="text-green-600">TOTAL</span>
+//             <span>${grandTotal.toFixed(2)}</span>
+//           </div>
+
+//           {/* Payment Option */}
+//           <div className="bg-black text-white p-3 rounded-lg mb-4">
+//             <div className="flex justify-between items-center">
+//               <div>
+//                 <p className="font-semibold">Pay with Wallet</p>
+//                 <p className="text-sm text-gray-300">Avail. Bal: $3000</p>
+//               </div>
+//               <input type="radio" checked readOnly />
+//             </div>
+//           </div>
+
+//           {/* Confirm Button */}
+//           <button className="w-full bg-red-600 text-white py-3 rounded-lg font-semibold">
+//             Confirm Order
+//           </button>
+//         </>
+//       )}
+//     </div>
+//   );
+// }
+
+// export default Cart;
+
+import { useState } from "react";
+import { useCartContext } from "../context/CartContext";
+import { useNavigate } from "react-router-dom"; // ✅ import
 
 function Cart() {
-  const navigate = useNavigate(); // ✅ hook from react-router-dom
-  const [deliveryAddress, setDeliveryAddress] = useState("");
-  const [adjustFee, setAdjustFee] = useState(0);
-  const [dummyCart] = useState([
-    { id: 1, name: "White Rice", price: 1000, quantity: 2 },
-  ]);
-  const [message, setMessage] = useState(null);
+  const { cart, removeFromCart, updateQuantity, totalAmount } = useCartContext();
+  const navigate = useNavigate(); // ✅ hook
 
-  // Fee calculations
-  const subtotal = dummyCart.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0
-  );
+  // Extra fees
   const serviceFee = 200;
-  const deliveryFee = 200;
-  const total = subtotal + serviceFee + deliveryFee + adjustFee;
-  const walletBalance = 3000;
+  const [deliveryFee, setDeliveryFee] = useState(200);
 
-  // Handlers
-  const handleConfirmOrder = (e) => {
-    e.preventDefault();
-    if (deliveryAddress === "") {
-      setMessage({ text: "Please enter a delivery address.", type: "error" });
-      setTimeout(() => setMessage(null), 3000);
-      return;
-    }
+  // Final total
+  const grandTotal = totalAmount + serviceFee + deliveryFee;
 
-    setMessage({ text: "Order Confirmed!", type: "success" });
+  // ✅ Handle order confirmation
+  const handleConfirmOrder = () => {
+    // You can also save order to backend here before navigating
+    console.log("Order confirmed:", {
+      items: cart,
+      subtotal: totalAmount,
+      serviceFee,
+      deliveryFee,
+      total: grandTotal,
+    });
 
-    // ✅ Navigate after short delay
-    setTimeout(() => {
-      setMessage(null);
-      navigate("/orderdetils"); // <-- goes to OrderDetails
-    }, 1500);
-  };
-
-  const handleBack = () => {
-    navigate("/"); // ✅ back to home
+    // Redirect to orders page
+    navigate("/orders");
   };
 
   return (
-    <div className="bg-gray-100 min-h-screen p-4 sm:p-6 relative">
-      <div className="max-w-md mx-auto bg-white rounded-lg shadow-md overflow-hidden">
-        {/* Header */}
-        <div className="p-4 flex items-center border-b">
-          <button onClick={handleBack} className="text-gray-600 mr-2">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-          </button>
-          <h2 className="text-xl font-semibold flex-grow text-center">Cart</h2>
-          <span className="w-6"></span>
-        </div>
+    <div className="max-w-md mx-auto bg-white shadow-md p-4 rounded-lg">
+      <h2 className="text-xl font-bold mb-3">🛒 Cart</h2>
 
-        {/* Content */}
-        <div className="p-4 space-y-4">
-          <h3 className="text-sm font-semibold text-gray-800">Pack 1</h3>
-          {dummyCart.map((item) => (
-            <CartItem key={item.id} item={item} />
+      {cart.length === 0 ? (
+        <p className="text-gray-500 text-center">Your cart is empty.</p>
+      ) : (
+        <>
+          {/* Cart Items */}
+          {cart.map((item) => (
+            <div
+              key={item.id}
+              className="flex items-center justify-between border rounded-lg p-3 mb-3 shadow-sm"
+            >
+              <div className="flex items-center gap-3">
+                <img
+                  src={item.image || "https://via.placeholder.com/60"}
+                  alt={item.name}
+                  className="w-14 h-14 rounded-md object-cover"
+                />
+                <div>
+                  <h3 className="font-semibold">{item.name}</h3>
+                  <p className="text-gray-500 text-sm">
+                    ${item.price} × {item.quantity}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => updateQuantity(item.id, -1)}
+                  className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full"
+                >
+                  -
+                </button>
+                <span className="font-semibold">{item.quantity}</span>
+                <button
+                  onClick={() => updateQuantity(item.id, 1)}
+                  className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full"
+                >
+                  +
+                </button>
+                <button
+                  onClick={() => removeFromCart(item.id)}
+                  className="text-red-500 ml-2"
+                >
+                  🗑
+                </button>
+              </div>
+            </div>
           ))}
 
+          {/* Add Another Pack */}
+          <button className="text-red-500 text-sm font-semibold mb-4">
+            + Add Another Pack
+          </button>
+
           {/* Delivery Address */}
-          <div className="border-t pt-4 space-y-2">
-            <h3 className="text-sm font-semibold text-gray-800">
+          <div className="mb-4">
+            <label className="block text-gray-600 text-sm mb-1">
               Delivery Address
-            </h3>
+            </label>
             <input
               type="text"
-              placeholder="Enter your delivery address"
-              value={deliveryAddress}
-              onChange={(e) => setDeliveryAddress(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-red-500"
+              placeholder="Enter Delivery Address"
+              className="w-full border rounded-md p-2"
             />
           </div>
 
-          {/* Price Breakdown */}
-          <div className="border-t pt-4 space-y-2 text-sm">
-            <div className="flex justify-between text-gray-600">
+          {/* Fees */}
+          <div className="space-y-1 text-sm text-gray-600 mb-4">
+            <div className="flex justify-between">
               <span>Subtotal</span>
-              <span>₦{subtotal}</span>
+              <span>${totalAmount.toFixed(2)}</span>
             </div>
-            <div className="flex justify-between text-gray-600">
+            <div className="flex justify-between">
               <span>Service Fee</span>
-              <span>₦{serviceFee}</span>
+              <span>${serviceFee}</span>
             </div>
-            <div className="flex justify-between text-gray-600">
+            <div className="flex justify-between">
               <span>Delivery Fee</span>
-              <span>₦{deliveryFee}</span>
-            </div>
-            <div className="flex justify-between text-gray-600">
-              <span>Adjust Delivery Fee</span>
-              <span className="text-red-600">-₦{adjustFee}</span>
-            </div>
-            <div className="flex justify-between text-lg font-bold pt-2 border-t mt-4">
-              <span>TOTAL</span>
-              <span>₦{total}</span>
+              <span>${deliveryFee}</span>
             </div>
           </div>
 
-          {/* Wallet + Confirm */}
-          <div className="space-y-4 border-t pt-4">
-            <div className="flex items-center justify-between bg-black text-white p-3 rounded-md">
-              <span>Pay with Wallet</span>
-              <span className="text-sm">Avail. Bal: ₦{walletBalance}</span>
-            </div>
-            <button
-              onClick={handleConfirmOrder}
-              className="w-full bg-red-600 text-white py-3 rounded-md font-semibold text-lg hover:bg-red-700"
-            >
-              Confirm Order
-            </button>
+          {/* Adjust Delivery Fee */}
+          <div className="mb-4">
+            <label className="block text-gray-600 text-sm mb-1">
+              Adjust Delivery Fee (Min: $50)
+            </label>
+            <input
+              type="range"
+              min="50"
+              max="500"
+              value={deliveryFee}
+              onChange={(e) => setDeliveryFee(Number(e.target.value))}
+              className="w-full accent-red-500"
+            />
+            <p className="text-sm text-gray-500">Selected: ${deliveryFee}</p>
           </div>
-        </div>
-      </div>
 
-      {message && <Message text={message.text} type={message.type} />}
+          {/* Total */}
+          <div className="flex justify-between items-center font-bold text-lg mb-4">
+            <span className="text-green-600">TOTAL</span>
+            <span>${grandTotal.toFixed(2)}</span>
+          </div>
+
+          {/* Payment Option */}
+          <div className="bg-black text-white p-3 rounded-lg mb-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="font-semibold">Pay with Wallet</p>
+                <p className="text-sm text-gray-300">Avail. Bal: $3000</p>
+              </div>
+              <input type="radio" checked readOnly />
+            </div>
+          </div>
+
+          {/* Confirm Button */}
+          <button
+            onClick={handleConfirmOrder} // ✅ click handler
+            className="w-full bg-red-600 text-white py-3 rounded-lg font-semibold"
+          >
+            Confirm Order
+          </button>
+        </>
+      )}
     </div>
   );
 }
 
 export default Cart;
+

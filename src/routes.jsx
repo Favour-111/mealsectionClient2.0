@@ -8,40 +8,34 @@ import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import Profile from "./pages/Profile";
 import Orders from "./pages/Orders";
-import Contact from "./pages/contact";
+import Contact from "./pages/Contact";
 import ReferralScreen from "./pages/Referral";
 import WelcomeScreen from "./pages/WelcomeScreen";
 import ResetPassword from "./components/ResetPassword";
 import Wallet from "./pages/Wallet";
-import ProductCard from "./components/ProductCard";
-import Vendor from "./pages/vendor";
-import Message from "./components/Message";
-import OrderTimeline from "./components/OrderTimeline";
+import Vendor from "./pages/Vendor";
 import OrderDetails from "./pages/OrderDetails";
-
+import SplashPage from "./pages/SplashPage";
 
 const routes = [
-  { path: "/", element: <Home /> },
-  { path: "/onboarding", element: <Onboarding /> },
-  { path: "/login", element: <Login /> },
-  { path: "/signup", element: <Signup /> },
-  { path: "/meals", element: <MealList /> },
-  { path: "/meals/:id", element: <MealDetails /> },
-  { path: "/cart", element: <Cart /> },
-  { path: "/checkout", element: <Checkout /> },
-  { path: "/profile", element: <Profile /> },
-  { path: "/orders", element: <Orders /> },
-  { path: "/contact", element: <Contact /> },
-  { path: "/referral", element: <ReferralScreen /> },
-  { path: "/welcomescreen", element: <WelcomeScreen /> },
-  { path: "/resetPassword", element: <ResetPassword /> },
-  { path: "/wallet", element: <Wallet /> },
-  { path: "/productcard", element: <ProductCard /> },
-  { path: "/vendor", element: <Vendor /> },
-  { path: "/message", element: <Message /> },
-  { path: "/ordertimeline", element: <OrderTimeline /> },
-  { path: "/orderdetils", element: <OrderDetails /> },
-     
-];
+    { path: "/", element: <Home /> },
+    { path: "/onboarding", element: <Onboarding /> },
+    { path: "/login", element: <Login /> },
+    { path: "/signup", element: <Signup /> },
+    { path: "/meals", element: <MealList /> },
+    { path: "/meals/:id", element: <MealDetails /> },
+    { path: "/cart", element: <Cart /> },
+    { path: "/checkout", element: <Checkout /> },
+    { path: "/profile", element: <Profile /> },
+    { path: "/orders", element: <Orders /> },
+    { path: "/contact", element: <Contact /> },
+    { path: "/referral", element: <ReferralScreen /> },
+    { path: "/welcomescreen", element: <WelcomeScreen /> },
+    { path: "/reset-password", element: <ResetPassword /> },
+    { path: "/wallet", element: <Wallet /> },
+    { path: "/vendor/:id", element: <Vendor /> },  // ✅ dynamic vendor route
+    { path: "/orderdetails", element: <OrderDetails /> },
+    { path: "/splashpage", element: <SplashPage /> },
+  ];
 
 export default routes;
