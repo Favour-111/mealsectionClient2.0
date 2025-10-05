@@ -42,17 +42,17 @@ function Home() {
     <div className="min-h-screen bg-gray-50 font-sans">
       {/* Header */}
       <header className="flex justify-between items-center p-4 bg-white shadow-sm">
-        <button aria-label="Menu" className="p-2">
+        <button aria-label="Menu" className="p-2 text-xl lg:hidden">
           ☰
         </button>
         <img
-          src="https://placehold.co/120x40?text=MealSection"
+          src="https://www.mealsection.com/WhatsApp%20Image%202024-08-24%20at%2020.18.12_988ce6f9.jpg"
           alt="MealSection Logo"
-          className="h-8"
+          className="h-8 md:h-10"
         />
         <button
           aria-label="Cart"
-          className="relative"
+          className="relative text-xl"
           onClick={() => navigate("/cart")}
         >
           🛒
@@ -64,18 +64,18 @@ function Home() {
         </button>
       </header>
 
-      <main className="p-4 space-y-6">
+      <main className="p-4 space-y-6 max-w-6xl mx-auto">
         {/* Wallet Balance */}
         <div className="bg-white rounded-xl shadow p-4 flex items-center justify-between">
           <div>
             <p className="text-sm text-gray-500">Wallet Balance</p>
-            <p className="text-lg font-bold text-gray-800 mt-1">
+            <p className="text-lg md:text-xl font-bold text-gray-800 mt-1">
               ₦{balance.toLocaleString()}
             </p>
           </div>
           <button
             onClick={() => navigate("/wallet")}
-            className="bg-red-600 text-white px-4 py-2 rounded-full text-sm font-medium shadow hover:bg-red-700"
+            className="bg-red-600 text-white px-4 py-2 rounded-full text-sm md:text-base font-medium shadow hover:bg-red-700"
           >
             Top Up
           </button>
@@ -86,16 +86,16 @@ function Home() {
           <input
             type="text"
             placeholder="Search Vendors or Meals"
-            className="w-full bg-transparent outline-none text-sm text-gray-700"
+            className="w-full bg-transparent outline-none text-sm md:text-base text-gray-700"
           />
         </div>
 
         {/* Promo Banner */}
-        <div className="bg-red-100 rounded-lg p-4 flex items-center space-x-3">
-          <div className="bg-red-600 text-white px-3 py-2 rounded-lg text-sm font-semibold">
+        <div className="bg-red-100 rounded-lg p-4 flex items-start md:items-center space-x-3">
+          <div className="bg-red-600 text-white px-3 py-2 rounded-lg text-xs md:text-sm font-semibold">
             20% OFF
           </div>
-          <p className="text-sm text-gray-700">
+          <p className="text-sm md:text-base text-gray-700">
             Enjoy <span className="font-bold">20% off</span> your first order of
             the day when you order from{" "}
             <span className="font-bold text-red-600">Elegance!</span>
@@ -109,17 +109,19 @@ function Home() {
             {featuredVendors.map((vendor) => (
               <div
                 key={vendor.id}
-                className="flex-none w-40 bg-white rounded-xl shadow hover:shadow-md cursor-pointer"
+                className="flex-none w-40 sm:w-48 md:w-56 bg-white rounded-xl shadow hover:shadow-md cursor-pointer"
                 onClick={() => navigate(`/vendor/${vendor.id}`)}
               >
                 <img
                   src={vendor.imageUrl}
                   alt={vendor.name}
-                  className="w-full h-24 object-cover rounded-t-xl"
+                  className="w-full h-24 md:h-32 object-cover rounded-t-xl"
                 />
                 <div className="p-2">
-                  <h3 className="text-sm font-semibold">{vendor.name}</h3>
-                  <p className="text-xs text-gray-500">
+                  <h3 className="text-sm md:text-base font-semibold">
+                    {vendor.name}
+                  </h3>
+                  <p className="text-xs md:text-sm text-gray-500">
                     ⭐ {vendor.rating} | {vendor.time} |{" "}
                     <span
                       className={
@@ -143,7 +145,7 @@ function Home() {
             <h2 className="text-lg font-bold">All Vendors</h2>
             <button className="text-sm text-red-600">Show All</button>
           </div>
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {allVendors.map((vendor) => (
               <div
                 key={vendor.id}
@@ -154,11 +156,13 @@ function Home() {
                   <img
                     src={vendor.imageUrl}
                     alt={vendor.name}
-                    className="w-16 h-16 object-cover rounded-lg"
+                    className="w-16 h-16 md:w-20 md:h-20 object-cover rounded-lg"
                   />
                   <div>
-                    <h3 className="font-semibold">{vendor.name}</h3>
-                    <p className="text-xs text-gray-500">
+                    <h3 className="font-semibold text-sm md:text-base">
+                      {vendor.name}
+                    </h3>
+                    <p className="text-xs md:text-sm text-gray-500">
                       ⭐ {vendor.rating} | {vendor.time} |{" "}
                       <span
                         className={

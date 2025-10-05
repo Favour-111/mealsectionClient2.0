@@ -12,20 +12,9 @@ function Wallet() {
 
   const navigate = useNavigate();
 
-  const handleAddMoney = () => {
-    console.log("Add Money clicked");
-    // Placeholder for "Add Money" logic
-  };
-
-  const handleRemoveCard = () => {
-    console.log("Remove Card clicked");
-    // Placeholder for "Remove Card" logic
-  };
-
-  const handleAddCard = () => {
-    console.log("Add Card clicked");
-    // Placeholder for "Add Card" logic
-  };
+  const handleAddMoney = () => console.log("Add Money clicked");
+  const handleRemoveCard = () => console.log("Remove Card clicked");
+  const handleAddCard = () => console.log("Add Card clicked");
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100 font-sans relative">
@@ -60,7 +49,7 @@ function Wallet() {
               />
             </svg>
           </button>
-          <h1 className="text-xl font-bold">Wallet</h1>
+          <h1 className="text-lg sm:text-xl md:text-2xl font-bold">Wallet</h1>
         </div>
         <button
           onClick={() => navigate("/cart")}
@@ -84,18 +73,18 @@ function Wallet() {
         </button>
       </div>
 
-      <main className="relative z-10 p-4 space-y-6 flex-grow">
+      <main className="relative z-10 p-4 sm:p-6 md:p-8 lg:px-20 space-y-6 flex-grow">
         {/* Available Balance */}
-        <div className="bg-black text-white rounded-xl shadow-lg p-6 flex items-center justify-between">
+        <div className="bg-black text-white rounded-xl shadow-lg p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between">
           <div>
-            <p className="text-sm opacity-75">Available Balance</p>
-            <p className="text-2xl font-bold mt-1">
+            <p className="text-sm sm:text-base opacity-75">Available Balance</p>
+            <p className="text-2xl sm:text-3xl md:text-4xl font-bold mt-1">
               N{balance.toLocaleString()}
             </p>
           </div>
           <button
             onClick={handleAddMoney}
-            className="flex items-center bg-red-700 text-white px-4 py-2 rounded-full font-semibold text-sm shadow-md hover:bg-red-800 transition-colors"
+            className="mt-4 sm:mt-0 flex items-center bg-red-700 text-white px-4 py-2 rounded-full font-semibold text-sm sm:text-base shadow-md hover:bg-red-800 transition-colors"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -116,8 +105,8 @@ function Wallet() {
         </div>
 
         {/* Manage Cards */}
-        <div className="bg-white rounded-xl shadow-lg p-4">
-          <h2 className="text-lg font-bold mb-4">Manage Cards</h2>
+        <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
+          <h2 className="text-lg sm:text-xl font-bold mb-4">Manage Cards</h2>
           <div className="space-y-4">
             {/* Existing Card */}
             <div className="flex items-center justify-between py-2 border-b last:border-b-0">
@@ -130,7 +119,7 @@ function Wallet() {
                 >
                   <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 002 2v4a2 2 0 002-2V6a2 2 0 00-2-2H4zm2 10a2 2 0 012-2h8a2 2 0 012 2v2a2 2 0 01-2 2H8a2 2 0 01-2-2v-2z" />
                 </svg>
-                <span className="text-gray-800">**** **** 1234</span>
+                <span className="text-gray-800 text-sm sm:text-base">**** **** 1234</span>
               </div>
               <button
                 onClick={handleRemoveCard}
@@ -179,20 +168,20 @@ function Wallet() {
         </div>
 
         {/* Payment History */}
-        <div className="bg-white rounded-xl shadow-lg p-4">
-          <h2 className="text-lg font-bold mb-4">Payment History</h2>
+        <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
+          <h2 className="text-lg sm:text-xl font-bold mb-4">Payment History</h2>
           <div className="space-y-2">
             {paymentHistory.map((transaction, index) => (
               <div
                 key={index}
-                className="flex justify-between items-center py-2"
+                className="flex flex-col sm:flex-row sm:justify-between sm:items-center py-2 border-b last:border-b-0"
               >
                 <div>
-                  <p className="text-sm font-semibold">Order #{transaction.id}</p>
-                  <p className="text-xs text-gray-500">{transaction.date}</p>
+                  <p className="text-sm sm:text-base font-semibold">Order #{transaction.id}</p>
+                  <p className="text-xs sm:text-sm text-gray-500">{transaction.date}</p>
                 </div>
                 <div
-                  className={`text-sm font-bold ${
+                  className={`text-sm sm:text-base font-bold mt-2 sm:mt-0 ${
                     transaction.amount < 0 ? "text-red-600" : "text-green-600"
                   }`}
                 >
