@@ -25,7 +25,7 @@ function Vendor() {
         
         {/* Header */}
         <header className="flex justify-between items-center p-4 border-b border-gray-200">
-          <FaBars className="text-xl text-gray-700 cursor-pointer" />
+          {/* <FaBars className="text-xl text-gray-700 cursor-pointer" /> */}
           <img
             src="https://www.mealsection.com/WhatsApp%20Image%202024-08-24%20at%2020.18.12_988ce6f9.jpg"
             alt="MealSection Logo"

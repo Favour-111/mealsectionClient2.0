@@ -42,9 +42,9 @@ function Home() {
     <div className="min-h-screen bg-gray-50 font-sans">
       {/* Header */}
       <header className="flex justify-between items-center p-4 bg-white shadow-sm">
-        <button aria-label="Menu" className="p-2 text-xl lg:hidden">
+        {/* <button aria-label="Menu" className="p-2 text-xl lg:hidden">
           ☰
-        </button>
+        </button> */}
         <img
           src="https://www.mealsection.com/WhatsApp%20Image%202024-08-24%20at%2020.18.12_988ce6f9.jpg"
           alt="MealSection Logo"
