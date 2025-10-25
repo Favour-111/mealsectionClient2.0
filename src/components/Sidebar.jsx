@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-
+import { CiLogout } from "react-icons/ci";
 // The parent component will manage this state
 // e.g., <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
 function Sidebar({ isOpen, toggleSidebar }) {
@@ -11,12 +11,19 @@ function Sidebar({ isOpen, toggleSidebar }) {
       ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
     >
       {/* Sidebar Header with Logo and Close Button */}
-      <div className="flex items-center justify-between p-4 border-b">
+      <div className="flex items-center justify-between p-4 border-b border-b-[#d3d3d3]">
         {/* Replace with your logo component or image */}
         <Link to="/" className="text-xl font-bold text-red-600">
-          MealSection
+          <img
+            src="https://www.mealsection.com/WhatsApp%20Image%202024-08-24%20at%2020.18.12_988ce6f9.jpg"
+            alt=""
+            width={120}
+          />
         </Link>
-        <button onClick={toggleSidebar} className="text-gray-600 hover:text-red-600">
+        <button
+          onClick={toggleSidebar}
+          className="text-gray-600 hover:text-red-600"
+        >
           {/* Close Icon (X) */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -25,37 +32,42 @@ function Sidebar({ isOpen, toggleSidebar }) {
             viewBox="0 0 24 24"
             stroke="currentColor"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </button>
       </div>
 
       {/* Navigation Links */}
-      <nav className="flex flex-col p-4">
+      <nav className="flex flex-col mt-3">
         <Link
-          to="/"
-          className="py-4 px-2 hover:bg-gray-100 border-b text-gray-800"
+          to="/home"
+          className="py-3 px-4 text-sm hover:bg-gray-100 border-b border-b-[#eaeaea] text-gray-800"
           onClick={toggleSidebar}
         >
           Home
         </Link>
         <Link
           to="/orders"
-          className="py-4 px-2 hover:bg-gray-100 border-b text-gray-800"
+          className="py-3 px-4 text-sm hover:bg-gray-100 border-b border-b-[#eaeaea] text-gray-800"
           onClick={toggleSidebar}
         >
           Orders
         </Link>
         <Link
           to="/contact"
-          className="py-4 px-2 hover:bg-gray-100 border-b text-gray-800"
+          className="py-3 px-4 text-sm hover:bg-gray-100 border-b border-b-[#eaeaea] text-gray-800"
           onClick={toggleSidebar}
         >
           Contact Us
         </Link>
         <Link
           to="/profile"
-          className="py-4 px-2 hover:bg-gray-100 border-b text-gray-800"
+          className="py-3 px-4 text-sm hover:bg-gray-100 border-b border-b-[#eaeaea] text-gray-800"
           onClick={toggleSidebar}
         >
           Profile
@@ -63,30 +75,18 @@ function Sidebar({ isOpen, toggleSidebar }) {
       </nav>
 
       {/* Sign Out Button */}
-      <div className="absolute bottom-0 w-full p-4 border-t">
+      <div className="absolute bottom-0 w-full p-4 border-t border-t-[#d3d3d3]">
         <button
           onClick={() => {
             console.log("Signing out...");
             toggleSidebar();
             // Implement your sign out logic here
           }}
-          className="flex items-center text-red-600 hover:text-red-800 font-semibold"
+          className="flex items-center text-[var(--default)] hover:opacity-80 font-normal text-sm gap-3"
         >
-          {/* Sign Out Icon */}
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 mr-2"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H7a3 3 0 01-3-3V7a3 3 0 013-3h3a3 3 0 013 3v1"
-            />
-          </svg>
+          <div>
+            <CiLogout />
+          </div>
           Sign Out
         </button>
       </div>

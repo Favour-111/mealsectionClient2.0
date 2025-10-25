@@ -1,40 +1,34 @@
-import React from 'react';
-
+import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 const WelcomeScreen = () => {
+  const navigate = useNavigate();
+  useEffect(() => {
+    setTimeout(() => {
+      navigate("/onboarding");
+    }, 2000);
+  });
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 font-sans relative overflow-hidden">
-      {/* Background with subtle food icons */}
-      {/* To get the exact background, you'd either use a custom CSS `background-image` with SVG
-          or extend Tailwind's theme for a custom utility. For this example,
-          we'll use a similar, but simplified, approach with repeated emojis or a light gray. */}
-      <div className="absolute inset-0 opacity-20 pointer-events-none">
-        {/* Simplified background pattern using repeated emojis */}
-        <div className="absolute top-1/4 left-1/4 text-gray-200 text-6xl opacity-70">🍔</div>
-        <div className="absolute top-1/2 right-1/4 text-gray-200 text-6xl opacity-70">🍟</div>
-        <div className="absolute bottom-1/4 left-1/2 text-gray-200 text-6xl opacity-70">🍕</div>
-        <div className="absolute top-1/3 right-1/3 text-gray-200 text-6xl opacity-70">🥤</div>
-        <div className="absolute bottom-1/3 left-1/3 text-gray-200 text-6xl opacity-70">🍴</div>
-        <div className="absolute top-1/2 left-1/3 text-gray-200 text-6xl opacity-70">🍦</div>
-        <div className="absolute bottom-1/2 right-1/3 text-gray-200 text-6xl opacity-70">🍜</div>
-        <div className="absolute top-1/4 right-3/4 text-gray-200 text-6xl opacity-70">🍣</div>
-      </div>
-
-      {/* Top Logo Section */}
-      <div className="p-8 pb-4 text-center z-10">
-        <div className="flex items-center justify-center mb-1">
-          {/* Placeholder for the logo icon. In a real app, you'd use an <img> tag */}
-          <span className="text-red-600 text-3xl mr-2">†</span> {/* Simulating the cross icon */}
-          <h1 className="text-gray-800 text-3xl font-bold tracking-tight">MealSection</h1>
-        </div>
-        <p className="text-gray-600 text-sm italic">"CAMPUS CRAVINGS, DELIVERED DAILY"</p>
+    <div className="bg-[url('https://png.pngtree.com/png-clipart/20240717/original/pngtree-fast-food-pattern-in-red-png-image_15580267.png')] bg-cover bg-center bg-no-repeat bg-white/95 bg-blend-overlay flex flex-col min-h-screen relative overflow-hidden">
+      <div className="p-4">
+        <img
+          src="https://favour-111.github.io/MEalSection-ComongSoon-2.0/WhatsApp%20Image%202024-08-24%20at%2020.18.12_988ce6f9.jpg"
+          alt=""
+          className="w-50"
+        />
       </div>
 
       {/* Main content - Welcome message */}
-      <div className="flex flex-col items-center justify-end flex-grow p-8 pb-16 z-10">
-        <h2 className="text-4xl font-extrabold text-red-600 mb-2">
-          Welcome to <span className="text-yellow-400">MealSection</span>
+      <div className="flex flex-col items-center justify-center flex-grow pb-16 z-10">
+        <img
+          src="https://png.pngtree.com/png-clipart/20230106/original/pngtree-delivery-boy-with-food-png-image_8876808.png"
+          alt=""
+          className="sm:w-40 w-30"
+        />
+        <h2 className="sm:text-4xl text-3xl text-center font-bold mb-2 bg-gradient-to-r from-red-600 via-orange-500 to-yellow-400 bg-clip-text text-transparent">
+          Welcome to MealSection
         </h2>
-        <p className="text-lg text-red-400 font-medium italic">
+
+        <p className="text-[sm] font-[100] italic bg-gradient-to-r from-red-400 to-pink-400 bg-clip-text text-transparent">
           ...food delivery to your doorstep
         </p>
       </div>

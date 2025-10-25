@@ -5,12 +5,12 @@ import { IoIosPricetags } from "react-icons/io";
 import { FaStar } from "react-icons/fa";
 import { FiUser } from "react-icons/fi";
 import { LuDownload, LuRefreshCw } from "react-icons/lu";
-function Home() {
+function Vendors() {
   const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
-  const [form, setForm] = useState("");
   const { cart } = useCart();
   const [balance] = useState(50000);
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState("");
 
   const featuredVendors = [
     {
@@ -135,33 +135,6 @@ function Home() {
             </div>
           )}
         </div>
-        {/* Promo Banner */}
-        <div className="scrollbar flex gap-5 overflow-x-scroll animate-slide-right">
-          {[1, 2, 3].map((_, i) => (
-            <div
-              key={i}
-              className=" overflow-hidden relative min-w-[300px] sm:min-w-[320px] bg-red-100 rounded-lg p-4 flex items-start md:items-center space-x-3"
-            >
-              <IoIosPricetags size={35} className="flex-shrink-0" />
-
-              <p className="text-sm text-[var(--default)] leading-snug">
-                Enjoy <span className="font-bold">20% off</span> your first
-                order of the day when you order from{" "}
-                <span className="font-bold text-[var(--default)]">
-                  Elegance!
-                </span>
-              </p>
-
-              <div className="absolute rotate-[-20deg] bottom-[-10px] right-0">
-                <img
-                  src="https://www.pngmart.com/files/23/Food-PNG-Isolated-Image.png"
-                  alt=""
-                  width={50}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
 
         {/* Featured Vendors */}
         <div>
@@ -214,12 +187,6 @@ function Home() {
         <div>
           <div className="flex justify-between items-center mt-8 mb-3">
             <h2 className="text-lg font-bold ">All Vendors</h2>
-            <button
-              onClick={() => navigate("/vendors")}
-              className="text-sm text-red-600"
-            >
-              Show All
-            </button>
           </div>
           <div className="flex flex-col gap-3">
             {allVendors.map((vendor) => (
@@ -266,4 +233,4 @@ function Home() {
   );
 }
 
-export default Home;
+export default Vendors;

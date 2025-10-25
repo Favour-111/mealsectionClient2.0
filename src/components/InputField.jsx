@@ -1,16 +1,16 @@
-function InputField({ label, type, value, onChange }) {
-    return (
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-1">{label}</label>
-        <input
-          type={type}
-          value={value}
-          onChange={onChange}
-          className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-        />
-      </div>
-    );
-  }
-  
-  export default InputField;
-  
+function InputField({ label, type, value, onChange, placeholder }) {
+  return (
+    <div className="mb-4">
+      <label className="block text-sm font-[500] text-gray-700">{label}</label>
+      <input
+        type={type}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        className="mt-1 block w-full rounded-[10px] border bg-gray-50 border-gray-300  p-3 placeholder:text-sm text-sm"
+      />
+    </div>
+  );
+}
+
+export default InputField;

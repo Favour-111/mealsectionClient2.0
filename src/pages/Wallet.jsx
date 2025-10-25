@@ -1,5 +1,10 @@
 import { useState } from "react";
+import { FiDownload } from "react-icons/fi";
+import { IoMdArrowBack } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
+import { GoUpload } from "react-icons/go";
+import InputField from "../components/InputField";
+import { MdOutlineClose } from "react-icons/md";
 
 function Wallet() {
   const [balance, setBalance] = useState(3000);
@@ -15,76 +20,39 @@ function Wallet() {
   const handleAddMoney = () => console.log("Add Money clicked");
   const handleRemoveCard = () => console.log("Remove Card clicked");
   const handleAddCard = () => console.log("Add Card clicked");
+  const [modal, setModal] = useState(false);
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100 font-sans relative">
-      {/* Background pattern */}
-      <div
-        className="absolute inset-0 z-0 opacity-10"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%239C9289' fill-opacity='0.4'%3E%3Cpath fill-rule='evenodd' d='M0 60v-2.32L54.12 0H60v2.32L5.88 60H0zm60 0v-2.32L5.88 0H0v2.32L54.12 60H60z'/%3E%3C/g%3E%3C/svg%3E")`,
-        }}
-      ></div>
-
+    <div className="bg-[url('https://png.pngtree.com/png-clipart/20240717/original/pngtree-fast-food-pattern-in-red-png-image_15580267.png')] bg-cover bg-center bg-no-repeat bg-white/97 bg-blend-overlay flex flex-col min-h-screen relative overflow-hidden">
       {/* Header */}
-      <div className="relative z-10 p-4 bg-white flex items-center justify-between shadow-sm">
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={() => navigate("/")}
-            aria-label="Go back"
-            className="p-2 rounded-md hover:bg-gray-100"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6 text-gray-600"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+      <div className="relative z-10 sm:p-4 p-3 bg-[#fff0] flex items-center justify-between ">
+        <div className="flex justify-between w-[100%] items-center ">
+          <div className="flex-1">
+            <button
+              onClick={() => navigate("/home")}
+              aria-label="Go back"
+              className=" p-2 rounded-md w-[fit-content] hover:bg-gray-100"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-          </button>
-          <h1 className="text-lg sm:text-xl md:text-2xl font-bold">Wallet</h1>
+              <IoMdArrowBack size={20} />
+            </button>
+          </div>
+          <h1 className="flex-1 text-center text-[20px] font-[600]">Wallet</h1>
+          <h1 className="flex-1"></h1>
         </div>
-        <button
-          onClick={() => navigate("/cart")}
-          aria-label="Cart"
-          className="p-2 rounded-md hover:bg-gray-100"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 text-gray-600"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.182 1.705.479 2.196l.678.537M18 21a1 1 0 100-2 1 1 0 000 2zm-6 0a1 1 0 100-2 1 1 0 000 2z"
-            />
-          </svg>
-        </button>
       </div>
 
-      <main className="relative z-10 p-4 sm:p-6 md:p-8 lg:px-20 space-y-6 flex-grow">
+      <main className="p-5">
         {/* Available Balance */}
-        <div className="bg-black text-white rounded-xl shadow-lg p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between">
+        <div className="bg-[#f6f6f6] rounded-xl  p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between">
           <div>
-            <p className="text-sm sm:text-base opacity-75">Available Balance</p>
-            <p className="text-2xl sm:text-3xl md:text-4xl font-bold mt-1">
+            <p className="text-[12px]  text-[#787878]">Available Balance</p>
+            <p className="text-3xl font-bold mt-1">
               N{balance.toLocaleString()}
             </p>
           </div>
           <button
-            onClick={handleAddMoney}
-            className="mt-4 sm:mt-0 flex items-center bg-red-700 text-white px-4 py-2 rounded-full font-semibold text-sm sm:text-base shadow-md hover:bg-red-800 transition-colors"
+            onClick={() => setModal(true)}
+            className="mt-4 sm:mt-0 flex items-center bg-red-700 text-white px-4 py-2 rounded-[10px] font-[600] text-[13px]  shadow-md hover:bg-red-800 transition-colors"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -100,15 +68,14 @@ function Wallet() {
                 d="M12 6v6m0 0v6m0-6h6m-6 0H6"
               />
             </svg>
-            Add Money
+            Add Funds
           </button>
         </div>
 
         {/* Manage Cards */}
-        <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
+        {/* <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
           <h2 className="text-lg sm:text-xl font-bold mb-4">Manage Cards</h2>
           <div className="space-y-4">
-            {/* Existing Card */}
             <div className="flex items-center justify-between py-2 border-b last:border-b-0">
               <div className="flex items-center space-x-3">
                 <svg
@@ -119,7 +86,9 @@ function Wallet() {
                 >
                   <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 002 2v4a2 2 0 002-2V6a2 2 0 00-2-2H4zm2 10a2 2 0 012-2h8a2 2 0 012 2v2a2 2 0 01-2 2H8a2 2 0 01-2-2v-2z" />
                 </svg>
-                <span className="text-gray-800 text-sm sm:text-base">**** **** 1234</span>
+                <span className="text-gray-800 text-sm sm:text-base">
+                  **** **** 1234
+                </span>
               </div>
               <button
                 onClick={handleRemoveCard}
@@ -143,7 +112,6 @@ function Wallet() {
               </button>
             </div>
 
-            {/* Add New Card */}
             <button
               onClick={handleAddCard}
               className="w-full flex items-center justify-center space-x-2 py-3 text-red-600 font-semibold rounded-md border-2 border-dashed border-red-300 hover:bg-red-50 transition-colors"
@@ -165,24 +133,42 @@ function Wallet() {
               <span>Add new card</span>
             </button>
           </div>
-        </div>
+        </div> */}
 
         {/* Payment History */}
-        <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
-          <h2 className="text-lg sm:text-xl font-bold mb-4">Payment History</h2>
-          <div className="space-y-2">
+        <div className=" rounded-xl  p-4 sm:p-6 mt-6">
+          <h2 className="text-lg sm:text-xl font-[600] text-[#555555] mb-4">
+            Payment History
+          </h2>
+          <div className="space-y-4">
             {paymentHistory.map((transaction, index) => (
               <div
                 key={index}
-                className="flex flex-col sm:flex-row sm:justify-between sm:items-center py-2 border-b last:border-b-0"
+                className="flex justify-between items-center py-2 "
               >
-                <div>
-                  <p className="text-sm sm:text-base font-semibold">Order #{transaction.id}</p>
-                  <p className="text-xs sm:text-sm text-gray-500">{transaction.date}</p>
+                <div className="flex items-center gap-2">
+                  {!transaction.amount.toString().includes("-") ? (
+                    <div className="bg-green-100 text-green-600 rounded-[10px] p-3">
+                      <FiDownload />
+                    </div>
+                  ) : (
+                    <div className="bg-red-100 text-red-800 rounded-[10px] p-3">
+                      <GoUpload />
+                    </div>
+                  )}
+
+                  <div>
+                    <p className="text-sm  font-[500]">
+                      Order #{transaction.id}
+                    </p>
+                    <p className="text-xs sm:text-sm font-[300] text-gray-500">
+                      {transaction.date}
+                    </p>
+                  </div>
                 </div>
+
                 <div
-                  className={`text-sm sm:text-base font-bold mt-2 sm:mt-0 ${
-                    transaction.amount < 0 ? "text-red-600" : "text-green-600"
+                  className={`text-sm font-[500] mt-2 sm:mt-0 
                   }`}
                 >
                   N{transaction.amount.toLocaleString()}
@@ -192,6 +178,28 @@ function Wallet() {
           </div>
         </div>
       </main>
+      {modal && (
+        <div className="fixed px-7 flex items-center justify-center bg-[#000000a9] top-0 bottom-0 right-0 left-0">
+          <div className="relative w-100 bg-white p-5 rounded-[10px]">
+            <h1 className="text-center font-[400] ">Wallet Topup</h1>
+            <div className="mt-4">
+              <label htmlFor="" className="text-sm ">
+                Amount to top-up
+              </label>
+              <InputField type="text" placeholder="Enter amount " />
+            </div>
+            <button className="w-[100%] bg-[var(--default)] p-2.5 rounded-[10px] hover:opacity-70 duration-300 text-sm text-white">
+              Pay Now
+            </button>
+            <button
+              onClick={() => setModal(false)}
+              className="absolute top-0 right-0 p-4"
+            >
+              <MdOutlineClose />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

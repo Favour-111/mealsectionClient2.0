@@ -16,26 +16,28 @@ import Wallet from "./pages/Wallet";
 import Vendor from "./pages/Vendor";
 import OrderDetails from "./pages/OrderDetails";
 import SplashPage from "./pages/SplashPage";
+import Vendors from "./pages/Vendors";
 
 const routes = [
-    { path: "/", element: <Home /> },
-    { path: "/onboarding", element: <Onboarding /> },
-    { path: "/login", element: <Login /> },
-    { path: "/signup", element: <Signup /> },
-    { path: "/meals", element: <MealList /> },
-    { path: "/meals/:id", element: <MealDetails /> },
-    { path: "/cart", element: <Cart /> },
-    { path: "/checkout", element: <Checkout /> },
-    { path: "/profile", element: <Profile /> },
-    { path: "/orders", element: <Orders /> },
-    { path: "/contact", element: <Contact /> },
-    { path: "/referral", element: <ReferralScreen /> },
-    { path: "/welcomescreen", element: <WelcomeScreen /> },
-    { path: "/reset-password", element: <ResetPassword /> },
-    { path: "/wallet", element: <Wallet /> },
-    { path: "/vendor/:id", element: <Vendor /> },  // ✅ dynamic vendor route
-    { path: "/orderdetails", element: <OrderDetails /> },
-    { path: "/splashpage", element: <SplashPage /> },
-  ];
+  { path: "/home", element: <Home /> },
+  { path: "/onboarding", element: <Onboarding /> },
+  { path: "/login", element: <Login /> },
+  { path: "/signup", element: <Signup /> },
+  { path: "/meals", element: <MealList /> },
+  { path: "/meals/:id", element: <MealDetails /> },
+  { path: "/cart", element: <Cart /> },
+  { path: "/checkout", element: <Checkout /> },
+  { path: "/profile", element: <Profile /> },
+  { path: "/vendors", element: <Vendors /> },
+  { path: "/orders", element: <Orders /> },
+  { path: "/contact", element: <Contact /> },
+  { path: "/referral", element: <ReferralScreen /> },
+  { path: "/", element: <WelcomeScreen /> },
+  { path: "/reset-password", element: <ResetPassword /> },
+  { path: "/wallet", element: <Wallet /> },
+  { path: "/vendor/:id", element: <Vendor /> }, // ✅ dynamic vendor route
+  { path: "/orderdetails", element: <OrderDetails /> },
+  { path: "/splashpage", element: <SplashPage /> },
+];
 
 export default routes;

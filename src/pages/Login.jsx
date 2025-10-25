@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { IoIosArrowRoundBack } from "react-icons/io";
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -35,57 +35,39 @@ function Login() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100 font-sans relative">
+    <div className="bg-[url('https://png.pngtree.com/png-clipart/20240717/original/pngtree-fast-food-pattern-in-red-png-image_15580267.png')] bg-cover bg-center bg-no-repeat bg-white/95 bg-blend-overlay flex flex-col min-h-screen font-sans relative overflow-hidden">
       {/* Back Button */}
-      <div className="relative z-10 p-4 pt-10 flex items-center justify-start">
+      <div className=" px-6 sm:px-10 pt-10 flex justify-between items-center">
         <button
           aria-label="Go back"
           className="text-gray-600 hover:text-gray-800"
           onClick={() => navigate(-1)}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
+          <IoIosArrowRoundBack size={30} />
         </button>
+        <h1 className="font-[600]">Login</h1>
+        <h1></h1>
       </div>
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col items-center flex-grow p-4">
+      <div className="relative z-10 flex flex-col items-center flex-grow ">
         {/* Logo + Title */}
         <div className="flex flex-col items-center text-center mb-12 mt-8 sm:mt-12">
           <img
-            src="https://www.mealsection.com/WhatsApp%20Image%202024-08-24%20at%2020.18.12_988ce6f9.jpg"
-            alt="Mealsection Logo"
-            className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 mb-2"
+            src="https://favour-111.github.io/MEalSection-ComongSoon-2.0/WhatsApp%20Image%202024-08-24%20at%2020.18.12_988ce6f9.jpg"
+            alt=""
+            className="w-50"
           />
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-red-600 tracking-wide">
-            
-          </h1>
-          <p className="text-xs sm:text-sm md:text-base text-gray-500 font-medium mt-1 tracking-wider">
-            CAMPUS CRAVING. DELIVERED DAILY
-          </p>
         </div>
 
         {/* Form */}
-        <div className="bg-white rounded-t-3xl shadow-lg w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-md p-6 sm:p-8 md:p-10 mt-auto">
-          <h2 className="text-2xl sm:text-3xl font-bold mb-6">Login</h2>
+        <div className="bg-white  rounded-t-3xl shadow w-[100%] px-8 sm:px-14 py-10  mt-auto">
           <form onSubmit={handleLogin} className="space-y-6">
             {/* Email */}
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm sm:text-base font-semibold text-gray-700"
+                className="block text-sm font-[500] text-gray-700"
               >
                 Email or Phone
               </label>
@@ -94,7 +76,7 @@ function Login() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:border-red-500 focus:ring-red-500 text-sm sm:text-base"
+                className="mt-1 block w-full rounded-[10px] border bg-gray-50 border-gray-300  p-3 placeholder:text-sm text-sm"
                 placeholder="Enter your email or phone number"
                 required
               />
@@ -104,7 +86,7 @@ function Login() {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm sm:text-base font-semibold text-gray-700"
+                className="block text-sm font-[500] text-gray-700"
               >
                 Password
               </label>
@@ -112,8 +94,7 @@ function Login() {
                 id="password"
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:border-red-500 focus:ring-red-500 text-sm sm:text-base"
+                className="mt-1 block w-full rounded-[10px] border bg-gray-50 border-gray-300  p-3 placeholder:text-sm text-sm"
                 placeholder="Enter your password"
                 required
               />
@@ -128,7 +109,7 @@ function Login() {
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-[var(--default)]  border-gray-300 rounded"
                 />
                 <label
                   htmlFor="remember-me"
@@ -140,7 +121,7 @@ function Login() {
               <button
                 type="button"
                 onClick={() => navigate("/resetPassword")}
-                className="font-semibold text-red-600 hover:text-red-500"
+                className="font-normal text-[var(--default)] hover:opacity-80"
               >
                 Forgot Password?
               </button>
@@ -148,7 +129,7 @@ function Login() {
 
             {/* Error */}
             {error && (
-              <p className="text-red-500 text-sm sm:text-base mt-2 text-center">
+              <p className="text-[var(--default)] text-sm sm:text-base mt-2 text-center">
                 {error}
               </p>
             )}
@@ -156,25 +137,24 @@ function Login() {
             {/* Submit */}
             <button
               type="submit"
-              className="w-full bg-red-700 text-white py-3 px-4 rounded-lg font-bold hover:bg-red-800 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 text-sm sm:text-base"
+              className="w-full bg-[var(--default)] text-white py-3 px-4 rounded-lg font-normal hover:opacity-80 transition-colors duration-200 focus:outline-none focus:ring-2 text-sm "
               disabled={isLoading}
             >
               {isLoading ? "Logging in..." : "Login"}
             </button>
           </form>
-        </div>
-
-        {/* Sign up link */}
-        <div className="text-center mt-6 mb-4">
-          <p className="text-gray-700 text-sm sm:text-base">
-            Don't have an account?{" "}
-            <button
-              onClick={() => navigate("/signup")}
-              className="font-semibold text-red-600 hover:text-red-500"
-            >
-              Sign Up.
-            </button>
-          </p>
+          {/* Sign up link */}
+          <div className="text-center mt-6 mb-4">
+            <p className="text-gray-700 text-sm sm:text-base">
+              Don't have an account?{" "}
+              <button
+                onClick={() => navigate("/signup")}
+                className="underline font-normal text-[var(--default)] hover:text-[var(--default)]"
+              >
+                Sign Up.
+              </button>
+            </p>
+          </div>
         </div>
       </div>
     </div>

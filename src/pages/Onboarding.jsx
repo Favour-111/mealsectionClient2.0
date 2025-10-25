@@ -11,33 +11,29 @@ function Onboarding() {
   };
 
   return (
-    <div className="bg-white min-h-screen flex flex-col relative">
+    <div className="bg-[url('https://png.pngtree.com/png-clipart/20240717/original/pngtree-fast-food-pattern-in-red-png-image_15580267.png')] bg-cover bg-center bg-no-repeat bg-white/95 bg-blend-overlay flex flex-col min-h-screen font-sans relative overflow-hidden">
       {/* Header */}
-      <div className="flex justify-between items-center px-4 py-3 md:px-8 md:py-5 shadow-sm">
+      <div className="flex justify-between items-center px-4 py-3 md:px-8 md:py-3 ">
         {/* Logo + Tagline */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
-          <div className="flex items-center gap-2">
-            <img
-              src="https://via.placeholder.com/40"
-              alt="Mealsection Logo"
-              className="h-8 md:h-10"
-            />
-            <h1 className="text-base md:text-lg font-bold text-gray-800">
-              Mealsection
-            </h1>
-          </div>
-          <p className="text-xs md:text-sm text-gray-500 sm:ml-2">
-            Eat Fresh • Deliver Fast • Enjoy Happy
-          </p>
-        </div>
+        <img
+          src="https://favour-111.github.io/MEalSection-ComongSoon-2.0/WhatsApp%20Image%202024-08-24%20at%2020.18.12_988ce6f9.jpg"
+          alt=""
+          className="w-40"
+        />
 
         {/* Login/Signup */}
         <div className="text-xs md:text-sm">
-          <Link to="/login" className="text-red-600 font-medium hover:underline">
+          <Link
+            to="/login"
+            className="text-[var(--default)] font-medium hover:underline"
+          >
             Login
           </Link>
           <span className="mx-1">/</span>
-          <Link to="/signup" className="text-red-600 font-medium hover:underline">
+          <Link
+            to="/signup"
+            className="text-[var(--default)] font-medium hover:underline"
+          >
             Sign Up
           </Link>
         </div>
@@ -49,7 +45,7 @@ function Onboarding() {
         <select
           value={university}
           onChange={(e) => setUniversity(e.target.value)}
-          className="w-full max-w-xs p-3 border border-gray-300 rounded-lg text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-red-500"
+          className="sm:w-100 w-80 text-sm  p-3 border border-gray-300 rounded-lg  md:text-base focus:outline-none focus:ring-1 focus:ring-[var(--default)]"
         >
           <option value="" disabled>
             Choose University
@@ -60,22 +56,22 @@ function Onboarding() {
         </select>
 
         {/* Buttons */}
-        <div className="flex flex-col w-full max-w-xs gap-3">
+        <div className="flex flex-col w-80 gap-3">
           <button
             onClick={() => handleRoleSelect("customer")}
-            className="bg-red-600 text-white py-3 rounded-lg font-semibold text-sm md:text-lg shadow hover:bg-red-700 transition"
+            className="bg-transparent border border-[var(--default)] text-[var(--default)] py-3 rounded-lg font-normal text-sm  shadow hover:bg-[var(--default)] hover:text-white transition"
           >
             I'm a Customer
           </button>
           <button
             onClick={() => handleRoleSelect("vendor")}
-            className="border border-red-600 text-red-600 py-3 rounded-lg font-semibold text-sm md:text-lg hover:bg-red-50 transition"
+            className="bg-transparent border border-[var(--default)] text-[var(--default)] py-3 rounded-lg font-normal text-sm  shadow hover:bg-[var(--default)] hover:text-white transition"
           >
             I'm a Vendor
           </button>
           <button
             onClick={() => handleRoleSelect("rider")}
-            className="border border-red-600 text-red-600 py-3 rounded-lg font-semibold text-sm md:text-lg hover:bg-red-50 transition"
+            className="bg-transparent border border-[var(--default)] text-[var(--default)] py-3 rounded-lg font-normal text-sm  shadow hover:bg-[var(--default)] hover:text-white transition"
           >
             I'm a Rider
           </button>

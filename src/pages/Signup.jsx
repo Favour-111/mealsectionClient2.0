@@ -1,13 +1,14 @@
 import { useState } from "react";
 import InputField from "../components/InputField";
 import { useNavigate } from "react-router-dom";
+import { IoIosArrowRoundBack } from "react-icons/io";
 
 // Reusable Message component
 function Message({ message, type }) {
   return (
     <div
       className={`fixed bottom-6 left-1/2 transform -translate-x-1/2 px-4 py-3 rounded-lg shadow-md text-white font-medium
-        ${type === "error" ? "bg-red-600" : "bg-green-600"}`}
+        ${type === "error" ? "bg-[var(--default)]" : "bg-green-600"}`}
     >
       {message}
     </div>
@@ -58,60 +59,37 @@ function Signup() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100 font-sans relative">
+    <div className="bg-[url('https://png.pngtree.com/png-clipart/20240717/original/pngtree-fast-food-pattern-in-red-png-image_15580267.png')] bg-cover bg-center bg-no-repeat bg-white/95 bg-blend-overlay flex flex-col min-h-screen font-sans relative overflow-hidden">
       {/* Back button */}
-      <div className="relative z-10 p-4 pt-8 sm:pt-10 flex items-center justify-start text-black">
+      <div className=" px-6 sm:px-10 pt-10 flex justify-between items-center">
         <button
-          onClick={() => navigate("/login")}
           aria-label="Go back"
-          className="text-gray-600 hover:text-red-600 transition"
+          className="text-gray-600 hover:text-gray-800"
+          onClick={() => navigate("/login")}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 sm:h-7 sm:w-7"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
+          <IoIosArrowRoundBack size={30} />
         </button>
+        <h1 className="font-[600]">Sign Up</h1>
+        <h1></h1>
       </div>
 
-      {/* Form container */}
-      <div className="relative z-10 flex flex-col items-center flex-grow p-4 sm:p-6 md:p-8">
-        {/* Logo & Title */}
-        <div className="flex flex-col items-center justify-center text-center mb-6 mt-6">
+      <div className="relative z-10 flex flex-col items-center flex-grow ">
+        {/* Logo + Title */}
+        <div className="flex flex-col items-center text-center mb-12 mt-8 sm:mt-12">
           <img
-            src="https://placehold.co/120x80/000000/FFF.png?text=Logo"
-            alt="Mealsection Logo"
-            className="w-16 h-16 sm:w-20 sm:h-20 mb-2"
+            src="https://favour-111.github.io/MEalSection-ComongSoon-2.0/WhatsApp%20Image%202024-08-24%20at%2020.18.12_988ce6f9.jpg"
+            alt=""
+            className="w-50"
           />
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-red-600 tracking-wide">
-            Mealsection
-          </h1>
-          <p className="text-xs sm:text-sm text-gray-500 font-medium mt-1 tracking-wider">
-            CAMPUS CRAVING. DELIVERED DAILY
-          </p>
         </div>
 
         {/* Signup Card */}
-        <div className="bg-white rounded-t-2xl sm:rounded-3xl shadow-lg w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl p-6 sm:p-8 mt-auto">
-          <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-4 text-center">
-            Sign Up
-          </h2>
-
+        <div className="bg-white  rounded-t-3xl shadow w-[100%] px-8 sm:px-14 py-10  mt-auto">
           <form onSubmit={handleSignup} className="space-y-4 sm:space-y-5">
             {/* Full Name */}
             <InputField
               label="Full Name*"
               type="text"
-              value={form.fullName}
               onChange={handleChange}
               name="fullName"
               placeholder="Enter your full name"
@@ -122,7 +100,6 @@ function Signup() {
             <InputField
               label="Email or Phone*"
               type="text"
-              value={form.emailOrPhone}
               onChange={handleChange}
               name="emailOrPhone"
               placeholder="Enter your email or phone number"
@@ -133,7 +110,6 @@ function Signup() {
             <InputField
               label="Password*"
               type="password"
-              value={form.password}
               onChange={handleChange}
               name="password"
               placeholder="Enter your password"
@@ -151,9 +127,8 @@ function Signup() {
               <select
                 id="university"
                 name="university"
-                value={form.university}
                 onChange={handleChange}
-                className="mt-1 block w-full pl-3 pr-10 py-2.5 sm:py-3 text-base border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md shadow-sm"
+                className="outline-none font-[400] mt-1 block w-full rounded-[10px] border bg-gray-50 border-gray-300  p-3 placeholder:text-sm text-sm"
                 required
               >
                 <option value="" disabled>
@@ -174,9 +149,8 @@ function Signup() {
                   <label key={role} className="inline-flex items-center">
                     <input
                       type="radio"
-                      className="form-radio h-4 w-4 text-red-600"
+                      className="form-radio h-4 w-4 text-[var(--default)]"
                       name="role"
-                      value={role}
                       checked={form.role === role}
                       onChange={handleChange}
                     />
@@ -201,7 +175,7 @@ function Signup() {
                 id="profilePicture"
                 name="profilePicture"
                 onChange={handleChange}
-                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-600 hover:file:bg-red-100"
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-[500] file:bg-red-50 file:text-[var(--default)] hover:file:bg-red-100"
               />
               {form.profilePicture && (
                 <p className="text-xs text-gray-500 mt-1">
@@ -212,21 +186,12 @@ function Signup() {
 
             {/* Terms */}
             <div className="flex items-start">
-              <input
-                id="termsAccepted"
-                name="termsAccepted"
-                type="checkbox"
-                checked={form.termsAccepted}
-                onChange={handleChange}
-                className="focus:ring-red-500 h-4 w-4 text-red-600 border-gray-300 rounded mt-1"
-                required
-              />
               <label
                 htmlFor="termsAccepted"
                 className="ml-2 block text-sm text-gray-900"
               >
                 By clicking "Sign Up", you agree with the{" "}
-                <a href="#" className="text-red-600 hover:underline">
+                <a href="#" className="text-[var(--default)] hover:underline">
                   terms and conditions
                 </a>
               </label>
@@ -235,7 +200,7 @@ function Signup() {
             {/* Submit */}
             <button
               type="submit"
-              className="w-full bg-red-700 text-white py-2.5 sm:py-3 px-4 rounded-lg font-bold hover:bg-red-800 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+              className="w-full bg-[var(--default)] text-white py-2.5 sm:py-3 px-4 rounded-lg font-[600] hover:opacity-80 transition-colors duration-200 focus:outline-none focus:ring-2 text-sm focus:ring-offset-2"
             >
               Sign Up
             </button>

@@ -1,1 +1,18 @@
 @import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Poppins:wght@500;700&display=swap");
+
+:root {
+  --default: #9e0505;
+}
+/* index.css */
+
+* {
+  font-family: "Inter", sans-serif;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

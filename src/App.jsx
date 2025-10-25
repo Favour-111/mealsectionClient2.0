@@ -1,44 +1,64 @@
 import { useState } from "react";
-import { Routes, Route } from "react-router-dom";
-import Sidebar from "./components/Sidebar"; // ✅ renamed for clarity
-import Footer from "./components/Footer";
+import { Routes, Route, useLocation, useNavigate } from "react-router-dom"; // ⬅ added useLocation
+import Sidebar from "./components/Sidebar";
+import Footer from "./components/footer/Footer";
 import routes from "./routes";
-
-
-
-
-
-
+import "./App.css";
+import { HiOutlineMenu } from "react-icons/hi";
+import { IoCartOutline } from "react-icons/io5";
+import useCart from "./hooks/useCart";
 function App() {
+  const { cart } = useCart();
+  const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const location = useLocation(); // ⬅ get current route
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
+  // Check if current route is the welcome screen
+  const hiddenRoutes = [
+    "/",
+    "/onboarding",
+    "/login",
+    "/signup",
+    "/cart",
+    "/orders",
+    "/orderdetails",
+    "/profile",
+  ];
+  const isWelcomeScreen = hiddenRoutes.includes(location.pathname);
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="p-4 flex justify-between items-center bg-white shadow-md">
-        <button onClick={toggleSidebar}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 text-gray-800"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
-        <h1 className="text-xl font-bold text-red-600">MealSection</h1>
-      </header>
+      {!isWelcomeScreen && ( // Hide header on welcome screen too if needed
+        <header className="px-5 py-3 flex bg-white shadow-sm justify-between items-center ">
+          <button onClick={toggleSidebar}>
+            <HiOutlineMenu size={24} />
+          </button>
+          <img
+            src="https://www.mealsection.com/WhatsApp%20Image%202024-08-24%20at%2020.18.12_988ce6f9.jpg"
+            alt=""
+            className="w-40"
+          />
+          <button onClick={() => navigate("/cart")} className="relative">
+            <IoCartOutline size={24} />
+            <div className="absolute top-0 right-0 rounded-full bg-red-600 text-white font-[600] text-[10px] h-3 flex items-center justify-center w-3">
+              {cart.length}
+            </div>
+          </button>
+        </header>
+      )}
 
       {/* Sidebar */}
-      <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+      {!isWelcomeScreen && (
+        <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+      )}
 
-      {/* Main Routes */}
-      <main className="flex-1 container mx-auto px-4 py-6">
+      {/* Main Content */}
+      <main className="flex-1 container mx-auto ">
         <Routes>
           {routes.map(({ path, element }, index) => (
             <Route key={index} path={path} element={element} />
@@ -47,7 +67,7 @@ function App() {
       </main>
 
       {/* Footer */}
-      <Footer />
+      {!isWelcomeScreen && <Footer />}
     </div>
   );
 }

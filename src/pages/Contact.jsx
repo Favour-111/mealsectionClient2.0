@@ -2,9 +2,9 @@ import { Link } from "react-router-dom";
 
 function Contact() {
   return (
-    <div className="bg-gray-100 min-h-screen">
+    <div className="bg-[url('https://png.pngtree.com/png-clipart/20240717/original/pngtree-fast-food-pattern-in-red-png-image_15580267.png')] bg-cover bg-center bg-no-repeat bg-white/97 bg-blend-overlay flex flex-col min-h-screen relative overflow-hidden">
       {/* ✅ Page Content only (Navbar removed) */}
-      <div className="p-4 max-w-2xl mx-auto">
+      <div className="sm:p-10 p-5">
         <h2 className="text-lg md:text-2xl font-semibold mb-2">Contact Us</h2>
         <p className="text-sm md:text-base text-gray-600 mb-6">
           We'd love to hear from you! Whether you have a question, complaint,

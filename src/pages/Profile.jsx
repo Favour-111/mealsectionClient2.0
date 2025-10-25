@@ -1,3 +1,4 @@
+import { IoArrowBackOutline } from "react-icons/io5";
 import { Link } from "react-router-dom";
 
 // A component for a single menu item in the profile list
@@ -40,24 +41,11 @@ function Profile() {
   };
 
   return (
-    <div className="bg-gray-100 min-h-screen">
+    <div className="bg-[url('https://png.pngtree.com/png-clipart/20240717/original/pngtree-fast-food-pattern-in-red-png-image_15580267.png')] px-4 sm:px-10 bg-cover bg-center bg-no-repeat bg-white/97 bg-blend-overlay flex flex-col min-h-screen relative overflow-hidden">
       {/* Header with back button */}
-      <div className="p-4 flex items-center bg-white shadow-sm border-b border-gray-200">
+      <div className="p-4 flex items-center">
         <Link to="/" className="text-gray-600 mr-4">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
+          <IoArrowBackOutline size={24} />
         </Link>
         <h2 className="text-xl md:text-2xl font-semibold flex-grow text-center">
           Profile
@@ -66,7 +54,7 @@ function Profile() {
       </div>
 
       {/* Main content wrapper */}
-      <div className="max-w-md md:max-w-2xl lg:max-w-4xl mx-auto p-4 md:p-6 lg:p-8 space-y-6">
+      <div className=" space-y-6">
         {/* User Profile Section */}
         <div className="flex flex-col items-center bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <img
