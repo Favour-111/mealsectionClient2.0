@@ -1,34 +1,50 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { IoIosArrowRoundBack } from "react-icons/io";
+import axios from "axios";
+import toast from "react-hot-toast";
+
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [errors, setErrors] = useState({});
 
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+
+    // Reset errors
+    const newErrors = {};
+    if (!email) newErrors.email = "Email is required";
+    if (!password) newErrors.password = "Password is required";
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) return;
+
     setIsLoading(true);
-    setError(null);
     try {
-      const response = await new Promise((resolve, reject) => {
-        setTimeout(() => {
-          if (email === "test@example.com" && password === "password123") {
-            resolve({ success: true, message: "Login successful!" });
-          } else {
-            reject(new Error("Invalid email or password."));
-          }
-        }, 1500);
-      });
-      console.log("Login successful!", response.message);
-      navigate("/profile");
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_REACT_APP_API}/api/users/login`,
+        { email, password },
+        { headers: { "Content-Type": "application/json" } }
+      );
+
+      // Store token and user info
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("userId", data.user._id);
+
+      toast.success("Login successful!");
+      navigate("/home"); // redirect to dashboard or profile
     } catch (err) {
-      setError(err.message);
-      console.error("Login failed:", err.message);
+      const message =
+        err.response?.data?.message || "Login failed. Check your credentials.";
+      toast.error(message);
+
+      // Optionally set inline error under inputs
+      setErrors({ email: message, password: message });
     } finally {
       setIsLoading(false);
     }
@@ -37,7 +53,7 @@ function Login() {
   return (
     <div className="bg-[url('https://png.pngtree.com/png-clipart/20240717/original/pngtree-fast-food-pattern-in-red-png-image_15580267.png')] bg-cover bg-center bg-no-repeat bg-white/95 bg-blend-overlay flex flex-col min-h-screen font-sans relative overflow-hidden">
       {/* Back Button */}
-      <div className=" px-6 sm:px-10 pt-10 flex justify-between items-center">
+      <div className="px-6 sm:px-10 pt-10 flex justify-between items-center">
         <button
           aria-label="Go back"
           className="text-gray-600 hover:text-gray-800"
@@ -51,7 +67,7 @@ function Login() {
 
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center flex-grow ">
-        {/* Logo + Title */}
+        {/* Logo */}
         <div className="flex flex-col items-center text-center mb-12 mt-8 sm:mt-12">
           <img
             src="https://favour-111.github.io/MEalSection-ComongSoon-2.0/WhatsApp%20Image%202024-08-24%20at%2020.18.12_988ce6f9.jpg"
@@ -61,7 +77,7 @@ function Login() {
         </div>
 
         {/* Form */}
-        <div className="bg-white  rounded-t-3xl shadow w-[100%] px-8 sm:px-14 py-10  mt-auto">
+        <div className="bg-white rounded-t-3xl shadow w-[100%] px-8 sm:px-14 py-10 mt-auto">
           <form onSubmit={handleLogin} className="space-y-6">
             {/* Email */}
             <div>
@@ -78,8 +94,10 @@ function Login() {
                 onChange={(e) => setEmail(e.target.value)}
                 className="mt-1 block w-full rounded-[10px] border bg-gray-50 border-gray-300  p-3 placeholder:text-sm text-sm"
                 placeholder="Enter your email or phone number"
-                required
               />
+              {errors.email && (
+                <p className="text-red-500 text-xs ">{errors.email}</p>
+              )}
             </div>
 
             {/* Password */}
@@ -94,10 +112,13 @@ function Login() {
                 id="password"
                 type="password"
                 value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="mt-1 block w-full rounded-[10px] border bg-gray-50 border-gray-300  p-3 placeholder:text-sm text-sm"
                 placeholder="Enter your password"
-                required
               />
+              {errors.password && (
+                <p className="text-red-500 text-xs mt-1">{errors.password}</p>
+              )}
             </div>
 
             {/* Remember + Forgot */}
@@ -109,7 +130,7 @@ function Login() {
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="h-4 w-4 text-[var(--default)]  border-gray-300 rounded"
+                  className="h-4 w-4 text-[var(--default)] border-gray-300 rounded"
                 />
                 <label
                   htmlFor="remember-me"
@@ -120,41 +141,35 @@ function Login() {
               </div>
               <button
                 type="button"
-                onClick={() => navigate("/resetPassword")}
+                onClick={() => navigate("/reset-password")}
                 className="font-normal text-[var(--default)] hover:opacity-80"
               >
                 Forgot Password?
               </button>
             </div>
 
-            {/* Error */}
-            {error && (
-              <p className="text-[var(--default)] text-sm sm:text-base mt-2 text-center">
-                {error}
-              </p>
-            )}
-
             {/* Submit */}
             <button
               type="submit"
-              className="w-full bg-[var(--default)] text-white py-3 px-4 rounded-lg font-normal hover:opacity-80 transition-colors duration-200 focus:outline-none focus:ring-2 text-sm "
+              className="w-full bg-[var(--default)] text-white py-3 px-4 rounded-lg font-normal hover:opacity-80 transition-colors duration-200 focus:outline-none focus:ring-2 text-sm"
               disabled={isLoading}
             >
               {isLoading ? "Logging in..." : "Login"}
             </button>
+
+            {/* Sign up link */}
+            <div className="text-center mt-6 mb-4">
+              <p className="text-gray-700 text-sm sm:text-base">
+                Don't have an account?{" "}
+                <button
+                  onClick={() => navigate("/signup")}
+                  className="underline font-normal text-[var(--default)] hover:text-[var(--default)]"
+                >
+                  Sign Up.
+                </button>
+              </p>
+            </div>
           </form>
-          {/* Sign up link */}
-          <div className="text-center mt-6 mb-4">
-            <p className="text-gray-700 text-sm sm:text-base">
-              Don't have an account?{" "}
-              <button
-                onClick={() => navigate("/signup")}
-                className="underline font-normal text-[var(--default)] hover:text-[var(--default)]"
-              >
-                Sign Up.
-              </button>
-            </p>
-          </div>
         </div>
       </div>
     </div>

@@ -5,46 +5,13 @@ import { IoIosPricetags } from "react-icons/io";
 import { FaStar } from "react-icons/fa";
 import { FiUser } from "react-icons/fi";
 import { LuDownload, LuRefreshCw } from "react-icons/lu";
+import vendors from "../components/Vendors";
 function Home() {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState("");
   const { cart } = useCart();
   const [balance] = useState(50000);
-
-  const featuredVendors = [
-    {
-      id: 1,
-      name: "Elegance",
-      rating: 4.5,
-      time: "20-30 mins",
-      status: "Open",
-      imageUrl:
-        "https://images.unsplash.com/photo-1528952686551-542043782ab9?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8dmVuZG9yfGVufDB8fDB8fHww&fm=jpg&q=60&w=3000",
-    },
-    {
-      id: 2,
-      name: "Food Court",
-      rating: 4.0,
-      time: "20-40 mins",
-      status: "Closed",
-      imageUrl:
-        "https://images.unsplash.com/photo-1528952686551-542043782ab9?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8dmVuZG9yfGVufDB8fDB8fHww&fm=jpg&q=60&w=3000",
-    },
-  ];
-
-  const allVendors = [
-    ...featuredVendors,
-    {
-      id: 3,
-      name: "Kitchen Hub",
-      rating: 4.3,
-      time: "20-35 mins",
-      status: "Closed",
-      imageUrl:
-        "https://images.unsplash.com/photo-1528952686551-542043782ab9?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8dmVuZG9yfGVufDB8fDB8fHww&fm=jpg&q=60&w=3000",
-    },
-  ];
 
   return (
     <div className="bg-[url('https://png.pngtree.com/png-clipart/20240717/original/pngtree-fast-food-pattern-in-red-png-image_15580267.png')] bg-cover bg-center bg-no-repeat bg-white/97 bg-blend-overlay flex flex-col min-h-screen relative overflow-hidden">
@@ -73,7 +40,7 @@ function Home() {
               <LuRefreshCw />
             </button>
             <button
-              onClick={() => navigate("/wallet")}
+              onClick={() => navigate("/profile")}
               className="h-12 w-12 bg-[#f1f1f1] flex items-center justify-center rounded-full"
             >
               <FiUser />
@@ -100,7 +67,7 @@ function Home() {
           {/* Search Results Dropdown */}
           {open && (
             <div className="bg-white absolute mt-2 w-full rounded-[10px] shadow-md max-h-60 overflow-y-auto z-10">
-              {allVendors
+              {vendors
                 .filter((item) =>
                   item.name.toLowerCase().includes(form.toLowerCase())
                 )
@@ -109,13 +76,13 @@ function Home() {
                     key={item.id}
                     className="flex items-center gap-2 hover:bg-[#f6f6f6] p-3 duration-200 cursor-pointer"
                     onClick={() => {
-                      navigate(`/vendor/${item.id}`);
+                      navigate(`/vendor/${item.name}`);
                       setForm("");
                       setOpen(false);
                     }}
                   >
                     <img
-                      src={item.imageUrl}
+                      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrWAQ2R-cEo2SpkEW3j0LP49tqBUCiJupF3g&s"
                       width={40}
                       className="rounded"
                       alt={item.name}
@@ -125,7 +92,7 @@ function Home() {
                 ))}
 
               {/* No match message */}
-              {allVendors.filter((item) =>
+              {vendors.filter((item) =>
                 item.name.toLowerCase().includes(form.toLowerCase())
               ).length === 0 && (
                 <div className="p-3 text-sm text-gray-500 italic">
@@ -167,46 +134,48 @@ function Home() {
         <div>
           <h2 className="text-lg font-bold my-5">Featured Vendors</h2>
           <div className="flex overflow-x-scroll space-x-4 scrollbar-hide pb-2">
-            {featuredVendors.map((vendor) => (
-              <div
-                key={vendor.id}
-                className="flex-none w-[47%] sm:w-48 md:w-56  cursor-pointer"
-                onClick={() => navigate(`/vendor/${vendor.id}`)}
-              >
-                <img
-                  src={vendor.imageUrl}
-                  alt={vendor.name}
-                  className="w-full h-30 md:h-32 object-cover rounded-[10px]"
-                />
-                <div className="p-2">
-                  <h3 className="text-sm md:text-base font-semibold">
-                    {vendor.name}
-                  </h3>
-                  <div className="flex items-center gap-1">
-                    <div className="mb-1">
-                      <FaStar color="orange" size={17} />
+            {vendors
+              .filter((item) => (item = item.feature))
+              .map((vendor) => (
+                <div
+                  key={vendor.id}
+                  className="flex-none w-[47%] sm:w-48 md:w-56  cursor-pointer"
+                  onClick={() => navigate(`/vendor/${vendor.name}`)}
+                >
+                  <img
+                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrWAQ2R-cEo2SpkEW3j0LP49tqBUCiJupF3g&s"
+                    alt={vendor.name}
+                    className="w-full h-30 md:h-32 object-cover rounded-[10px]"
+                  />
+                  <div className="p-2">
+                    <h3 className="text-sm md:text-base font-semibold">
+                      {vendor.name}
+                    </h3>
+                    <div className="flex items-center gap-1">
+                      <div className="mb-1">
+                        <FaStar color="orange" size={17} />
+                      </div>
+                      <div className="text-[12px] whitespace-nowrap flex items-center gap-2 font-[300] text-gray-500">
+                        ({vendor.rating})
+                      </div>
                     </div>
-                    <div className="text-[12px] whitespace-nowrap flex items-center gap-2 font-[300] text-gray-500">
-                      ({vendor.rating})
-                    </div>
-                  </div>
 
-                  <div className="text-sm whitespace-nowrap flex items-center gap-2 font-[300] text-gray-500">
-                    <div>{vendor.time} </div>
-                    <div>|</div>
-                    <div
-                      className={
-                        vendor.status === "Open"
-                          ? "text-green-600"
-                          : "text-red-600"
-                      }
-                    >
-                      {vendor.status}
+                    <div className="text-sm whitespace-nowrap flex items-center gap-2 font-[300] text-gray-500">
+                      <div>{vendor.time} </div>
+                      <div>|</div>
+                      <div
+                        className={
+                          vendor.status === "Open"
+                            ? "text-green-600"
+                            : "text-red-600"
+                        }
+                      >
+                        {vendor.status}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
         </div>
 
@@ -222,15 +191,15 @@ function Home() {
             </button>
           </div>
           <div className="flex flex-col gap-3">
-            {allVendors.map((vendor) => (
+            {vendors.map((vendor) => (
               <div
                 key={vendor.id}
                 className="bg-white rounded-xl shadow p-3 flex items-center justify-between cursor-pointer hover:shadow-md"
-                onClick={() => navigate(`/vendor/${vendor.id}`)}
+                onClick={() => navigate(`/vendor/${vendor.name}`)}
               >
                 <div className="flex items-center space-x-3">
                   <img
-                    src={vendor.imageUrl}
+                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrWAQ2R-cEo2SpkEW3j0LP49tqBUCiJupF3g&s"
                     alt={vendor.name}
                     className="w-16 h-16 md:w-20 md:h-20 object-cover rounded-lg"
                   />

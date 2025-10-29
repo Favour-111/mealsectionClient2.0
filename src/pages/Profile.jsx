@@ -1,6 +1,12 @@
+import axios from "axios";
+import { useEffect } from "react";
+import { useContext } from "react";
+import { useState } from "react";
+import toast from "react-hot-toast";
 import { IoArrowBackOutline } from "react-icons/io5";
 import { Link } from "react-router-dom";
 
+import { useAuthContext } from "../context/AuthContext.jsx";
 // A component for a single menu item in the profile list
 function ProfileMenuItem({ icon, label, link, value }) {
   return (
@@ -33,18 +39,13 @@ function ProfileMenuItem({ icon, label, link, value }) {
 }
 
 function Profile() {
-  const user = {
-    name: "John Doe",
-    email: "xxxxxxx@gmail.com",
-    profileImageUrl: "https://via.placeholder.com/150",
-    loyaltyPoints: 550,
-  };
+  const { user, Userloader } = useAuthContext();
 
   return (
     <div className="bg-[url('https://png.pngtree.com/png-clipart/20240717/original/pngtree-fast-food-pattern-in-red-png-image_15580267.png')] px-4 sm:px-10 bg-cover bg-center bg-no-repeat bg-white/97 bg-blend-overlay flex flex-col min-h-screen relative overflow-hidden">
       {/* Header with back button */}
       <div className="p-4 flex items-center">
-        <Link to="/" className="text-gray-600 mr-4">
+        <Link to="/home" className="text-gray-600 mr-4">
           <IoArrowBackOutline size={24} />
         </Link>
         <h2 className="text-xl md:text-2xl font-semibold flex-grow text-center">
@@ -57,13 +58,16 @@ function Profile() {
       <div className=" space-y-6">
         {/* User Profile Section */}
         <div className="flex flex-col items-center bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <img
-            src={user.profileImageUrl}
-            alt="Profile"
-            className="w-24 h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 rounded-full border-2 border-white shadow-sm"
-          />
-          <h3 className="text-lg md:text-xl font-semibold mt-4">{user.name}</h3>
-          <p className="text-sm md:text-base text-gray-500">{user.email}</p>
+          <div className="w-24 h-24 md:w-28 md:h-28 lg:w-32 lg:h-32  overflow-hidden rounded-full border-2 border-white shadow-sm">
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/1253/1253756.png"
+              alt="Profile"
+            />
+          </div>
+          <h3 className="text-lg md:text-xl font-semibold mt-4">
+            {user?.fullName}
+          </h3>
+          <p className="text-sm md:text-base text-gray-500">{user?.email}</p>
         </div>
 
         {/* Profile Menu Items */}
@@ -126,8 +130,8 @@ function Profile() {
               </svg>
             }
             label="Loyalty Points"
-            link="/loyalty"
-            value={`${user.loyaltyPoints} points`}
+            // link="/loyalty"
+            value={`${user?.Points || 0} points`}
           />
           <ProfileMenuItem
             icon={
@@ -174,7 +178,10 @@ function Profile() {
         {/* Sign Out Button */}
         <div className="flex justify-center mt-6">
           <button
-            onClick={() => console.log("Signing out...")}
+            onClick={() => {
+              localStorage.clear();
+              window.location.replace("/login");
+            }}
             className="flex items-center space-x-2 text-red-600 font-semibold text-lg hover:text-red-800"
           >
             <svg

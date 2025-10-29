@@ -1,54 +1,59 @@
 import { FaShoppingCart, FaBars } from "react-icons/fa";
 import { useParams, Link } from "react-router-dom";
 import useCart from "../hooks/useCart";
+import toast from "react-hot-toast";
+import vendors from "../components/Vendors";
 
-const vendorProducts = {
-  1: [
-    {
-      id: 101,
-      name: "Jollof Rice",
-      price: 1200,
-      image: "https://placehold.co/200x150?text=Jollof+Rice",
-      inStock: true,
-    },
-    {
-      id: 102,
-      name: "Fried Rice",
-      price: 1300,
-      image: "https://placehold.co/200x150?text=Fried+Rice",
-      inStock: false,
-    },
-    {
-      id: 103,
-      name: "White Rice",
-      price: 1000,
-      image: "https://placehold.co/200x150?text=White+Rice",
-      inStock: true,
-    },
-  ],
-  2: [
-    {
-      id: 201,
-      name: "Burger",
-      price: 1500,
-      image: "https://placehold.co/200x150?text=Burger",
-      inStock: true,
-    },
-    {
-      id: 202,
-      name: "Pizza",
-      price: 2500,
-      image: "https://placehold.co/200x150?text=Pizza",
-      inStock: false,
-    },
-  ],
-};
+const vendorProducts = [
+  {
+    id: 101,
+    name: "Jollof Rice",
+
+    price: 1200,
+    image:
+      "https://allnigerianfoods.com/wp-content/uploads/jollof_rice_recipe1.jpg",
+    inStock: true,
+  },
+  {
+    id: 102,
+    name: "Fried Rice",
+    price: 1300,
+    image:
+      "https://allnigerianfoods.com/wp-content/uploads/jollof_rice_recipe1.jpg",
+    inStock: false,
+  },
+  {
+    id: 103,
+    name: "White Rice",
+    price: 1000,
+    image:
+      "https://allnigerianfoods.com/wp-content/uploads/jollof_rice_recipe1.jpg",
+    inStock: true,
+  },
+
+  {
+    id: 201,
+    name: "Burger",
+    price: 1500,
+    image: "https://placehold.co/200x150?text=Burger",
+    inStock: true,
+  },
+  {
+    id: 202,
+    name: "Pizza",
+    price: 2500,
+    image: "https://placehold.co/200x150?text=Pizza",
+    inStock: false,
+  },
+];
 
 function Vendor() {
-  const { id } = useParams();
   const { addToCart, cart } = useCart();
-  const products = vendorProducts[id] || [];
 
+  const { name } = useParams(); // get vendor name from URL
+  console.log(name);
+
+  const vendor = vendors.find((v) => v.name === name); // find vendor by name
   return (
     <div className="bg-[url('https://png.pngtree.com/png-clipart/20240717/original/pngtree-fast-food-pattern-in-red-png-image_15580267.png')] bg-cover bg-center bg-no-repeat bg-white/97 bg-blend-overlay flex flex-col min-h-screen relative overflow-hidden">
       {/* Vendor Banner */}
@@ -59,9 +64,11 @@ function Vendor() {
           className="w-full h-full object-cover"
         />
       </div>
-      <h1 className="text-center font-[600] text-[20px] mt-8 mb-3">Elegance</h1>
+      <h1 className="text-center font-[600] text-[20px] mt-8 mb-3">
+        {vendor.name}
+      </h1>
       {/* Categories */}
-      <nav className="px-5 overflow-x-auto sm:overflow-x-hidden whitespace-nowrap">
+      <nav className="px-5 overflow-x-scroll sm:overflow-x-hidden whitespace-nowrap">
         <ul className="flex sm:justify-center space-x-4 text-sm sm:text-base font-medium">
           <li>
             <Link
@@ -116,15 +123,15 @@ function Vendor() {
 
       {/* Product Grid */}
       <main className="grid grid-cols-2 mb-10 d:mt-20 mt-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-x-4 gap-y-6 p-4">
-        {products.map((product) => (
+        {vendorProducts.map((product) => (
           <div className="relative bg-white rounded-[14px] overflow-hidden shadow-sm">
             {/* Product Image */}
             <div className="w-[100%]  ">
               <img
-                src="https://assets.epicurious.com/photos/62f16ed5fe4be95d5a460eed/4:3/w_5100,h_3825,c_limit/RoastChicken_RECIPE_080420_37993.jpg"
+                src={product.image}
                 alt={product.name}
                 loading="lazy"
-                className="w-[100%] h-[fit-content] object-cover  "
+                className="w-[100%] h-[200px] object-cover  "
               />
 
               {/* Stock Badge */}
@@ -154,7 +161,10 @@ function Vendor() {
               {/* Add to Cart Button */}
               <button
                 disabled={!product.inStock}
-                onClick={() => addToCart(product)}
+                onClick={() => {
+                  addToCart(product);
+                  toast.success(`${product.name} has been added to cart`);
+                }}
                 className={`mt-3 w-full py-[9px] rounded-[14px] font-[500] text-[13px] ${
                   product.inStock
                     ? "bg-red-600 text-white hover:bg-red-700 transition"

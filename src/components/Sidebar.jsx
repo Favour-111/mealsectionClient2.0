@@ -13,7 +13,7 @@ function Sidebar({ isOpen, toggleSidebar }) {
       {/* Sidebar Header with Logo and Close Button */}
       <div className="flex items-center justify-between p-4 border-b border-b-[#d3d3d3]">
         {/* Replace with your logo component or image */}
-        <Link to="/" className="text-xl font-bold text-red-600">
+        <Link to="/home" className="text-xl font-bold text-red-600">
           <img
             src="https://www.mealsection.com/WhatsApp%20Image%202024-08-24%20at%2020.18.12_988ce6f9.jpg"
             alt=""
@@ -78,9 +78,8 @@ function Sidebar({ isOpen, toggleSidebar }) {
       <div className="absolute bottom-0 w-full p-4 border-t border-t-[#d3d3d3]">
         <button
           onClick={() => {
-            console.log("Signing out...");
-            toggleSidebar();
-            // Implement your sign out logic here
+            localStorage.clear();
+            window.location.replace("/login");
           }}
           className="flex items-center text-[var(--default)] hover:opacity-80 font-normal text-sm gap-3"
         >

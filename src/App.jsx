@@ -7,6 +7,7 @@ import "./App.css";
 import { HiOutlineMenu } from "react-icons/hi";
 import { IoCartOutline } from "react-icons/io5";
 import useCart from "./hooks/useCart";
+import { Toaster } from "react-hot-toast";
 function App() {
   const { cart } = useCart();
   const navigate = useNavigate();
@@ -24,8 +25,10 @@ function App() {
     "/login",
     "/signup",
     "/cart",
+    "/reset-password",
     "/orders",
     "/orderdetails",
+    "/wallet",
     "/profile",
   ];
   const isWelcomeScreen = hiddenRoutes.includes(location.pathname);
@@ -58,14 +61,27 @@ function App() {
       )}
 
       {/* Main Content */}
-      <main className="flex-1 container mx-auto ">
+      <main className=" ">
         <Routes>
           {routes.map(({ path, element }, index) => (
             <Route key={index} path={path} element={element} />
           ))}
         </Routes>
       </main>
-
+      <Toaster
+        toastOptions={{
+          style: {
+            fontSize: "12px", // make text smaller
+            padding: "8px 12px", // optional: adjust padding
+          },
+          success: {
+            duration: 3000,
+          },
+          error: {
+            duration: 3000,
+          },
+        }}
+      />
       {/* Footer */}
       {!isWelcomeScreen && <Footer />}
     </div>

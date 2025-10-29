@@ -17,6 +17,7 @@ import Vendor from "./pages/Vendor";
 import OrderDetails from "./pages/OrderDetails";
 import SplashPage from "./pages/SplashPage";
 import Vendors from "./pages/Vendors";
+import vendors from "./components/Vendors";
 
 const routes = [
   { path: "/home", element: <Home /> },
@@ -35,7 +36,7 @@ const routes = [
   { path: "/", element: <WelcomeScreen /> },
   { path: "/reset-password", element: <ResetPassword /> },
   { path: "/wallet", element: <Wallet /> },
-  { path: "/vendor/:id", element: <Vendor /> }, // ✅ dynamic vendor route
+  { path: "/vendor/:name", element: <Vendor /> },
   { path: "/orderdetails", element: <OrderDetails /> },
   { path: "/splashpage", element: <SplashPage /> },
 ];

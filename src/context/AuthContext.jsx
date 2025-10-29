@@ -1,18 +1,37 @@
+import axios from "axios";
+import { useEffect } from "react";
 import { createContext, useState, useContext } from "react";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [Userloader, setUserLoader] = useState(false);
 
-  const login = (credentials) => {
-    setUser({ name: "John Doe", email: credentials.email });
+  const userFetch = async () => {
+    try {
+      setUserLoader(true);
+      const response = await axios.get(
+        `${import.meta.env.VITE_REACT_APP_API}/api/users/user/${userId}`
+      );
+      if (response) {
+        setUser(response.data.user);
+      } else {
+        toast.error("unable to get user try again");
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setUserLoader(false);
+    }
   };
-
-  const logout = () => setUser(null);
+  useEffect(() => {
+    userFetch();
+  }, []);
+  const userId = localStorage.getItem("userId");
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, Userloader, setUserLoader }}>
       {children}
     </AuthContext.Provider>
   );
