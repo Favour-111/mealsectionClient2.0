@@ -1,13 +1,15 @@
 import { useNavigate } from "react-router-dom";
 import useCart from "../hooks/useCart";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { IoIosPricetags } from "react-icons/io";
 import { FaStar } from "react-icons/fa";
 import { FiUser } from "react-icons/fi";
 import { LuDownload, LuRefreshCw } from "react-icons/lu";
 import vendors from "../components/Vendors";
+import { useAuthContext } from "../context/AuthContext";
 function Home() {
   const navigate = useNavigate();
+  const { user } = useAuthContext();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState("");
   const { cart } = useCart();
@@ -23,7 +25,7 @@ function Home() {
               Wallet Balance
             </p>
             <p className="font-[Inter] text-sm text-[#787878]">
-              ₦{balance.toLocaleString()}.00
+              ₦{user?.availableBal.toLocaleString() || 0}.00
             </p>
           </div>
           <div className="flex items-center gap-2">
