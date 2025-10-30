@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import axios from "axios";
 import toast from "react-hot-toast";
@@ -68,13 +68,16 @@ function Login() {
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center flex-grow ">
         {/* Logo */}
-        <div className="flex flex-col items-center text-center mb-12 mt-8 sm:mt-12">
+        <Link
+          to="/home"
+          className="flex flex-col items-center text-center mb-12 mt-8 sm:mt-12"
+        >
           <img
             src="https://favour-111.github.io/MEalSection-ComongSoon-2.0/WhatsApp%20Image%202024-08-24%20at%2020.18.12_988ce6f9.jpg"
             alt=""
             className="w-50"
           />
-        </div>
+        </Link>
 
         {/* Form */}
         <div className="bg-white rounded-t-3xl shadow w-[100%] px-8 sm:px-14 py-10 mt-auto">
