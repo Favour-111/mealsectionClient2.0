@@ -3,159 +3,656 @@ import { useCartContext } from "../context/CartContext";
 import { IoMdArrowBack } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import { CgTrash } from "react-icons/cg";
+import { BiMinus, BiPlus, BiPackage } from "react-icons/bi";
+import { MdOutlineLocationOn, MdPhone, MdLocalShipping } from "react-icons/md";
 import InputField from "../components/InputField";
+import {
+  Dialog,
+  DialogBackdrop,
+  DialogPanel,
+  DialogTitle,
+} from "@headlessui/react";
+import { CiWarning } from "react-icons/ci";
+import { useAuthContext } from "../context/AuthContext";
+import { MdErrorOutline } from "react-icons/md";
+import toast from "react-hot-toast";
+import axios from "axios";
 function Cart() {
-  const { cart, removeFromCart, updateQuantity, totalAmount } =
-    useCartContext();
+  const {
+    packs,
+    addPack,
+    removeFromCart,
+    deletePack,
+    updateQuantity,
+    totalAmount,
+  } = useCartContext();
+  const { user, userFetch } = useAuthContext();
+  const [open, setOpen] = useState(false);
+  const [addressInput, setAddressInput] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [openError, setOpenError] = useState(false);
   const navigate = useNavigate();
-  // Extra fees
-  const serviceFee = 200;
   const [deliveryFee, setDeliveryFee] = useState(200);
-
-  // Final total
+  const serviceFee = 200;
   const grandTotal = totalAmount + serviceFee + deliveryFee;
 
+  const handleOrder = async () => {
+    if (!user?._id) {
+      toast.error("You must be logged in to place an order.");
+      return;
+    } else if (addressInput === "" || phoneNumber === "") {
+      toast.error("please input address and PhoneNumber");
+    } else if (isNaN(phoneNumber) || phoneNumber.length < 10) {
+      toast.error("Please input a valid phone number");
+    } else {
+      // Block checkout if any pack vendor is offline
+      try {
+        const API = import.meta.env.VITE_REACT_APP_API;
+        // Fetch fresh vendors to ensure up-to-date status
+        const { data: vendorsList } = await axios.get(`${API}/api/vendors/all`);
+        const offlinePacks = (packs || []).filter((p) => {
+          if (!p.vendorId && !p.vendorName) return false; // no vendor assigned
+          const v = vendorsList.find(
+            (it) =>
+              String(it._id) === String(p.vendorId) ||
+              it.storeName === p.vendorName
+          );
+          if (!v) return false;
+          return String(v.Active).toLowerCase() !== "true";
+        });
+        if (offlinePacks.length > 0) {
+          toast.error(
+            "Your cart contains items from an offline store. Remove them to continue."
+          );
+          return;
+        }
+      } catch (err) {
+        console.error("Vendor status check failed:", err);
+        toast.error("Could not verify vendor status. Please try again.");
+        return;
+      }
+
+      const subtotal = totalAmount;
+      const serviceFee = 200;
+      const deliveryFeeValue = deliveryFee;
+      const grandTotal = subtotal + serviceFee + deliveryFeeValue;
+
+      // ✅ Check for sufficient funds
+      if (user?.availableBal < grandTotal) {
+        setOpen(false);
+        setOpenError(true);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const token = localStorage.getItem("token");
+
+        // ✅ Construct payload
+        const payload = {
+          subtotal,
+          serviceFee,
+          deliveryFee: deliveryFeeValue,
+          Address: addressInput,
+          PhoneNumber: phoneNumber,
+          university: user?.university,
+          packs: packs.map((p) => ({
+            name: p.name,
+            vendorName: p.vendorName || null,
+            vendorId: p.vendorId || null,
+            items: p.items.map((i) => ({
+              name: i.name,
+              price: i.price,
+              quantity: i.quantity,
+              image: i.image,
+              vendorName: i.vendorName || p.vendorName || null,
+              vendorId: i.vendorId || p.vendorId || null,
+            })),
+          })),
+        };
+
+        // 🧾 Log payload before sending
+        console.log("📦 Sending Order Payload:", payload);
+
+        // ✅ Send order request
+        const { data } = await axios.post(
+          `${import.meta.env.VITE_REACT_APP_API}/api/users/add-order`,
+          payload,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        // 🧩 Log backend response
+        console.log("✅ Order Response:", data);
+
+        toast.success("Order placed successfully!");
+
+        // ✅ Update user + UI
+        await userFetch(); // refresh balance + orders
+        setOpen(false);
+
+        // ✅ Clear cart
+        localStorage.removeItem("cart");
+        window.dispatchEvent(new Event("storage")); // triggers cart re-render
+
+        window.location.replace("/orders");
+      } catch (err) {
+        console.error("❌ Order error:", err);
+        console.error("📨 Server response:", err.response?.data);
+        toast.error(
+          err.response?.data?.message || "Failed to place order. Try again."
+        );
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
   return (
-    <div className="bg-[url('https://png.pngtree.com/png-clipart/20240717/original/pngtree-fast-food-pattern-in-red-png-image_15580267.png')] bg-cover bg-center bg-no-repeat bg-white/97 bg-blend-overlay flex flex-col min-h-screen relative overflow-hidden px-5 sm:px-9 ">
-      <div className="flex mb-6 sm:mt-10 mt-5">
-        <button onClick={() => navigate(-1)} className="flex-1 text-start">
-          <IoMdArrowBack size={20} />
-        </button>
-        <div className="flex-1 text-center font-[600] ">Cart</div>
-        <div className="flex-1"></div>
-      </div>
-      <h1 className="font-[500] text-sm mb-1">Pack1</h1>
-      {cart.length === 0 ? (
-        <div className="flex h-[80vh] justify-center flex-col items-center gap-4">
-          <div>
-            <img
-              src="https://cdn-icons-png.flaticon.com/512/11329/11329060.png"
-              alt=""
-              className="sm:w-100 w-60"
-            />
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-red-50/10 to-orange-50/10">
+      {/* Header */}
+      <div className="glass sticky top-0 z-10 border-b border-gray-200/50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+          <button
+            onClick={() => navigate(-1)}
+            className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
+          >
+            <IoMdArrowBack size={24} className="text-gray-700" />
+          </button>
+          <div className="text-center">
+            <h1 className="text-xl font-bold text-gray-800">Shopping Cart</h1>
+            <p className="text-xs text-gray-500">
+              {packs.length} {packs.length === 1 ? "Pack" : "Packs"}
+            </p>
           </div>
-
-          <h1 className="text-sm text-[#787878]">
-            Your cart is currently empty
-          </h1>
+          <div className="w-10"></div>
         </div>
-      ) : (
-        <>
-          {/* Cart Items */}
-          {cart.map((item) => (
+      </div>
+
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 space-y-10">
+        {packs.length === 0 ? (
+          <div className="bg-white/70 backdrop-blur-sm rounded-3xl border border-gray-200 shadow-lg p-10 relative overflow-hidden">
             <div
-              key={item.id}
-              className="flex items-center justify-between  rounded-lg p-3 mb-3 shadow bg-white"
-            >
-              <div className="flex items-center gap-3">
-                <img
-                  src={item.image || "https://via.placeholder.com/60"}
-                  alt={item.name}
-                  className="w-14 h-14 rounded-md object-cover"
-                />
-                <div>
-                  <h3 className="font-semibold">{item.name}</h3>
-                  <p className="text-gray-500 text-sm mt-3">${item.price}</p>
-                </div>
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => updateQuantity(item.id, -1)}
-                    className="w-7 h-7 flex items-center justify-center bg-amber-400 rounded"
-                  >
-                    -
-                  </button>
-                  <span className="text-sm">{item.quantity}</span>
-                  <button
-                    onClick={() => updateQuantity(item.id, 1)}
-                    className="w-7 h-7 flex items-center justify-center bg-amber-400 rounded"
-                  >
-                    +
-                  </button>
-                </div>
-                <div className=" text-end mt-3">
-                  <button
-                    onClick={() => removeFromCart(item.id)}
-                    className="text-red-500 ml-2 text-end"
-                  >
-                    <CgTrash />
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-
-          {/* Add Another Pack */}
-          <button className="text-black bg-[#f6f6f6] w-fit px-4 py-2 rounded text-sm text-start  mb-4">
-            + Add Another Pack
-          </button>
-
-          {/* Delivery Address */}
-          <div className="mb-4">
-            <label className="block text-gray-600 text-sm mb-1">
-              Delivery Address
-            </label>
-            <InputField type="text" placeholder="Enter delivery Address" />
-          </div>
-
-          {/* Fees */}
-          <div className="space-y-1 text-sm text-gray-600 mb-4">
-            <div className="flex justify-between">
-              <span>Subtotal</span>
-              <span>${totalAmount.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Service Fee</span>
-              <span>${serviceFee}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Delivery Fee</span>
-              <span>${deliveryFee}</span>
-            </div>
-          </div>
-
-          {/* Adjust Delivery Fee */}
-          <div className="mb-4">
-            <label className="block text-gray-600 text-sm mb-1">
-              Adjust Delivery Fee (Min: $50)
-            </label>
-            <input
-              type="range"
-              min="50"
-              max="500"
-              value={deliveryFee}
-              onChange={(e) => setDeliveryFee(Number(e.target.value))}
-              className="w-full accent-[var(--default)] "
+              className="absolute inset-0 pointer-events-none opacity-40"
+              style={{
+                background:
+                  "radial-gradient(circle at 20% 20%, rgba(255,215,215,0.6), transparent 60%), radial-gradient(circle at 80% 60%, rgba(255,235,220,0.5), transparent 70%)",
+              }}
             />
-            <p className="text-sm text-gray-500">Selected: ${deliveryFee}</p>
-          </div>
-
-          {/* Total */}
-          <div className="flex justify-between items-center font-bold text-lg mb-4">
-            <span className="text-green-500 text-[16px] font-[500]">Total</span>
-            <span className="text-[15px] text-[#787878] font-[400]">
-              ${grandTotal.toFixed(2)}
-            </span>
-          </div>
-
-          {/* Payment Option */}
-          <div className="bg-[#f1f1f1] text-white p-4 rounded-lg mb-4">
-            <div className="flex justify-between items-center">
-              <div>
-                <p className="font-semibold text-[#000]">Pay with Wallet</p>
-                <p className="text-sm mt-2 text-[#787878]">Avail. Bal: $3000</p>
+            <div className="relative">
+              <div className="flex flex-col items-center text-center">
+                <div className="w-28 h-28 rounded-2xl bg-gradient-to-br from-red-100 via-orange-100 to-yellow-50 flex items-center justify-center shadow-inner mb-6">
+                  <BiPackage size={54} className="text-[var(--default)]" />
+                </div>
+                <h2 className="text-3xl font-extrabold tracking-tight text-gray-800 mb-4">
+                  Build Your First Pack
+                </h2>
+                <p className="text-gray-600 max-w-xl mb-8 leading-relaxed text-sm sm:text-base">
+                  Packs let you group meals from your favorite vendors for one
+                  smooth checkout. Start by exploring vendors, add meals to a
+                  new pack, then return here to place your order.
+                </p>
               </div>
-              <input type="radio" checked readOnly />
+              {/* Guided Steps */}
+              <div className="grid sm:grid-cols-3 gap-5 mb-10">
+                {[
+                  {
+                    id: 1,
+                    title: "Choose Vendor",
+                    desc: "Browse trusted campus vendors",
+                    icon: (
+                      <MdLocalShipping
+                        size={26}
+                        className="text-[var(--default)]"
+                      />
+                    ),
+                  },
+                  {
+                    id: 2,
+                    title: "Add Meals",
+                    desc: "Add items into a new pack",
+                    icon: (
+                      <BiPlus size={26} className="text-[var(--default)]" />
+                    ),
+                  },
+                  {
+                    id: 3,
+                    title: "Place Order",
+                    desc: "Return here to checkout",
+                    icon: (
+                      <CiWarning size={26} className="text-[var(--default)]" />
+                    ),
+                  },
+                ].map((card) => (
+                  <div
+                    key={card.id}
+                    className="group bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all"
+                  >
+                    <div className="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+                      {card.icon}
+                    </div>
+                    <h3 className="font-semibold text-gray-800 mb-1 text-sm">
+                      {card.title}
+                    </h3>
+                    <p className="text-xs text-gray-500 leading-relaxed">
+                      {card.desc}
+                    </p>
+                  </div>
+                ))}
+              </div>
+              {/* CTA Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center mb-10">
+                <button
+                  onClick={() => navigate("/vendors")}
+                  className="px-8 py-4 rounded-xl font-semibold bg-gradient-to-r from-[#9e0505] to-[#c91a1a] text-white shadow-md hover:shadow-xl hover:scale-[1.02] transition-all"
+                >
+                  Browse Vendors
+                </button>
+                <button
+                  onClick={() => {
+                    addPack();
+                    navigate("/vendors");
+                  }}
+                  className="px-8 py-4 rounded-xl font-semibold border-2 border-gray-300 text-gray-700 bg-white hover:border-[var(--default)] hover:text-[var(--default)] transition-all"
+                >
+                  Create First Pack
+                </button>
+              </div>
+              {/* Suggested Vendors Mock */}
+              <div className="space-y-4">
+                <h4 className="text-sm font-bold text-gray-700 flex items-center gap-2">
+                  <span className="text-xl">🔥</span> Popular Picks Today
+                </h4>
+                <div className="grid sm:grid-cols-3 gap-4">
+                  {[
+                    {
+                      id: 1,
+                      name: "Chef's Corner",
+                      tag: "Meals",
+                      color: "from-red-500 to-orange-500",
+                      img: "https://images.unsplash.com/photo-1551218808-94e220e084d2?auto=format&fit=crop&w=400&q=60",
+                    },
+                    {
+                      id: 2,
+                      name: "Green Bowl",
+                      tag: "Healthy",
+                      color: "from-emerald-500 to-teal-500",
+                      img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=400&q=60",
+                    },
+                    {
+                      id: 3,
+                      name: "Snack Hub",
+                      tag: "Snacks",
+                      color: "from-purple-500 to-pink-500",
+                      img: "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?auto=format&fit=crop&w=400&q=60",
+                    },
+                  ].map((v) => (
+                    <button
+                      key={v.id}
+                      onClick={() => navigate("/vendors")}
+                      className="group relative rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all text-left"
+                    >
+                      <img
+                        src={v.img}
+                        alt={v.name}
+                        className="h-32 w-full object-cover group-hover:scale-105 transition-transform"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/25 to-transparent" />
+                      <div className="absolute bottom-0 p-3 w-full">
+                        <p className="text-xs font-bold tracking-wide text-white/80">
+                          {v.tag}
+                        </p>
+                        <h5 className="text-sm font-semibold text-white flex items-center gap-1">
+                          {v.name}
+                          <span
+                            className={`ml-auto text-[10px] px-2 py-0.5 rounded-full bg-gradient-to-r ${v.color} text-white font-medium`}
+                          >
+                            Open
+                          </span>
+                        </h5>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
+        ) : (
+          <>
+            {/* Packs */}
+            {packs.map((pack, index) => (
+              <div
+                key={pack.id}
+                className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden animate-fadeIn"
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                <div className="bg-gradient-to-r from-red-50 to-orange-50 px-6 py-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-white p-2 rounded-xl shadow-sm">
+                      <BiPackage size={20} className="text-[var(--default)]" />
+                    </div>
+                    <div>
+                      <h2 className="font-bold text-gray-800">{pack.name}</h2>
+                      <p className="text-xs text-gray-600">
+                        {pack.items.length}{" "}
+                        {pack.items.length === 1 ? "item" : "items"}
+                        {pack.vendorName && ` • ${pack.vendorName}`}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => deletePack(pack.id)}
+                    className="text-red-600 hover:bg-red-100 px-4 py-2 rounded-xl text-sm font-semibold transition-colors"
+                  >
+                    Delete Pack
+                  </button>
+                </div>
+                <div className="p-6 space-y-4">
+                  {pack.items.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-10">
+                      <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                        <BiPackage size={48} className="text-gray-400" />
+                      </div>
+                      <h3 className="text-gray-800 font-semibold mb-2">
+                        {pack.name} is empty
+                      </h3>
+                      <p className="text-gray-500 text-sm mb-6">
+                        Add items to continue
+                      </p>
+                      <button
+                        onClick={() => navigate("/vendors")}
+                        className="text-[12px] bg-gradient-to-r from-[#9e0505] to-[#c91a1a] text-white px-6 py-2.5 rounded-xl font-semibold hover:shadow-lg transition-all"
+                      >
+                        Start Shopping
+                      </button>
+                    </div>
+                  ) : (
+                    pack.items.map((item) => (
+                      <div
+                        key={item.id}
+                        className="flex items-center gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors border border-gray-100"
+                      >
+                        <img
+                          src={item.image || "https://via.placeholder.com/80"}
+                          alt={item.name}
+                          className="sm:w-20 w-14 sm:h-20 h-14 rounded-xl object-cover shadow-sm"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-gray-800 truncate">
+                            {item.name}
+                          </h3>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {item.vendorName}
+                          </p>
+                          <p className="text-[var(--default)] font-bold mt-2">
+                            ₦{item.price.toLocaleString()}
+                          </p>
+                        </div>
+                        <div className="flex flex-col items-end gap-3">
+                          <div className="flex items-center gap-2 bg-gray-100 rounded-xl p-1">
+                            <button
+                              onClick={() =>
+                                updateQuantity(item.id, pack.id, -1)
+                              }
+                              className="w-8 h-8 flex items-center justify-center bg-white rounded-lg hover:bg-gray-50 transition-colors shadow-sm"
+                            >
+                              <BiMinus size={16} />
+                            </button>
+                            <span className="w-8 text-center font-semibold text-sm">
+                              {item.quantity}
+                            </span>
+                            <button
+                              onClick={() =>
+                                updateQuantity(item.id, pack.id, 1)
+                              }
+                              className="w-8 h-8 flex items-center justify-center bg-white rounded-lg hover:bg-gray-50 transition-colors shadow-sm"
+                            >
+                              <BiPlus size={16} />
+                            </button>
+                          </div>
+                          <button
+                            onClick={() => removeFromCart(item.id, pack.id)}
+                            className="text-red-500 hover:text-red-700 transition-colors"
+                          >
+                            <CgTrash size={20} />
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            ))}
+            {/* Add Pack Button */}
+            <button
+              onClick={addPack}
+              className="w-full text-sm bg-white border-2 border-dashed border-gray-300 hover:border-[var(--default)] text-gray-600 hover:text-[var(--default)] px-6 py-4 rounded-2xl font-semibold transition-all flex items-center justify-center gap-2"
+            >
+              <BiPlus size={20} />
+              <span>Add Another Pack</span>
+            </button>
+            {/* Delivery Details */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4">
+              <h3 className="font-bold text-gray-800 flex items-center gap-2 mb-4">
+                <MdLocalShipping size={24} className="text-[var(--default)]" />
+                Delivery Details
+              </h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                    <MdOutlineLocationOn size={16} />
+                    Delivery Address
+                  </label>
+                  <InputField
+                    type="text"
+                    placeholder="Enter your delivery address"
+                    onChange={(e) => setAddressInput(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                    <MdPhone size={16} />
+                    Phone Number
+                  </label>
+                  <InputField
+                    type="text"
+                    placeholder="Enter your phone number"
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+            {/* Order Summary */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+              <h3 className="font-bold text-gray-800 mb-4">Order Summary</h3>
+              <div className="space-y-3 text-sm mb-4">
+                <div className="flex justify-between text-gray-600">
+                  <span>Subtotal</span>
+                  <span className="font-semibold">
+                    ₦{totalAmount.toLocaleString()}
+                  </span>
+                </div>
+                <div className="flex justify-between text-gray-600">
+                  <span>Service Fee</span>
+                  <span className="font-semibold">₦{serviceFee}</span>
+                </div>
+                <div className="flex justify-between text-gray-600">
+                  <span>Delivery Fee</span>
+                  <span className="font-semibold">₦{deliveryFee}</span>
+                </div>
+              </div>
+              <div className="mb-6 p-4 bg-gray-50 rounded-xl">
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Adjust Delivery Fee
+                </label>
+                <input
+                  type="range"
+                  min="50"
+                  max="500"
+                  value={deliveryFee}
+                  onChange={(e) => setDeliveryFee(Number(e.target.value))}
+                  className="w-full accent-[var(--default)]"
+                />
+                <div className="flex justify-between text-xs text-gray-500 mt-2">
+                  <span>₦50</span>
+                  <span className="font-bold text-[var(--default)]">
+                    ₦{deliveryFee}
+                  </span>
+                  <span>₦500</span>
+                </div>
+              </div>
+              <div className="border-t pt-4">
+                <div className="flex justify-between items-center mb-4">
+                  <span className="text-lg font-bold text-gray-800">Total</span>
+                  <span className="text-2xl font-bold text-[var(--default)]">
+                    ₦{grandTotal.toLocaleString()}
+                  </span>
+                </div>
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-xl mb-4 border border-green-100">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="font-semibold text-gray-800 text-sm">
+                        Pay with Wallet
+                      </p>
+                      <p className="text-sm mt-1 text-gray-600">
+                        Available:{" "}
+                        <span className="font-bold text-green-600">
+                          ₦{user?.availableBal.toLocaleString()}
+                        </span>
+                      </p>
+                    </div>
+                    <input
+                      type="radio"
+                      checked
+                      readOnly
+                      className="w-5 h-5 text-[var(--default)]"
+                    />
+                  </div>
+                </div>
+                <button
+                  onClick={() => setOpen(true)}
+                  className="w-full text-[12px] bg-gradient-to-r from-[#9e0505] to-[#c91a1a] text-white py-4 rounded-xl font-bold text-lg hover:shadow-xl transition-all hover:scale-[1.02]"
+                >
+                  Place Order
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+      {/* //modaldialog? */}
+      <Dialog open={open} onClose={setOpen} className="relative z-50">
+        <DialogBackdrop
+          transition
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in"
+        />
 
-          {/* Confirm Button */}
-          <button className="w-full bg-red-600 text-white py-3 rounded-lg text-sm">
-            Confirm Order
-          </button>
-        </>
-      )}
+        <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4">
+            <DialogPanel
+              transition
+              className="relative transform overflow-hidden rounded-3xl bg-white shadow-2xl transition-all data-closed:translate-y-4 data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in w-full max-w-md data-closed:sm:translate-y-0 data-closed:sm:scale-95"
+            >
+              <div className="bg-white px-8 pt-8 pb-6">
+                <div className="text-center">
+                  <div className="mx-auto w-16 h-16 bg-gradient-to-br from-red-100 to-orange-100 rounded-full flex items-center justify-center mb-4">
+                    <BiPackage size={32} className="text-[var(--default)]" />
+                  </div>
+                  <DialogTitle className="text-2xl font-bold text-gray-800 mb-3">
+                    Confirm Order?
+                  </DialogTitle>
+                  <p className="text-gray-600 mb-2">
+                    Place order of{" "}
+                    <span className="font-bold text-[var(--default)]">
+                      ₦{grandTotal.toLocaleString()}
+                    </span>
+                  </p>
+                </div>
+              </div>
+
+              <div className="px-8 pb-8 flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  className="flex-1 px-6 py-3 border-2 border-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleOrder}
+                  disabled={loading}
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-[#9e0505] to-[#c91a1a] text-white font-semibold rounded-xl hover:shadow-lg transition-all disabled:opacity-50"
+                >
+                  {loading ? "Processing..." : "Confirm"}
+                </button>
+              </div>
+            </DialogPanel>
+          </div>
+        </div>
+      </Dialog>
+      {/* //error message  */}
+      <Dialog open={openError} onClose={setOpenError} className="relative z-50">
+        <DialogBackdrop
+          transition
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in"
+        />
+
+        <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4">
+            <DialogPanel
+              transition
+              className="relative transform overflow-hidden rounded-3xl bg-white shadow-2xl transition-all data-closed:translate-y-4 data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in w-full max-w-md data-closed:sm:translate-y-0 data-closed:sm:scale-95"
+            >
+              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div className="sm:flex sm:items-start">
+                  <div className="mx-auto flex size-12 shrink-0 items-center justify-center rounded-full bg-red-50 sm:mx-0 sm:size-10">
+                    <MdErrorOutline className="text-red-500" />
+                  </div>
+                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                    <DialogTitle
+                      as="h3"
+                      className="text-base font-semibold text-gray-900"
+                    >
+                      Insufficient Funds
+                    </DialogTitle>
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-600">
+                        You don’t have enough balance to complete this order.
+                        Please add funds to your wallet and try again.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="px-8 pb-8 flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setOpenError(false)}
+                  className="flex-1 px-6 py-3 border-2 border-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpenError(false);
+                    navigate("/wallet");
+                  }}
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-[#9e0505] to-[#c91a1a] text-white font-semibold rounded-xl hover:shadow-lg transition-all"
+                >
+                  Add Funds
+                </button>
+              </div>
+            </DialogPanel>
+          </div>
+        </div>
+      </Dialog>
     </div>
   );
 }

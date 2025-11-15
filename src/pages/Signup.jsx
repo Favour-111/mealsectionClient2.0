@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import InputField from "../components/InputField";
 import { useNavigate } from "react-router-dom";
 import { IoIosArrowRoundBack } from "react-icons/io";
 
 import axios from "axios";
 import toast from "react-hot-toast";
+import { useAuthContext } from "../context/AuthContext";
 
 function Message({ message, type }) {
   return (
@@ -18,7 +19,9 @@ function Message({ message, type }) {
 }
 
 function Signup() {
+  const { useFetch } = useAuthContext;
   const [loading, setLoading] = useState(false);
+  const [universities, setUniversities] = useState([]);
   const [form, setForm] = useState({
     fullName: "",
     emailOrPhone: "",
@@ -36,58 +39,6 @@ function Signup() {
 
   const [message, setMessage] = useState(null);
   const navigate = useNavigate();
-
-  // const handleSignup = async (e) => {
-  //   e.preventDefault(); // <-- prevent page reload
-
-  //   if (!form.termsAccepted) {
-  //     setMessage({
-  //       text: "You must accept the terms and conditions.",
-  //       type: "error",
-  //     });
-  //     setTimeout(() => setMessage(null), 3000);
-  //     return;
-  //   }
-
-  //   if (
-  //     !form.fullName ||
-  //     !form.emailOrPhone ||
-  //     !form.password ||
-  //     !form.role ||
-  //     !form.university
-  //   ) {
-  //     toast.error("All fields are required");
-  //     return;
-  //   }
-
-  //   try {
-  //     setLoading(true);
-  //     const formData = new FormData();
-  //     formData.append("fullName", form.fullName);
-  //     formData.append("email", form.emailOrPhone);
-  //     formData.append("password", form.password);
-  //     formData.append("university", form.university);
-  //     formData.append("role", form.role);
-  //     if (form.profilePicture)
-  //       formData.append("profilePicture", form.profilePicture);
-
-  //     const { data } = await axios.post(
-  //       "http://localhost:5000/api/users/signup",
-  //       formData,
-  //       { headers: { "Content-Type": "multipart/form-data" } }
-  //     );
-
-  //     localStorage.setItem("token", data.token);
-  //     localStorage.setItem("userId", data.user._id);
-
-  //     toast.success("Signup successful!");
-  //     navigate("/dashboard");
-  //   } catch (error) {
-  //     toast.error(error.response?.data?.message || "Signup failed");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   const handleFunction = async () => {
     const newErrors = {};
@@ -124,7 +75,7 @@ function Signup() {
         localStorage.setItem("userId", data.user._id);
 
         toast.success("Signup successful!");
-        navigate("/home");
+        window.location.replace("/");
       } catch (error) {
         toast.error(error.response?.data?.message || "Signup failed");
       } finally {
@@ -132,7 +83,25 @@ function Signup() {
       }
     }
   };
+  useEffect(() => {
+    const handleFetch = async () => {
+      try {
+        const { data } = await axios.get(
+          `${import.meta.env.VITE_REACT_APP_API}/api/universities`
+        );
+        if (data) {
+          setUniversities(data.universities);
+        } else {
+          toast.error("Error fetching universities. Please reload the page");
+        }
+      } catch (error) {
+        console.log(error);
+        toast.error("Error fetching universities");
+      }
+    };
 
+    handleFetch();
+  }, []);
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
     if (type === "checkbox") {
@@ -145,169 +114,221 @@ function Signup() {
   };
 
   return (
-    <div className="bg-[url('https://png.pngtree.com/png-clipart/20240717/original/pngtree-fast-food-pattern-in-red-png-image_15580267.png')] bg-cover bg-center bg-no-repeat bg-white/95 bg-blend-overlay flex flex-col min-h-screen font-sans relative overflow-hidden">
-      <div className="px-6 sm:px-10 pt-10 flex justify-between items-center">
-        <button
-          aria-label="Go back"
-          className="text-gray-600 hover:text-gray-800"
-          onClick={() => navigate("/login")}
-        >
-          <IoIosArrowRoundBack size={30} />
-        </button>
-        <h1 className="font-[600]">Sign Up</h1>
-        <h1></h1>
+    <div className="relative min-h-screen font-sans bg-gradient-to-br from-red-50 via-white to-orange-50 overflow-hidden">
+      {/* Ambient background shapes */}
+      <div className="pointer-events-none absolute inset-0 opacity-50 mix-blend-multiply">
+        <div className="absolute -top-24 -left-24 w-72 h-72 bg-gradient-to-br from-[#9e0505]/20 to-[#c91a1a]/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-tr from-orange-200/40 to-red-100/20 rounded-full blur-2xl" />
       </div>
 
-      <div className="relative z-10 flex flex-col items-center flex-grow ">
-        <div className="flex flex-col items-center text-center mb-12 mt-8 sm:mt-12">
-          <img
-            src="https://favour-111.github.io/MEalSection-ComongSoon-2.0/WhatsApp%20Image%202024-08-24%20at%2020.18.12_988ce6f9.jpg"
-            alt=""
-            className="w-50"
+      {/* Top Bar */}
+      <div className="relative z-10 px-6 sm:px-10 pt-8 flex items-center justify-between">
+        <button
+          aria-label="Go back"
+          onClick={() => navigate("/login")}
+          className="group flex items-center gap-1 text-gray-600 hover:text-gray-900 transition-colors"
+        >
+          <IoIosArrowRoundBack
+            size={34}
+            className="group-hover:-translate-x-0.5 transition-transform"
           />
+          <span className="text-sm font-medium hidden sm:inline">Back</span>
+        </button>
+        <h1 className="text-lg font-bold tracking-tight text-gray-800">
+          Create Account
+        </h1>
+        <div className="w-12" />
+      </div>
+
+      {/* Hero / Branding */}
+      <div className="relative z-10 flex flex-col items-center mt-6 sm:mt-10 px-6">
+        <div className="flex flex-col items-center text-center">
+          <div className="rounded-2xl p-2 bg-gradient-to-br from-red-100 via-orange-100 to-yellow-50 flex items-center justify-center shadow-inner mb-4">
+            <img
+              src="https://favour-111.github.io/MEalSection-ComongSoon-2.0/WhatsApp%20Image%202024-08-24%20at%2020.18.12_988ce6f9.jpg"
+              alt="MealSection Brand"
+              className="w-45 rounded-xl object-contain shadow-sm"
+            />
+          </div>
+          <p className="text-xs sm:text-sm text-gray-500 max-w-sm leading-relaxed">
+            Join MealSection to explore trusted campus vendors, build smart
+            packs and enjoy seamless wallet checkout.
+          </p>
         </div>
+      </div>
 
-        <div className="bg-white rounded-t-3xl shadow w-[100%] px-8 sm:px-14 py-10 mt-auto">
-          <div className="space-y-4 sm:space-y-5">
-            <div className="mb-4">
-              <InputField
-                label="Full Name*"
-                type="text"
-                onChange={handleChange}
-                name="fullName"
-                placeholder="Enter your full name"
-                required
-              />
-              {errors.fullName && (
-                <p className="text-red-500 text-xs mt-1">{errors.fullName}</p>
-              )}
-            </div>
-
-            <div className="mb-4">
-              <InputField
-                label="Email or Phone*"
-                type="text"
-                onChange={handleChange}
-                name="emailOrPhone"
-                placeholder="Enter your email or phone number"
-                required
-              />
-              {errors.emailOrPhone && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.emailOrPhone}
-                </p>
-              )}
-            </div>
-            <div className="mb-4">
-              <InputField
-                label="Password*"
-                type="password"
-                onChange={handleChange}
-                name="password"
-                placeholder="Enter your password"
-                required
-              />
-              {errors.password && (
-                <p className="text-red-500 text-xs mt-1">{errors.password}</p>
-              )}
-            </div>
-
-            <div>
-              <label
-                htmlFor="university"
-                className="block text-sm font-semibold text-gray-700"
-              >
-                Your University*
-              </label>
-              <select
-                id="university"
-                name="university"
-                value={form.university} // <-- bind value to state
-                onChange={handleChange}
-                className="outline-none font-[400] mt-1 block w-full rounded-[10px] border bg-gray-50 border-gray-300 p-3 placeholder:text-sm text-sm"
-                required
-              >
-                <option value="" disabled>
-                  Select your university
-                </option>
-                <option value="university_a">University A</option>
-                <option value="university_b">University B</option>
-              </select>
-              {errors.university && (
-                <p className="text-red-500 text-xs mt-1">{errors.university}</p>
-              )}
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Role*
-              </label>
-              <div className="mt-1 flex flex-wrap gap-4">
-                {["customer", "vendor", "rider"].map((role) => (
-                  <label key={role} className="inline-flex items-center">
-                    <input
-                      type="radio"
-                      className="form-radio h-4 w-4 text-[var(--default)]"
-                      name="role"
-                      value={role}
-                      checked={form.role === role} // <-- This is important
-                      onChange={handleChange}
-                    />
-                    <span className="ml-2 text-gray-700 capitalize">
-                      {role}
-                    </span>
-                  </label>
-                ))}
+      {/* Form Card */}
+      <div className="relative z-10 mt-8 sm:mt-12 max-w-xl mx-auto px-6 pb-16">
+        <div className="bg-white/90 backdrop-blur-md border border-gray-200 shadow-xl rounded-3xl overflow-hidden">
+          <div className="px-7 sm:px-10 py-8 sm:py-10 space-y-6">
+            <div className="grid gap-6">
+              <div>
+                <InputField
+                  label="Full Name*"
+                  type="text"
+                  onChange={handleChange}
+                  name="fullName"
+                  placeholder="Enter your full name"
+                  required
+                />
+                {errors.fullName && (
+                  <p className="text-red-500 text-xs mt-1">{errors.fullName}</p>
+                )}
               </div>
-            </div>
-            {errors.role && (
-              <p className="text-red-500 text-xs mt-1">{errors.role}</p>
-            )}
+              <div>
+                <InputField
+                  label="Email or Phone*"
+                  type="text"
+                  onChange={handleChange}
+                  name="emailOrPhone"
+                  placeholder="Enter your email or phone number"
+                  required
+                />
+                {errors.emailOrPhone && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.emailOrPhone}
+                  </p>
+                )}
+              </div>
+              <div>
+                <InputField
+                  label="Password*"
+                  type="password"
+                  onChange={handleChange}
+                  name="password"
+                  placeholder="Enter a secure password"
+                  required
+                />
+                {errors.password && (
+                  <p className="text-red-500 text-xs mt-1">{errors.password}</p>
+                )}
+                {/* Password strength hint (simple heuristic) */}
+                {form.password && (
+                  <p
+                    className={`mt-1 text-[10px] tracking-wide ${
+                      form.password.length < 6
+                        ? "text-red-500"
+                        : form.password.length < 10
+                        ? "text-orange-500"
+                        : "text-green-600"
+                    }`}
+                  >
+                    {form.password.length < 6
+                      ? "Weak password – add more characters."
+                      : form.password.length < 10
+                      ? "Medium strength – consider adding numbers & symbols."
+                      : "Strong password."}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label
+                  htmlFor="university"
+                  className="block text-sm font-semibold text-gray-700 mb-1"
+                >
+                  Your University*
+                </label>
+                <select
+                  id="university"
+                  name="university"
+                  value={form.university}
+                  onChange={handleChange}
+                  className="mt-1 block w-full rounded-xl border border-gray-300 bg-gray-50/60 px-3 py-3 text-sm focus:ring-2 focus:ring-[var(--default)] focus:outline-none"
+                  required
+                >
+                  <option value="" disabled>
+                    Select your university
+                  </option>
+                  {universities.map((item) => (
+                    <option key={item.name} value={item.name}>
+                      {item.name}
+                    </option>
+                  ))}
+                </select>
+                {errors.university && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.university}
+                  </p>
+                )}
+              </div>
 
-            <div>
-              <label
-                htmlFor="profilePicture"
-                className="block text-sm font-semibold text-gray-700 mb-2"
-              >
-                Upload Profile Picture
-              </label>
-              <input
-                type="file"
-                id="profilePicture"
-                name="profilePicture"
-                onChange={handleChange}
-                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-[500] file:bg-red-50 file:text-[var(--default)] hover:file:bg-red-100"
-              />
-              {form.profilePicture && (
-                <p className="text-xs text-gray-500 mt-1">
-                  File selected: {form.profilePicture.name}
+              <div>
+                <label
+                  htmlFor="profilePicture"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
+                >
+                  Upload Profile Picture
+                </label>
+                <input
+                  type="file"
+                  id="profilePicture"
+                  name="profilePicture"
+                  onChange={handleChange}
+                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-[var(--default)] hover:file:bg-red-100"
+                />
+                {form.profilePicture && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    File selected: {form.profilePicture.name}
+                  </p>
+                )}
+              </div>
+              <div className="flex items-start gap-2">
+                <input
+                  id="termsAccepted"
+                  type="checkbox"
+                  onChange={handleStatus}
+                  className="mt-1 h-4 w-4 rounded border-gray-300 text-[var(--default)] focus:ring-[var(--default)]"
+                />
+                <label
+                  htmlFor="termsAccepted"
+                  className="text-xs sm:text-sm text-gray-600 leading-relaxed"
+                >
+                  By clicking <span className="font-semibold">Sign Up</span>,
+                  you agree to our
+                  <a
+                    href="#"
+                    className="text-[var(--default)] font-medium hover:underline ml-1"
+                  >
+                    Terms
+                  </a>{" "}
+                  and
+                  <a
+                    href="#"
+                    className="text-[var(--default)] font-medium hover:underline ml-1"
+                  >
+                    Privacy Policy
+                  </a>
+                  .
+                </label>
+              </div>
+              {errors.termsAccepted && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.termsAccepted}
                 </p>
               )}
             </div>
-
-            <div className="flex items-center">
-              <input type="checkbox" onChange={handleStatus} />
-              <label
-                htmlFor="termsAccepted"
-                className="ml-2 block text-sm text-gray-900"
+            <div className="space-y-3 pt-2">
+              <button
+                onClick={handleFunction}
+                type="button"
+                disabled={loading}
+                className="group w-full relative overflow-hidden rounded-xl bg-gradient-to-r from-[#9e0505] to-[#c91a1a] text-white py-3 text-sm font-semibold tracking-wide shadow-md hover:shadow-lg transition-all disabled:opacity-60"
               >
-                By clicking "Sign Up", you agree with the{" "}
-                <a href="#" className="text-[var(--default)] hover:underline">
-                  terms and conditions
-                </a>
-              </label>
-            </div>
-            {errors.termsAccepted && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.termsAccepted}
+                <span className="relative z-10 flex items-center justify-center gap-2">
+                  {loading ? "Creating account..." : "Create Account"}
+                </span>
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.25),transparent_60%)]" />
+              </button>
+              <p className="text-center text-xs text-gray-500">
+                Already have an account?{" "}
+                <button
+                  onClick={() => navigate("/login")}
+                  className="text-[var(--default)] font-semibold hover:underline"
+                >
+                  Log In
+                </button>
               </p>
-            )}
-            <button
-              onClick={() => handleFunction()}
-              type="submit"
-              className="w-full bg-[var(--default)] text-white py-2.5 sm:py-3 px-4 rounded-lg font-[600] hover:opacity-80 transition-colors duration-200 focus:outline-none focus:ring-2 text-sm focus:ring-offset-2"
-            >
-              {loading ? "Creating account..." : "Sign Up"}
-            </button>
+            </div>
           </div>
         </div>
       </div>

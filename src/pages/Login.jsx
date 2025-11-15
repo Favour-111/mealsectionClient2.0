@@ -3,8 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { useAuthContext } from "../context/AuthContext";
 
 function Login() {
+  const { useFetch } = useAuthContext();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
@@ -37,7 +39,9 @@ function Login() {
       localStorage.setItem("userId", data.user._id);
 
       toast.success("Login successful!");
-      navigate("/home"); // redirect to dashboard or profile
+      window.location.replace("/");
+      // navigate("/"); // redirect to dashboard or profile
+      // useFetch();
     } catch (err) {
       const message =
         err.response?.data?.message || "Login failed. Check your credentials.";
@@ -51,101 +55,178 @@ function Login() {
   };
 
   return (
-    <div className="bg-[url('https://png.pngtree.com/png-clipart/20240717/original/pngtree-fast-food-pattern-in-red-png-image_15580267.png')] bg-cover bg-center bg-no-repeat bg-white/95 bg-blend-overlay flex flex-col min-h-screen font-sans relative overflow-hidden">
-      {/* Back Button */}
-      <div className="px-6 sm:px-10 pt-10 flex justify-between items-center">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-red-50/30 to-orange-50/30 flex flex-col font-sans relative overflow-hidden">
+      {/* Decorative Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-red-200/20 to-orange-200/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-orange-200/20 to-red-200/20 rounded-full blur-3xl"></div>
+      </div>
+
+      {/* Header */}
+      <div className="relative z-10 px-6 sm:px-10 pt-8 flex justify-between items-center">
         <button
           aria-label="Go back"
-          className="text-gray-600 hover:text-gray-800"
+          className="p-2 rounded-xl hover:bg-white/80 text-gray-700 hover:text-[var(--default)] transition-all duration-300 hover:scale-110"
           onClick={() => navigate(-1)}
         >
-          <IoIosArrowRoundBack size={30} />
+          <IoIosArrowRoundBack size={28} />
         </button>
-        <h1 className="font-[600]">Login</h1>
-        <h1></h1>
+        <h1 className="font-semibold text-gray-800 text-lg">Welcome Back</h1>
+        <div className="w-10"></div>
       </div>
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col items-center flex-grow ">
+      <div className="relative z-10 flex flex-col items-center flex-grow max-w-md mx-auto w-full px-6">
         {/* Logo */}
         <Link
-          to="/home"
-          className="flex flex-col items-center text-center mb-12 mt-8 sm:mt-12"
+          to="/"
+          className="flex flex-col items-center text-center my-10 animate-fadeIn"
         >
-          <img
-            src="https://favour-111.github.io/MEalSection-ComongSoon-2.0/WhatsApp%20Image%202024-08-24%20at%2020.18.12_988ce6f9.jpg"
-            alt=""
-            className="w-50"
-          />
+          <div className="rounded-2xl p-2 bg-gradient-to-br from-red-100 via-orange-100 to-yellow-50 flex items-center justify-center shadow-inner mb-4">
+            <img
+              src="https://favour-111.github.io/MEalSection-ComongSoon-2.0/WhatsApp%20Image%202024-08-24%20at%2020.18.12_988ce6f9.jpg"
+              alt="MealSection Brand"
+              className="w-45 rounded-xl object-contain shadow-sm"
+            />
+          </div>
+          <p className="text-gray-500 text-sm mt-2">
+            Your favorite meals delivered
+          </p>
         </Link>
 
-        {/* Form */}
-        <div className="bg-white rounded-t-3xl shadow w-[100%] px-8 sm:px-14 py-10 mt-auto">
+        {/* Form Card */}
+        <div className="glass rounded-3xl shadow-2xl w-full px-8 py-10 mt-auto mb-8 border border-white/50 animate-scaleIn">
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">Sign In</h2>
+            <p className="text-gray-500 text-sm">
+              Enter your credentials to continue
+            </p>
+          </div>
+
           <form onSubmit={handleLogin} className="space-y-6">
             {/* Email */}
-            <div>
+            <div className="space-y-2">
               <label
                 htmlFor="email"
-                className="block text-sm font-[500] text-gray-700"
+                className="block text-sm font-semibold text-gray-700"
               >
                 Email or Phone
               </label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full rounded-[10px] border bg-gray-50 border-gray-300  p-3 placeholder:text-sm text-sm"
-                placeholder="Enter your email or phone number"
-              />
+              <div className="relative">
+                <input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full rounded-xl border-2 border-gray-200 bg-gray-50/50 p-4 pl-12 text-sm focus:border-[var(--default)] focus:ring-4 focus:ring-red-50 outline-none transition-all duration-300"
+                  placeholder="Enter your email or phone"
+                />
+                <svg
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+                  width="18"
+                  height="18"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  />
+                </svg>
+              </div>
               {errors.email && (
-                <p className="text-red-500 text-xs ">{errors.email}</p>
+                <p className="text-red-500 text-xs flex items-center gap-1 animate-fadeIn">
+                  <svg
+                    width="14"
+                    height="14"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  {errors.email}
+                </p>
               )}
             </div>
 
             {/* Password */}
-            <div>
+            <div className="space-y-2">
               <label
                 htmlFor="password"
-                className="block text-sm font-[500] text-gray-700"
+                className="block text-sm font-semibold text-gray-700"
               >
                 Password
               </label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full rounded-[10px] border bg-gray-50 border-gray-300  p-3 placeholder:text-sm text-sm"
-                placeholder="Enter your password"
-              />
+              <div className="relative">
+                <input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full rounded-xl border-2 border-gray-200 bg-gray-50/50 p-4 pl-12 text-sm focus:border-[var(--default)] focus:ring-4 focus:ring-red-50 outline-none transition-all duration-300"
+                  placeholder="Enter your password"
+                />
+                <svg
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+                  width="18"
+                  height="18"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                  />
+                </svg>
+              </div>
               {errors.password && (
-                <p className="text-red-500 text-xs mt-1">{errors.password}</p>
+                <p className="text-red-500 text-xs flex items-center gap-1 animate-fadeIn">
+                  <svg
+                    width="14"
+                    height="14"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  {errors.password}
+                </p>
               )}
             </div>
 
             {/* Remember + Forgot */}
-            <div className="flex items-center justify-between text-xs sm:text-sm">
-              <div className="flex items-center">
+            <div className="flex items-center justify-between text-sm">
+              <label className="flex items-center gap-2 cursor-pointer group">
                 <input
                   id="remember-me"
                   name="remember-me"
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="h-4 w-4 text-[var(--default)] border-gray-300 rounded"
+                  className="w-4 h-4 text-[var(--default)] border-gray-300 rounded focus:ring-2 focus:ring-[var(--default)] cursor-pointer"
                 />
-                <label
-                  htmlFor="remember-me"
-                  className="ml-2 block text-gray-700"
-                >
+                <span className="text-gray-700 group-hover:text-gray-900 transition-colors">
                   Remember Me
-                </label>
-              </div>
+                </span>
+              </label>
               <button
                 type="button"
                 onClick={() => navigate("/reset-password")}
-                className="font-normal text-[var(--default)] hover:opacity-80"
+                className="font-medium text-[var(--default)] hover:text-[var(--primary-dark)] hover:underline transition-colors"
               >
                 Forgot Password?
               </button>
@@ -154,21 +235,47 @@ function Login() {
             {/* Submit */}
             <button
               type="submit"
-              className="w-full bg-[var(--default)] text-white py-3 px-4 rounded-lg font-normal hover:opacity-80 transition-colors duration-200 focus:outline-none focus:ring-2 text-sm"
+              className="w-full bg-gradient-to-r from-[#9e0505] to-[#c91a1a] text-white py-4 px-4 rounded-xl font-semibold hover:shadow-xl transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-red-200 text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
               disabled={isLoading}
             >
-              {isLoading ? "Logging in..." : "Login"}
+              {isLoading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg
+                    className="animate-spin h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  <span>Logging in...</span>
+                </span>
+              ) : (
+                "Login"
+              )}
             </button>
 
             {/* Sign up link */}
-            <div className="text-center mt-6 mb-4">
-              <p className="text-gray-700 text-sm sm:text-base">
+            <div className="text-center pt-4">
+              <p className="text-gray-600 text-sm">
                 Don't have an account?{" "}
                 <button
+                  type="button"
                   onClick={() => navigate("/signup")}
-                  className="underline font-normal text-[var(--default)] hover:text-[var(--default)]"
+                  className="font-semibold text-[var(--default)] hover:text-[var(--primary-dark)] hover:underline transition-colors"
                 >
-                  Sign Up.
+                  Sign Up
                 </button>
               </p>
             </div>

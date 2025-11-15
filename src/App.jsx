@@ -1,26 +1,50 @@
 import { useState } from "react";
-import { Routes, Route, useLocation, useNavigate } from "react-router-dom"; // ⬅ added useLocation
+import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
 import Footer from "./components/footer/Footer";
-import routes from "./routes";
+import ScrollToTop from "./components/ScrollToTop";
 import "./App.css";
 import { HiOutlineMenu } from "react-icons/hi";
 import { IoCartOutline } from "react-icons/io5";
-import useCart from "./hooks/useCart";
 import { Toaster } from "react-hot-toast";
+import { useAuthContext } from "./context/AuthContext";
+import Loader from "./pages/Loader";
+import { useCartContext } from "./context/CartContext";
+
+// ✅ Import all pages here
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import Onboarding from "./pages/Onboarding";
+import MealList from "./pages/MealList";
+import MealDetails from "./pages/MealDetails";
+import Cart from "./pages/Cart";
+import Checkout from "./pages/Checkout";
+import Profile from "./pages/Profile";
+import Orders from "./pages/Orders";
+import Contact from "./pages/Contact";
+import ReferralScreen from "./pages/Referral";
+import WelcomeScreen from "./pages/WelcomeScreen";
+import ResetPassword from "./components/ResetPassword";
+import Wallet from "./pages/Wallet";
+import Vendor from "./pages/Vendor";
+import OrderDetails from "./pages/OrderDetails";
+import SplashPage from "./pages/SplashPage";
+import Vendors from "./pages/Vendors";
+
 function App() {
-  const { cart } = useCart();
+  const { packs } = useCartContext();
+  const { userLoader } = useAuthContext();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const location = useLocation(); // ⬅ get current route
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
+  const totalItems = packs.reduce((sum, pack) => sum + pack.items.length, 0);
+  const userId = localStorage.getItem("userId");
 
-  // Check if current route is the welcome screen
+  // Hide header/footer on some pages
   const hiddenRoutes = [
-    "/",
+    !userId && "/",
     "/onboarding",
     "/login",
     "/signup",
@@ -30,60 +54,112 @@ function App() {
     "/orderdetails",
     "/wallet",
     "/profile",
-  ];
-  const isWelcomeScreen = hiddenRoutes.includes(location.pathname);
+  ].filter(Boolean);
+  const isHiddenLayout = hiddenRoutes.includes(location.pathname);
+
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-gray-50 via-red-50/20 to-orange-50/20">
+      {/* Scroll to top on route change */}
+      <ScrollToTop />
+
+      {/* Global Loader */}
+      <Loader show={!!userLoader} />
       {/* Header */}
-      {!isWelcomeScreen && ( // Hide header on welcome screen too if needed
-        <header className="px-5 py-3 flex bg-white shadow-sm justify-between items-center ">
-          <button onClick={toggleSidebar}>
-            <HiOutlineMenu size={24} />
-          </button>
-          <img
-            src="https://www.mealsection.com/WhatsApp%20Image%202024-08-24%20at%2020.18.12_988ce6f9.jpg"
-            alt=""
-            className="w-40"
-          />
-          <button onClick={() => navigate("/cart")} className="relative">
-            <IoCartOutline size={24} />
-            <div className="absolute top-0 right-0 rounded-full bg-red-600 text-white font-[600] text-[10px] h-3 flex items-center justify-center w-3">
-              {cart.length}
-            </div>
-          </button>
+      {!isHiddenLayout && (
+        <header className="sm:hidden block sticky top-0 z-40 glass border-b border-gray-200/50 backdrop-blur-xl">
+          <div className="px-5 py-2 flex justify-between items-center max-w-7xl mx-auto">
+            <button
+              onClick={toggleSidebar}
+              className="p-2 rounded-xl hover:bg-red-50 transition-all duration-300 group"
+            >
+              <HiOutlineMenu
+                size={24}
+                className="text-gray-700 group-hover:text-[var(--default)] transition-colors"
+              />
+            </button>
+
+            <img
+              src="https://www.mealsection.com/WhatsApp%20Image%202024-08-24%20at%2020.18.12_988ce6f9.jpg"
+              alt="Logo"
+              className="w-36 sm:w-40 hover:scale-105 transition-transform duration-300"
+            />
+
+            <button
+              onClick={() => navigate("/cart")}
+              className="relative p-2 rounded-xl hover:bg-red-50 transition-all duration-300 group"
+            >
+              <IoCartOutline
+                size={24}
+                className="text-gray-700 group-hover:text-[var(--default)] transition-colors"
+              />
+              {totalItems > 0 && (
+                <div className="absolute -top-1 -right-1 flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-gradient-to-r from-red-600 to-red-500 text-white font-bold text-[10px] shadow-lg animate-scaleIn">
+                  {totalItems}
+                </div>
+              )}
+            </button>
+          </div>
         </header>
       )}
 
       {/* Sidebar */}
-      {!isWelcomeScreen && (
+      {!isHiddenLayout && (
         <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
       )}
 
       {/* Main Content */}
-      <main className=" ">
+      <main>
         <Routes>
-          {routes.map(({ path, element }, index) => (
-            <Route key={index} path={path} element={element} />
-          ))}
+          {/* Public Routes */}
+          <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/referral" element={<ReferralScreen />} />
+          <Route path="/splashpage" element={<SplashPage />} />
+
+          {/* Dynamic Welcome/Home */}
+          {userId ? (
+            <Route path="/" element={<Home />} />
+          ) : (
+            <Route path="/" element={<WelcomeScreen />} />
+          )}
+
+          {/* Protected Routes (only visible if logged in) */}
+          {userId && (
+            <>
+              <Route path="/meals" element={<MealList />} />
+              <Route path="/meals/:id" element={<MealDetails />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/vendors" element={<Vendors />} />
+              <Route path="/orders" element={<Orders />} />
+              <Route path="/wallet" element={<Wallet />} />
+              <Route path="/vendor/:id" element={<Vendor />} />
+              <Route path="/orderdetails" element={<OrderDetails />} />
+            </>
+          )}
         </Routes>
       </main>
+
+      {/* Toast Notifications */}
       <Toaster
         toastOptions={{
           style: {
-            fontSize: "12px", // make text smaller
-            padding: "8px 12px", // optional: adjust padding
+            fontSize: "12px",
+            padding: "8px 12px",
           },
-          success: {
-            duration: 3000,
-          },
-          error: {
-            duration: 3000,
-          },
+          success: { duration: 3000 },
+          error: { duration: 3000 },
         }}
       />
+
       {/* Footer */}
-      {!isWelcomeScreen && <Footer />}
+      {!isHiddenLayout && <Footer />}
     </div>
   );
 }

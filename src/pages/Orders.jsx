@@ -1,82 +1,224 @@
 import { MdOutlineKeyboardBackspace } from "react-icons/md";
-import { Link } from "react-router-dom";
+import { BiPackage } from "react-icons/bi";
+import { useNavigate } from "react-router-dom";
+import { useAuthContext } from "../context/AuthContext";
+import { useState } from "react";
 
 // A component to display a single order card
 function OrderCard({ order }) {
+  const navigate = useNavigate();
+
+  // Extract unique vendor names from the packs array
+  const vendorNames = [
+    ...new Set(order.packs.map((pack) => pack.vendorName).filter(Boolean)),
+  ];
+
   const statusColor =
-    order.status === "Ongoing" ? "text-yellow-600" : "text-green-600";
-  const statusBg =
-    order.status === "Ongoing" ? "bg-transparent" : "bg-transparent";
+    order?.currentStatus === "Pending"
+      ? "text-amber-700 bg-amber-50 border-amber-200"
+      : "text-emerald-700 bg-emerald-50 border-emerald-200";
+
+  const itemCount = order.packs.reduce(
+    (sum, pack) => sum + (pack.items?.length || 0),
+    0
+  );
 
   return (
-    <div className="w-[100%] bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-      <div className="flex items-center justify-between">
-        <h3 className="font-[600] text-base md:text-lg">{order.vendorName}</h3>
-        <span
-          className={`px-2 py-1 rounded-full text-xs md:text-sm font-[400] ${statusColor} ${statusBg}`}
-        >
-          {order.status}
-        </span>
+    <button
+      onClick={() => navigate("/orderdetails", { state: { order } })}
+      className="group w-full bg-white/80 backdrop-blur-sm text-start p-5 rounded-2xl border border-gray-100 hover:border-gray-200 hover:shadow-xl hover:bg-white transition-all duration-300 ease-out"
+    >
+      <div className="flex items-start gap-4">
+        <div className="relative w-14 h-14 bg-gradient-to-br from-red-50 to-orange-50 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+          <BiPackage size={24} className="text-red-500" />
+          {itemCount > 0 && (
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-medium w-5 h-5 rounded-full flex items-center justify-center">
+              {itemCount}
+            </span>
+          )}
+        </div>
+
+        <div className="flex-1 min-w-0">
+          {/* Order ID */}
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-medium text-gray-900">
+              #{order._id?.slice(0, 8).toUpperCase()}
+            </h3>
+            <span
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-medium border ${statusColor}`}
+            >
+              {order.currentStatus}
+            </span>
+          </div>
+
+          {/* Vendor Names */}
+          {vendorNames.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mb-3">
+              {vendorNames.slice(0, 2).map((vendor, idx) => (
+                <span
+                  key={idx}
+                  className="bg-gray-50 text-gray-600 text-[11px] px-2.5 py-1 rounded-md font-normal"
+                >
+                  {vendor}
+                </span>
+              ))}
+              {vendorNames.length > 2 && (
+                <span className="bg-gray-50 text-gray-500 text-[11px] px-2.5 py-1 rounded-md font-normal">
+                  +{vendorNames.length - 2} more
+                </span>
+              )}
+            </div>
+          )}
+
+          {/* Footer - Date and Price */}
+          <div className="flex items-center justify-between text-xs">
+            <p className="text-gray-400">
+              {new Date(order.createdAt).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+              })}
+            </p>
+            <p className="text-gray-700 font-medium">
+              ₦
+              {(
+                order.subtotal +
+                order.serviceFee +
+                order.deliveryFee
+              ).toLocaleString()}
+            </p>
+          </div>
+        </div>
       </div>
-      <p className="text-xs md:text-sm text-gray-500 mt-1">
-        Order #{order.orderNumber}
-      </p>
-      <p className="text-xs md:text-sm text-gray-500 mt-1">{order.date}</p>
-    </div>
+    </button>
   );
 }
 
-// Dummy data
-const dummyOrders = [
-  {
-    id: 1,
-    vendorName: "Food Court",
-    orderNumber: "12221198",
-    date: "10th Aug, 2025, 3:30pm",
-    status: "Ongoing",
-  },
-  {
-    id: 2,
-    vendorName: "Elegance",
-    orderNumber: "12221198",
-    date: "10th Aug, 2025, 3:30pm",
-    status: "Completed",
-  },
-  {
-    id: 3,
-    vendorName: "Elegance",
-    orderNumber: "12221198",
-    date: "10th Aug, 2025, 3:30pm",
-    status: "Completed",
-  },
-  {
-    id: 4,
-    vendorName: "Elegance",
-    orderNumber: "12221198",
-    date: "10th Aug, 2025, 3:30pm",
-    status: "Completed",
-  },
-];
-
 function Orders() {
+  const { orders } = useAuthContext();
+  const navigate = useNavigate();
+  const [filter, setFilter] = useState("All");
+
+  // ✅ Filter logic
+  const filteredOrders = orders?.filter((order) => {
+    if (filter === "All") return true;
+    if (filter === "Pending") return order.currentStatus === "Pending";
+    if (filter === "Delivered") return order.currentStatus === "Delivered";
+    return true;
+  });
+  console.log(orders);
+
   return (
-    <div className="bg-[url('https://png.pngtree.com/png-clipart/20240717/original/pngtree-fast-food-pattern-in-red-png-image_15580267.png')] bg-cover bg-center bg-no-repeat bg-white/97 bg-blend-overlay flex flex-col min-h-screen relative overflow-hidden">
-      {/* Header with back button */}
-      <div className="p-4 flex items-center bg-white  ">
-        <Link to="/home" className="text-gray-600 mr-4">
-          <MdOutlineKeyboardBackspace size={20} />
-        </Link>
-        <h2 className="text-lg md:text-xl font-semibold flex-grow text-center">
-          Orders
-        </h2>
-        <span className="w-6"></span> {/* Spacer */}
+    <div className="bg-gradient-to-br from-slate-50 via-white to-gray-50 min-h-screen pb-6">
+      {/* Header */}
+      <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-gray-100 px-5 py-4 mb-4">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate("/")}
+            className="w-9 h-9 rounded-xl flex items-center justify-center hover:bg-gray-100 transition-all text-gray-600"
+          >
+            <MdOutlineKeyboardBackspace size={20} />
+          </button>
+          <div>
+            <h2 className="text-lg font-medium text-gray-900">My Orders</h2>
+            <p className="text-xs text-gray-500 mt-0.5">
+              {orders?.length || 0} {orders?.length === 1 ? "order" : "orders"}{" "}
+              in total
+            </p>
+          </div>
+        </div>
       </div>
 
-      {/* Orders list (always 1 column) */}
-      <div className="p-4  space-y-4">
-        {dummyOrders.map((order) => (
-          <OrderCard key={order.id} order={order} />
-        ))}
+      {/* Filter Chips */}
+      <div className="flex gap-2 px-5 mb-5 overflow-x-auto no-scrollbar">
+        <button
+          onClick={() => setFilter("All")}
+          className={`px-4 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-all duration-200 ${
+            filter === "All"
+              ? "bg-gradient-to-r from-red-500 to-orange-500 text-white shadow-md shadow-red-200"
+              : "bg-white text-gray-600 border border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+          }`}
+        >
+          All
+          <span
+            className={`ml-1.5 ${
+              filter === "All" ? "text-white/90" : "text-gray-400"
+            }`}
+          >
+            ({orders?.length || 0})
+          </span>
+        </button>
+
+        <button
+          onClick={() => setFilter("Pending")}
+          className={`px-4 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-all duration-200 ${
+            filter === "Pending"
+              ? "bg-gradient-to-r from-amber-400 to-yellow-500 text-white shadow-md shadow-amber-200"
+              : "bg-white text-amber-600 border border-amber-200 hover:border-amber-300 hover:bg-amber-50"
+          }`}
+        >
+          Pending
+          <span
+            className={`ml-1.5 ${
+              filter === "Pending" ? "text-white/90" : "text-amber-500"
+            }`}
+          >
+            ({orders?.filter((o) => o.currentStatus === "Pending")?.length || 0}
+            )
+          </span>
+        </button>
+
+        <button
+          onClick={() => setFilter("Delivered")}
+          className={`px-4 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-all duration-200 ${
+            filter === "Delivered"
+              ? "bg-gradient-to-r from-emerald-500 to-green-500 text-white shadow-md shadow-emerald-200"
+              : "bg-white text-emerald-600 border border-emerald-200 hover:border-emerald-300 hover:bg-emerald-50"
+          }`}
+        >
+          Delivered
+          <span
+            className={`ml-1.5 ${
+              filter === "Delivered" ? "text-white/90" : "text-emerald-500"
+            }`}
+          >
+            (
+            {orders?.filter((o) => o.currentStatus === "Delivered")?.length ||
+              0}
+            )
+          </span>
+        </button>
+      </div>
+
+      {/* Orders List */}
+      <div className="px-5 space-y-3">
+        {filteredOrders?.length > 0 ? (
+          filteredOrders
+            .slice()
+            .reverse()
+            .map((order, idx) => (
+              <div
+                key={order._id}
+                className="animate-fadeIn"
+                style={{ animationDelay: `${idx * 50}ms` }}
+              >
+                <OrderCard order={order} />
+              </div>
+            ))
+        ) : (
+          <div className="text-center py-20 animate-fadeIn">
+            <div className="w-20 h-20 mx-auto bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl flex items-center justify-center mb-4">
+              <BiPackage size={36} className="text-gray-300" />
+            </div>
+            <h3 className="text-base font-medium text-gray-700 mb-1">
+              No Orders Found
+            </h3>
+            <p className="text-gray-400 text-sm">
+              {filter === "All"
+                ? "You haven't placed any orders yet."
+                : `No ${filter.toLowerCase()} orders found.`}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

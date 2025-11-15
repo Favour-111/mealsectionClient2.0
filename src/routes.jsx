@@ -19,8 +19,9 @@ import SplashPage from "./pages/SplashPage";
 import Vendors from "./pages/Vendors";
 import vendors from "./components/Vendors";
 
+const userId = localStorage.getItem("userId");
 const routes = [
-  { path: "/home", element: <Home /> },
+  { path: userId ? "/" : "/home", element: <Home /> },
   { path: "/onboarding", element: <Onboarding /> },
   { path: "/login", element: <Login /> },
   { path: "/signup", element: <Signup /> },
@@ -33,12 +34,11 @@ const routes = [
   { path: "/orders", element: <Orders /> },
   { path: "/contact", element: <Contact /> },
   { path: "/referral", element: <ReferralScreen /> },
-  { path: "/", element: <WelcomeScreen /> },
   { path: "/reset-password", element: <ResetPassword /> },
   { path: "/wallet", element: <Wallet /> },
   { path: "/vendor/:name", element: <Vendor /> },
   { path: "/orderdetails", element: <OrderDetails /> },
   { path: "/splashpage", element: <SplashPage /> },
-];
-
+  !userId && { path: "/", element: <WelcomeScreen /> },
+].filter(Boolean); // <--- this removes falsy items
 export default routes;

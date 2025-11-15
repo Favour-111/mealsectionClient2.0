@@ -1,202 +1,411 @@
-import { useState } from "react";
-import { FiDownload } from "react-icons/fi";
-import { IoMdArrowBack } from "react-icons/io";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { IoMdArrowBack } from "react-icons/io";
+import { FiDownload } from "react-icons/fi";
 import { GoUpload } from "react-icons/go";
-import InputField from "../components/InputField";
 import { MdOutlineClose } from "react-icons/md";
+import { PaystackButton } from "react-paystack";
+import toast from "react-hot-toast";
+import InputField from "../components/InputField";
+import { useAuthContext } from "../context/AuthContext";
+import axios from "axios";
+import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
+import { HiArrowDownTray, HiMiniQrCode } from "react-icons/hi2";
+import { TbTransfer } from "react-icons/tb";
+import { RiExchangeDollarLine } from "react-icons/ri";
+import { LuSparkles } from "react-icons/lu";
+import { CiCreditCard1 } from "react-icons/ci";
 
 function Wallet() {
-  const [balance, setBalance] = useState(3000);
-  const [paymentHistory] = useState([
-    { id: "12772798", date: "Aug 5th, 2025. 5:00pm", amount: -2000 },
-    { id: "12772799", date: "Aug 6th, 2025. 6:30pm", amount: 5000 },
-    { id: "12772800", date: "Aug 7th, 2025. 1:20pm", amount: -1200 },
-    { id: "12772801", date: "Aug 7th, 2025. 3:45pm", amount: -800 },
-  ]);
-
+  const [balance, setBalance] = useState(0);
+  const [amount, setAmount] = useState("");
+  const [modal, setModal] = useState(false);
+  const [showBalance, setShowBalance] = useState(true);
+  const [filter, setFilter] = useState("all"); // all | in | out
+  const [autoTopUp, setAutoTopUp] = useState(false);
+  const [spendLimit, setSpendLimit] = useState(0);
+  const [successPulse, setSuccessPulse] = useState(false);
   const navigate = useNavigate();
 
-  const handleAddMoney = () => console.log("Add Money clicked");
-  const handleRemoveCard = () => console.log("Remove Card clicked");
-  const handleAddCard = () => console.log("Add Card clicked");
-  const [modal, setModal] = useState(false);
+  const { user, userFetch } = useAuthContext();
+  const publicKey = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
+  const email = user?.email;
+
+  // Animated count-up for balance
+  const displayBalance = useCountUp(Number(balance || user?.availableBal || 0));
+
+  const handleSuccess = async (reference) => {
+    toast.success("Payment successful!");
+    console.log("Payment success reference:", reference);
+
+    try {
+      const token = localStorage.getItem("token");
+
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_REACT_APP_API}/api/users/add-balance`,
+        { amount },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      setBalance(data.availableBal);
+      await userFetch();
+
+      toast.success("Wallet updated successfully!");
+      // Trigger a subtle success pulse on the wallet card
+      setSuccessPulse(true);
+      setTimeout(() => setSuccessPulse(false), 1200);
+    } catch (error) {
+      console.error("Error updating balance:", error);
+      toast.error("Payment verified, but failed to update wallet.");
+    } finally {
+      setModal(false);
+      setAmount("");
+    }
+  };
+
+  // ✅ When payment fails or is cancelled
+  const handleClose = () => {
+    toast.error("Payment cancelled or failed");
+    console.log("Payment closed");
+  };
+
+  // Paystack payment configuration
+  const componentProps = {
+    email,
+    amount: Number(amount) * 100, // kobo (Paystack works in lowest currency unit)
+    publicKey,
+    text: "Pay Now",
+    onSuccess: handleSuccess,
+    onClose: handleClose,
+  };
 
   return (
-    <div className="bg-[url('https://png.pngtree.com/png-clipart/20240717/original/pngtree-fast-food-pattern-in-red-png-image_15580267.png')] bg-cover bg-center bg-no-repeat bg-white/97 bg-blend-overlay flex flex-col min-h-screen relative overflow-hidden">
+    <div className="relative flex flex-col min-h-screen overflow-hidden bg-white">
+      {/* Ambient background orbs */}
+      <div className="pointer-events-none absolute -top-24 -left-24 h-72 w-72 rounded-full bg-gradient-to-br from-rose-500/20 to-orange-400/20 blur-3xl animate-pulse" />
+      <div className="pointer-events-none absolute -bottom-24 -right-24 h-80 w-80 rounded-full bg-gradient-to-br from-purple-500/20 to-blue-400/20 blur-3xl animate-pulse [animation-delay:400ms]" />
+
       {/* Header */}
-      <div className="relative z-10 sm:p-4 p-3 bg-[#fff0] flex items-center justify-between ">
-        <div className="flex justify-between w-[100%] items-center ">
-          <div className="flex-1">
-            <button
-              onClick={() => navigate("/home")}
-              aria-label="Go back"
-              className=" p-2 rounded-md w-[fit-content] hover:bg-gray-100"
-            >
-              <IoMdArrowBack size={20} />
-            </button>
-          </div>
-          <h1 className="flex-1 text-center text-[20px] font-[600]">Wallet</h1>
-          <h1 className="flex-1"></h1>
+      <div className="relative z-10 sm:p-4 p-3">
+        <div className="flex items-center justify-between">
+          <button
+            onClick={() => navigate(-1)}
+            aria-label="Go back"
+            className="p-2 rounded-md hover:bg-gray-100"
+          >
+            <IoMdArrowBack size={20} />
+          </button>
+          <h1 className="text-center text-[18px] sm:text-[20px] font-[700] tracking-tight bg-gradient-to-r from-rose-600 to-orange-500 bg-clip-text text-transparent">
+            Wallet
+          </h1>
+          <div className="w-9" />
         </div>
       </div>
 
-      <main className="p-5">
-        {/* Available Balance */}
-        <div className="bg-[#f6f6f6] rounded-xl  p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between">
-          <div>
-            <p className="text-[12px]  text-[#787878]">Available Balance</p>
-            <p className="text-3xl font-bold mt-1">
-              N{balance.toLocaleString()}
-            </p>
-          </div>
-          <button
-            onClick={() => setModal(true)}
-            className="mt-4 sm:mt-0 flex items-center bg-red-700 text-white px-4 py-2 rounded-[10px] font-[600] text-[13px]  shadow-md hover:bg-red-800 transition-colors"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4 mr-1"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-              />
-            </svg>
-            Add Funds
-          </button>
-        </div>
+      <main className="relative z-10 p-5 space-y-6">
+        {/* Wallet Card */}
+        <div
+          className={`relative overflow-hidden rounded-2xl p-[1px] transition-all duration-500 ${
+            successPulse ? "ring-2 ring-rose-400/60" : "ring-0"
+          } bg-gradient-to-br from-rose-500 to-orange-400`}
+        >
+          <div className="relative rounded-2xl bg-white/85 backdrop-blur-xl p-4 sm:p-6">
+            {/* Accent shimmer */}
+            <div className="pointer-events-none absolute -top-6 right-10 h-24 w-24 rotate-12 bg-gradient-to-br from-white/40 to-white/0 blur-xl" />
 
-        {/* Manage Cards */}
-        {/* <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
-          <h2 className="text-lg sm:text-xl font-bold mb-4">Manage Cards</h2>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between py-2 border-b last:border-b-0">
-              <div className="flex items-center space-x-3">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6 text-red-600"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 002 2v4a2 2 0 002-2V6a2 2 0 00-2-2H4zm2 10a2 2 0 012-2h8a2 2 0 012 2v2a2 2 0 01-2 2H8a2 2 0 01-2-2v-2z" />
-                </svg>
-                <span className="text-gray-800 text-sm sm:text-base">
-                  **** **** 1234
-                </span>
+            {/* Top row */}
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 text-xs font-medium text-rose-700">
+                <CiCreditCard1 className="h-4 w-4" />
+                Premium Wallet
               </div>
               <button
-                onClick={handleRemoveCard}
-                aria-label="Remove Card"
-                className="text-gray-400 hover:text-red-500 transition-colors"
+                onClick={() => setShowBalance((v) => !v)}
+                className="inline-flex items-center gap-2 rounded-full bg-black/5 px-3 py-1 text-xs font-medium text-gray-700 hover:bg-black/10 transition"
+                aria-label={showBalance ? "Hide balance" : "Show balance"}
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 7l-.867 12.142A2 2 0 0116.013 21H7.987a2 2 0 01-1.92-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                  />
-                </svg>
+                {showBalance ? (
+                  <FaRegEyeSlash className="h-3.5 w-3.5" />
+                ) : (
+                  <FaRegEye className="h-3.5 w-3.5" />
+                )}
+                <span className="hidden sm:inline">
+                  {showBalance ? "Hide" : "Show"}
+                </span>
               </button>
             </div>
 
-            <button
-              onClick={handleAddCard}
-              className="w-full flex items-center justify-center space-x-2 py-3 text-red-600 font-semibold rounded-md border-2 border-dashed border-red-300 hover:bg-red-50 transition-colors"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-              <span>Add new card</span>
-            </button>
-          </div>
-        </div> */}
-
-        {/* Payment History */}
-        <div className=" rounded-xl  p-4 sm:p-6 mt-6">
-          <h2 className="text-lg sm:text-xl font-[600] text-[#555555] mb-4">
-            Payment History
-          </h2>
-          <div className="space-y-4">
-            {paymentHistory.map((transaction, index) => (
-              <div
-                key={index}
-                className="flex justify-between items-center py-2 "
-              >
-                <div className="flex items-center gap-2">
-                  {!transaction.amount.toString().includes("-") ? (
-                    <div className="bg-green-100 text-green-600 rounded-[10px] p-3">
-                      <FiDownload />
-                    </div>
-                  ) : (
-                    <div className="bg-red-100 text-red-800 rounded-[10px] p-3">
-                      <GoUpload />
-                    </div>
-                  )}
-
-                  <div>
-                    <p className="text-sm  font-[500]">
-                      Order #{transaction.id}
-                    </p>
-                    <p className="text-xs sm:text-sm font-[300] text-gray-500">
-                      {transaction.date}
-                    </p>
-                  </div>
-                </div>
-
-                <div
-                  className={`text-sm font-[500] mt-2 sm:mt-0 
+            {/* Balance */}
+            <div className="mt-4">
+              <p className="text-[12px] text-gray-500">Available Balance</p>
+              <div className="mt-1 flex items-end gap-3">
+                <p
+                  className={`text-3xl sm:text-4xl font-extrabold tracking-tight transition-all ${
+                    showBalance ? "blur-0" : "blur-sm"
                   }`}
                 >
-                  N{transaction.amount.toLocaleString()}
+                  ₦{showBalance ? displayBalance.toLocaleString() : "•••••"}
+                </p>
+                <span className="rounded-full bg-emerald-50 px-2 py-1 text-[11px] font-semibold text-emerald-600">
+                  Active
+                </span>
+              </div>
+            </div>
+
+            {/* Meta & actions */}
+            <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-3 text-[12px] text-gray-600">
+                <div className="flex items-center gap-1">
+                  <span className="font-medium">ID:</span>
+                  <button
+                    onClick={() => {
+                      const id = user?._id || "wallet";
+                      navigator.clipboard.writeText(id);
+                      toast.success("Wallet ID copied");
+                    }}
+                    className="rounded-md bg-black/5 px-2 py-1 hover:bg-black/10"
+                  >
+                    {(user?._id || "wallet").slice(0, 8)}···
+                  </button>
+                </div>
+                <span className="hidden sm:inline">•</span>
+                <div>
+                  <span className="font-medium">Tier:</span> Basic
                 </div>
               </div>
-            ))}
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setModal(true)}
+                  className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-rose-600 to-orange-500 px-4 py-2 text-[11px] whitespace-nowrap font-semibold text-white shadow-sm transition hover:shadow-md active:scale-[0.99]"
+                >
+                  <RiExchangeDollarLine className="h-4 w-4 transition group-hover:rotate-12" />
+                  Add Funds
+                </button>
+                <button
+                  onClick={() => toast("Transfer coming soon")}
+                  className="inline-flex items-center gap-2 rounded-xl bg-black/5 px-4 py-2 text-[13px] font-semibold text-gray-800 transition hover:bg-black/10"
+                >
+                  <TbTransfer className="h-4 w-4" />
+                  Send
+                </button>
+                <button
+                  onClick={() => toast("QR receive coming soon")}
+                  className="inline-flex items-center gap-2 rounded-xl bg-black/5 px-4 py-2 text-[13px] font-semibold text-gray-800 transition hover:bg-black/10"
+                >
+                  <HiMiniQrCode className="h-4 w-4" />
+                  Receive
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick stats */}
+        <div className="grid grid-cols-2 gap-3">
+          <Stat
+            label="Available"
+            value={Number(balance || user?.availableBal || 0)}
+            tone="emerald"
+          />
+          <Stat
+            label="Spent (30d)"
+            value={calcSpent(user?.paymentHistory)}
+            tone="rose"
+          />
+        </div>
+
+        {/* Controls + History */}
+        <div className="rounded-2xl border border-gray-100 bg-white shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 p-4">
+            <h2 className="text-base sm:text-lg font-[700] tracking-tight text-gray-800">
+              Transactions
+            </h2>
+            <div className="flex items-center gap-2">
+              <FilterChip
+                active={filter === "all"}
+                onClick={() => setFilter("all")}
+              >
+                All
+              </FilterChip>
+              <FilterChip
+                active={filter === "in"}
+                onClick={() => setFilter("in")}
+              >
+                In
+              </FilterChip>
+              <FilterChip
+                active={filter === "out"}
+                onClick={() => setFilter("out")}
+              >
+                Out
+              </FilterChip>
+              <button
+                onClick={() =>
+                  exportCSV(filteredTx(user?.paymentHistory, filter))
+                }
+                className="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-[12px] font-semibold text-gray-700 hover:bg-gray-50"
+                aria-label="Export CSV"
+              >
+                <HiArrowDownTray className="h-4 w-4" />
+                Export
+              </button>
+            </div>
+          </div>
+
+          <div className="divide-y divide-gray-100">
+            {filteredTx(user?.paymentHistory, filter).length === 0 ? (
+              <div className="p-6 text-center text-sm text-gray-500">
+                No transactions yet.
+              </div>
+            ) : (
+              filteredTx(user?.paymentHistory, filter).map((t, i) => (
+                <div
+                  key={t?._id || i}
+                  className="flex items-center justify-between gap-3 p-4"
+                >
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`grid h-10 w-10 place-items-center rounded-xl ${
+                        t?.type === "in"
+                          ? "bg-emerald-50 text-emerald-600"
+                          : "bg-rose-50 text-rose-600"
+                      }`}
+                    >
+                      {t?.type === "in" ? <FiDownload /> : <GoUpload />}
+                    </div>
+                    <div>
+                      <p className="text-sm font-[600] text-gray-800">
+                        {labelForTx(t)}
+                      </p>
+                      <p className="text-[12px] text-gray-500">
+                        {formatDate(t?.date)}
+                      </p>
+                    </div>
+                  </div>
+                  <div
+                    className={`text-sm font-[700] ${
+                      t?.type === "out" ? "text-rose-600" : "text-emerald-600"
+                    }`}
+                  >
+                    {t?.type === "out" ? "-" : "+"}₦
+                    {Number((t?.price ?? t?.amount) || 0).toLocaleString()}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Settings */}
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+            <h3 className="text-sm font-[700] text-gray-800">Auto Top-up</h3>
+            <p className="mt-1 text-[12px] text-gray-500">
+              Automatically top up when balance falls below ₦1,000.
+            </p>
+            <div className="mt-3 flex items-center justify-between">
+              <span className="text-[13px] font-medium text-gray-700">
+                Status: {autoTopUp ? "Enabled" : "Disabled"}
+              </span>
+              <button
+                onClick={() => setAutoTopUp((v) => !v)}
+                className={`relative inline-flex h-7 w-12 items-center rounded-full transition ${
+                  autoTopUp ? "bg-emerald-500" : "bg-gray-300"
+                }`}
+                aria-pressed={autoTopUp}
+              >
+                <span
+                  className={`inline-block h-5 w-5 rounded-full bg-white transition ${
+                    autoTopUp ? "translate-x-6" : "translate-x-1"
+                  }`}
+                />
+              </button>
+            </div>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+            <h3 className="text-sm font-[700] text-gray-800">
+              Monthly Spend Limit
+            </h3>
+            <p className="mt-1 text-[12px] text-gray-500">
+              Get alerts when you near your limit.
+            </p>
+            <div className="mt-3 flex items-center gap-3">
+              <input
+                type="number"
+                className="w-40 rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-rose-500/30"
+                placeholder="₦10,000"
+                value={spendLimit || ""}
+                onChange={(e) => setSpendLimit(Number(e.target.value))}
+              />
+              <div className="text-[12px] text-gray-500">
+                Current: ₦{calcSpent(user?.paymentHistory).toLocaleString()}
+              </div>
+            </div>
           </div>
         </div>
       </main>
+
+      {/* Top-up Modal */}
       {modal && (
-        <div className="fixed px-7 flex items-center justify-center bg-[#000000a9] top-0 bottom-0 right-0 left-0">
-          <div className="relative w-100 bg-white p-5 rounded-[10px]">
-            <h1 className="text-center font-[400] ">Wallet Topup</h1>
-            <div className="mt-4">
-              <label htmlFor="" className="text-sm ">
-                Amount to top-up
-              </label>
-              <InputField type="text" placeholder="Enter amount " />
-            </div>
-            <button className="w-[100%] bg-[var(--default)] p-2.5 rounded-[10px] hover:opacity-70 duration-300 text-sm text-white">
-              Pay Now
-            </button>
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4">
+          <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-white/20 bg-white/90 p-5 shadow-2xl backdrop-blur-xl">
+            <div className="absolute -top-10 -right-10 h-32 w-32 rounded-full bg-gradient-to-br from-rose-500/20 to-orange-400/20 blur-2xl" />
             <button
               onClick={() => setModal(false)}
-              className="absolute top-0 right-0 p-4"
+              className="absolute right-2 top-2 rounded-full p-2 text-gray-600 hover:bg-black/5"
+              aria-label="Close"
             >
               <MdOutlineClose />
             </button>
+            <h2 className="text-center text-[16px] font-[700] text-gray-800">
+              Wallet Top‑up
+            </h2>
+            <p className="mt-1 text-center text-[12px] text-gray-500">
+              Secure payment via Paystack
+            </p>
+
+            <div className="mt-4">
+              <label className="text-[12px] text-gray-600">Amount</label>
+              <InputField
+                type="number"
+                placeholder="Enter amount"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+              />
+              <div className="mt-2 flex flex-wrap gap-2 text-[12px]">
+                {[1000, 2000, 5000, 10000].map((v) => (
+                  <button
+                    key={v}
+                    onClick={() => setAmount(String(v))}
+                    className="rounded-full border border-gray-200 px-3 py-1 font-semibold text-gray-700 hover:bg-gray-50"
+                  >
+                    ₦{v.toLocaleString()}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-4">
+              {amount > 0 ? (
+                <PaystackButton
+                  {...componentProps}
+                  className="w-full rounded-xl bg-gradient-to-r from-rose-600 to-orange-500 p-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 active:scale-[0.99]"
+                />
+              ) : (
+                <button
+                  disabled
+                  className="w-full rounded-xl bg-gray-300 p-3 text-sm font-semibold text-white"
+                >
+                  Enter Amount
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )}
@@ -205,3 +414,121 @@ function Wallet() {
 }
 
 export default Wallet;
+
+// ------- helpers -------
+function FilterChip({ active, onClick, children }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`rounded-full px-3 py-1.5 text-[12px] font-semibold transition ${
+        active
+          ? "bg-gray-900 text-white shadow-sm"
+          : "bg-black/5 text-gray-700 hover:bg-black/10"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
+function Stat({ label, value, tone = "emerald" }) {
+  const tones = {
+    emerald: {
+      bg: "bg-emerald-50",
+      text: "text-emerald-700",
+    },
+    amber: { bg: "bg-amber-50", text: "text-amber-700" },
+    rose: { bg: "bg-rose-50", text: "text-rose-700" },
+  };
+  const t = tones[tone] || tones.emerald;
+  return (
+    <div className={`rounded-xl ${t.bg} p-3`}>
+      <p className="text-[11px] text-gray-500">{label}</p>
+      <p className={`mt-1 text-sm font-[800] ${t.text}`}>
+        ₦{Number(value || 0).toLocaleString()}
+      </p>
+    </div>
+  );
+}
+
+function filteredTx(list = [], filter = "all") {
+  if (!Array.isArray(list)) return [];
+  if (filter === "all") return list;
+  if (filter === "in") return list.filter((t) => t?.type === "in");
+  if (filter === "out") return list.filter((t) => t?.type !== "in");
+  return list;
+}
+
+function labelForTx(t) {
+  const id = t?._id ? String(t._id).slice(0, 6) : "000000";
+  return t?.type === "in" ? `Top‑up #${id}` : `Order #${id}`;
+}
+
+function formatDate(d) {
+  try {
+    return new Date(d).toLocaleString();
+  } catch {
+    return "";
+  }
+}
+
+function calcSpent(list = []) {
+  try {
+    return list
+      ?.filter((t) => t?.type === "out")
+      ?.reduce((acc, t) => acc + Number((t?.price ?? t?.amount) || 0), 0);
+  } catch {
+    return 0;
+  }
+}
+
+function exportCSV(list = []) {
+  const rows = [["id", "type", "amount", "date"]];
+  list.forEach((t) => {
+    rows.push([
+      String(t?._id || "").replaceAll(",", ""),
+      t?.type || "",
+      String((t?.price ?? t?.amount) || 0),
+      formatDate(t?.date),
+    ]);
+  });
+  const csv = rows.map((r) => r.join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `wallet-transactions-${Date.now()}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function useCountUp(value, duration = 600) {
+  const [display, setDisplay] = useState(0);
+  const startRef = useRef(0);
+  const fromRef = useRef(0);
+  const toRef = useRef(0);
+  const rafRef = useRef(0);
+
+  useEffect(() => {
+    cancelAnimationFrame(rafRef.current);
+    startRef.current = performance.now();
+    fromRef.current = display;
+    toRef.current = Number(value) || 0;
+
+    const tick = (now) => {
+      const p = Math.min(1, (now - startRef.current) / duration);
+      const eased = easeOutCubic(p);
+      const next = fromRef.current + (toRef.current - fromRef.current) * eased;
+      setDisplay(Math.round(next));
+      if (p < 1) rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [value, duration]);
+
+  return display;
+}
+
+function easeOutCubic(x) {
+  return 1 - Math.pow(1 - x, 3);
+}

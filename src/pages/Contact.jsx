@@ -1,73 +1,161 @@
-import { Link } from "react-router-dom";
+import { MdEmail, MdPhone, MdLocationOn } from "react-icons/md";
+import { RiCustomerService2Fill } from "react-icons/ri";
+import { BiSupport } from "react-icons/bi";
 
 function Contact() {
   return (
-    <div className="bg-[url('https://png.pngtree.com/png-clipart/20240717/original/pngtree-fast-food-pattern-in-red-png-image_15580267.png')] bg-cover bg-center bg-no-repeat bg-white/97 bg-blend-overlay flex flex-col min-h-screen relative overflow-hidden">
-      {/* ✅ Page Content only (Navbar removed) */}
-      <div className="sm:p-10 p-5">
-        <h2 className="text-lg md:text-2xl font-semibold mb-2">Contact Us</h2>
-        <p className="text-sm md:text-base text-gray-600 mb-6">
-          We'd love to hear from you! Whether you have a question, complaint,
-          feedback, or need support, our team is here to help.
-        </p>
+    <div className="bg-gradient-to-br from-gray-50 via-white to-gray-50 min-h-screen text-gray-800">
+      {/* Local animations */}
+      <style>{`
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(6px) } to { opacity: 1; transform: translateY(0) } }
+        .contact-reveal { opacity: 0; animation: fadeUp .5s ease-out forwards }
+      `}</style>
+      {/* Header */}
+      <div className="bg-gradient-to-r from-[#9e0505] to-[#c91a1a] text-white py-10 px-4">
+        <div
+          className="max-w-4xl mx-auto text-center contact-reveal"
+          style={{ animationDelay: "40ms" }}
+        >
+          <div className="w-16 h-16 mx-auto mb-3 bg-white/15 backdrop-blur-sm rounded-full flex items-center justify-center ring-1 ring-white/20 transform-gpu">
+            <BiSupport size={30} className="text-white" />
+          </div>
+          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight mb-2">
+            Contact Us
+          </h1>
+          <p className="text-white/90 max-w-2xl mx-auto text-sm md:text-base">
+            We'd love to hear from you! Whether you have a question, complaint,
+            feedback, or need support, our team is here to help.
+          </p>
+        </div>
+      </div>
 
-        {/* Contact Options */}
-        <div className="space-y-4 md:space-y-0 md:grid md:grid-cols-2 md:gap-4">
+      {/* Contact Options */}
+      <div className="max-w-4xl mx-auto px-4 -mt-8">
+        <div className="grid md:grid-cols-2 gap-4 mb-8">
           {/* Email Card */}
-          <div className="bg-white p-4 rounded-lg shadow-sm flex items-center space-x-4 hover:shadow-md transition">
-            <div className="bg-red-500 p-2 rounded-full text-white">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6 md:h-7 md:w-7"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                />
-              </svg>
-            </div>
-            <div>
-              <p className="font-semibold text-gray-700">Email</p>
-              <a
-                href="mailto:xxxxx@gmail.com"
-                className="text-sm md:text-base text-gray-500"
-              >
-                xxxxx@gmail.com
-              </a>
+          <div className="contact-reveal" style={{ animationDelay: "80ms" }}>
+            <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 hover:shadow-lg transition-all duration-300 transform-gpu hover:-translate-y-0.5">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-red-100 to-orange-100 rounded-xl flex items-center justify-center flex-shrink-0 ring-1 ring-red-200/60">
+                  <MdEmail size={22} className="text-[var(--default)]" />
+                </div>
+                <div>
+                  <p className="font-semibold text-gray-900 mb-0.5 text-base">
+                    Email Us
+                  </p>
+                  <a
+                    href="mailto:xxxxx@gmail.com"
+                    aria-label="Email MealSection support"
+                    className="text-gray-600 hover:text-[var(--default)] transition-colors text-sm"
+                  >
+                    xxxxx@gmail.com
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Call/Message Card */}
-          <div className="bg-white p-4 rounded-lg shadow-sm flex items-center space-x-4 hover:shadow-md transition">
-            <div className="bg-green-500 p-2 rounded-full text-white">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6 md:h-7 md:w-7"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 10l4.553 2.276A2 2 0 0121 14.118V17a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h14a2 2 0 012 2v.882a2 2 0 01-1.447 1.842L15 12V10z"
-                />
-              </svg>
+          {/* Phone Card */}
+          <div className="contact-reveal" style={{ animationDelay: "120ms" }}>
+            <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 hover:shadow-lg transition-all duration-300 transform-gpu hover:-translate-y-0.5">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0 ring-1 ring-emerald-200/60">
+                  <MdPhone size={22} className="text-green-600" />
+                </div>
+                <div>
+                  <p className="font-semibold text-gray-900 mb-0.5 text-base">
+                    Call/Message
+                  </p>
+                  <a
+                    href="tel:0800000000"
+                    aria-label="Call MealSection support"
+                    className="text-gray-600 hover:text-green-600 transition-colors text-sm"
+                  >
+                    0800000000
+                  </a>
+                </div>
+              </div>
             </div>
-            <div>
-              <p className="font-semibold text-gray-700">Call/Message</p>
-              <a
-                href="tel:0800000000"
-                className="text-sm md:text-base text-gray-500"
-              >
-                0800000000
-              </a>
+          </div>
+        </div>
+
+        {/* Support Hours */}
+        <div className="contact-reveal" style={{ animationDelay: "160ms" }}>
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl flex items-center justify-center ring-1 ring-indigo-200/60">
+                <RiCustomerService2Fill size={20} className="text-blue-600" />
+              </div>
+              <h3 className="text-lg md:text-xl font-semibold text-gray-900">
+                Customer Support Hours
+              </h3>
+            </div>
+            <div className="space-y-1.5 text-gray-600 text-sm">
+              <p className="flex justify-between">
+                <span className="font-medium">Monday - Friday:</span>
+                <span>9:00 AM - 6:00 PM</span>
+              </p>
+              <p className="flex justify-between">
+                <span className="font-medium">Saturday:</span>
+                <span>10:00 AM - 4:00 PM</span>
+              </p>
+              <p className="flex justify-between">
+                <span className="font-medium">Sunday:</span>
+                <span className="text-gray-400">Closed</span>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* FAQ Section */}
+        <div className="contact-reveal" style={{ animationDelay: "200ms" }}>
+          <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
+            <h3 className="text-lg md:text-xl font-semibold text-gray-900 mb-3">
+              Frequently Asked Questions
+            </h3>
+            <div className="space-y-3">
+              <details className="group p-4 bg-white rounded-xl border border-gray-100 transition-all">
+                <summary className="list-none cursor-pointer select-none flex items-center justify-between">
+                  <span className="font-medium text-gray-900 text-base">
+                    How do I track my order?
+                  </span>
+                  <span className="text-gray-500 group-open:rotate-180 transition-transform">
+                    ▾
+                  </span>
+                </summary>
+                <p className="text-gray-600 text-sm mt-2">
+                  Navigate to the Orders page to see real-time updates on all
+                  your orders.
+                </p>
+              </details>
+              <details className="group p-4 bg-white rounded-xl border border-gray-100 transition-all">
+                <summary className="list-none cursor-pointer select-none flex items-center justify-between">
+                  <span className="font-medium text-gray-900 text-base">
+                    What payment methods do you accept?
+                  </span>
+                  <span className="text-gray-500 group-open:rotate-180 transition-transform">
+                    ▾
+                  </span>
+                </summary>
+                <p className="text-gray-600 text-sm mt-2">
+                  We currently accept wallet payments. You can fund your wallet
+                  through various methods.
+                </p>
+              </details>
+              <details className="group p-4 bg-white rounded-xl border border-gray-100 transition-all">
+                <summary className="list-none cursor-pointer select-none flex items-center justify-between">
+                  <span className="font-medium text-gray-900 text-base">
+                    How long does delivery take?
+                  </span>
+                  <span className="text-gray-500 group-open:rotate-180 transition-transform">
+                    ▾
+                  </span>
+                </summary>
+                <p className="text-gray-600 text-sm mt-2">
+                  Delivery typically takes 30-45 minutes depending on your
+                  location and order size.
+                </p>
+              </details>
             </div>
           </div>
         </div>
