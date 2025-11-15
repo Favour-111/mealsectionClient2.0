@@ -28,7 +28,7 @@ function Sidebar({ isOpen, toggleSidebar }) {
     <>
       {/* Desktop Top Nav (visible on lg and above) */}
       <div className="hidden lg:block w-full sticky top-0 bg-white/70 backdrop-blur-md supports-[backdrop-filter]:bg-white/60 border-b border-gray-100 z-40">
-        <div className="max-w-7xl mx-auto px-6 py-3.5 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
             <img
               src="https://www.mealsection.com/WhatsApp%20Image%202024-08-24%20at%2020.18.12_988ce6f9.jpg"
@@ -102,12 +102,12 @@ function Sidebar({ isOpen, toggleSidebar }) {
         ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
         {/* Sidebar Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-100">
+        <div className="flex items-center justify-between p-4 border-b border-gray-100">
           <Link to="/" className="flex-1">
             <img
               src="https://www.mealsection.com/WhatsApp%20Image%202024-08-24%20at%2020.18.12_988ce6f9.jpg"
               alt="MealSection Logo"
-              className="w-32 hover:scale-105 transition-transform duration-300"
+              className="w-28 hover:scale-105 transition-transform duration-300"
             />
           </Link>
           <button
@@ -133,7 +133,7 @@ function Sidebar({ isOpen, toggleSidebar }) {
         </div>
 
         {/* Navigation Links */}
-        <nav className="flex flex-col mt-6 px-4 space-y-2">
+        <nav className="flex flex-col mt-4 px-3.5 space-y-[6px]">
           {menuItems.map((item, index) => {
             const isActive = location.pathname === item.path;
             return (
@@ -141,11 +141,11 @@ function Sidebar({ isOpen, toggleSidebar }) {
                 key={item.path}
                 to={item.path}
                 className={`
-                  group flex items-center gap-4 px-4 py-3.5 rounded-xl font-medium text-[15px]
+                  group flex items-center gap-3.5 px-3.5 py-2.5 rounded-lg font-medium text-[15px]
                   transition-all duration-300 
                   ${
                     isActive
-                      ? "bg-gradient-to-r from-red-50 to-orange-50 text-[var(--default)] shadow-sm"
+                      ? "bg-gradient-to-r from-red-50 to-orange-50 text-[var(--default)]"
                       : "text-gray-700 hover:bg-gray-50 hover:text-[var(--default)]"
                   }
                 `}
@@ -176,15 +176,15 @@ function Sidebar({ isOpen, toggleSidebar }) {
         </nav>
 
         {/* Divider */}
-        <div className="mx-6 my-6 border-t border-gray-200" />
+        <div className="mx-4 my-4 border-t border-gray-200" />
 
         {/* User Section or Promotional Content */}
-        <div className="px-6 mb-6">
-          <div className="bg-gradient-to-br from-red-50 to-orange-50 rounded-2xl p-5 border border-red-100">
-            <h3 className="font-bold text-gray-800 mb-2 text-sm">
+        <div className="px-4 mb-4">
+          <div className="bg-gradient-to-br from-red-50 to-orange-50 rounded-xl p-4 border border-red-100">
+            <h3 className="font-bold text-gray-800 mb-1.5 text-sm">
               🎁 Special Offer
             </h3>
-            <p className="text-xs text-gray-600 leading-relaxed mb-3">
+            <p className="text-xs text-gray-600 leading-relaxed mb-2.5">
               Get 20% off on your next order from select vendors!
             </p>
             <Link
@@ -198,13 +198,13 @@ function Sidebar({ isOpen, toggleSidebar }) {
         </div>
 
         {/* Sign Out Button */}
-        <div className="absolute bottom-0 w-full p-6 border-t border-gray-100 bg-gray-50/50">
+        <div className="absolute bottom-0 w-full p-4 border-t border-gray-100 bg-gray-50/50">
           <button
             onClick={() => {
               localStorage.clear();
               window.location.replace("/login");
             }}
-            className="flex items-center gap-3 text-red-600 hover:text-red-700 font-medium text-sm group w-full px-4 py-3 rounded-xl hover:bg-red-50 transition-all duration-300"
+            className="flex items-center gap-3 text-red-600 hover:text-red-700 font-medium text-sm group w-full px-3.5 py-2.5 rounded-lg hover:bg-red-50 transition-all duration-300"
           >
             <CiLogout className="text-xl group-hover:scale-110 transition-transform" />
             <span>Sign Out</span>
