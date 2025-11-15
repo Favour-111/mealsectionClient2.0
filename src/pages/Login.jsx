@@ -63,7 +63,7 @@ function Login() {
       </div>
 
       {/* Header */}
-      <div className="relative z-10 px-6 sm:px-10 pt-8 flex justify-between items-center">
+      <div className="relative z-10 px-4 sm:px-10 pt-8 flex justify-between items-center">
         <button
           aria-label="Go back"
           className="p-2 rounded-xl hover:bg-white/80 text-gray-700 hover:text-[var(--default)] transition-all duration-300 hover:scale-110"
@@ -86,7 +86,7 @@ function Login() {
             <img
               src="https://favour-111.github.io/MEalSection-ComongSoon-2.0/WhatsApp%20Image%202024-08-24%20at%2020.18.12_988ce6f9.jpg"
               alt="MealSection Brand"
-              className="w-45 rounded-xl object-contain shadow-sm"
+              className="w-45 rounded-[10px] object-contain shadow-sm"
             />
           </div>
           <p className="text-gray-500 text-sm mt-2">
@@ -95,7 +95,7 @@ function Login() {
         </Link>
 
         {/* Form Card */}
-        <div className="glass rounded-3xl shadow-2xl w-full px-8 py-10 mt-auto mb-8 border border-white/50 animate-scaleIn">
+        <div className="glass rounded-3xl shadow-xl w-full sm:px-8 px-6 py-10 mt-auto mb-8 border border-white/50 animate-scaleIn">
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-gray-800 mb-2">Sign In</h2>
             <p className="text-gray-500 text-sm">
@@ -118,7 +118,7 @@ function Login() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full rounded-xl border-2 border-gray-200 bg-gray-50/50 p-4 pl-12 text-sm focus:border-[var(--default)] focus:ring-4 focus:ring-red-50 outline-none transition-all duration-300"
+                  className="w-full placeholder:text-[12px] rounded-[10px] border-1 border-gray-200 bg-gray-50/50 px-4 py-3 pl-10 text-sm focus:border-[var(--default)] focus:ring-4 focus:ring-red-50 outline-none transition-all duration-300"
                   placeholder="Enter your email or phone"
                 />
                 <svg
@@ -170,7 +170,7 @@ function Login() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full rounded-xl border-2 border-gray-200 bg-gray-50/50 p-4 pl-12 text-sm focus:border-[var(--default)] focus:ring-4 focus:ring-red-50 outline-none transition-all duration-300"
+                  className="w-full placeholder:text-[12px] rounded-[10px] border-1 border-gray-200 bg-gray-50/50 py-3 px-4 pl-10 text-sm focus:border-[var(--default)] focus:ring-4 focus:ring-red-50 outline-none transition-all duration-300"
                   placeholder="Enter your password"
                 />
                 <svg
@@ -217,7 +217,7 @@ function Login() {
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 text-[var(--default)] border-gray-300 rounded focus:ring-2 focus:ring-[var(--default)] cursor-pointer"
+                  className="w-4 h-4 placeholder:text-[12px] text-[var(--default)] border-gray-300 rounded focus:ring-2 focus:ring-[var(--default)] cursor-pointer"
                 />
                 <span className="text-gray-700 group-hover:text-gray-900 transition-colors">
                   Remember Me
@@ -226,7 +226,7 @@ function Login() {
               <button
                 type="button"
                 onClick={() => navigate("/reset-password")}
-                className="font-medium text-[var(--default)] hover:text-[var(--primary-dark)] hover:underline transition-colors"
+                className="font-medium text-[12px] text-[var(--default)] hover:text-[var(--primary-dark)] hover:underline transition-colors"
               >
                 Forgot Password?
               </button>
@@ -235,7 +235,7 @@ function Login() {
             {/* Submit */}
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-[#9e0505] to-[#c91a1a] text-white py-4 px-4 rounded-xl font-semibold hover:shadow-xl transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-red-200 text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
+              className="w-full bg-gradient-to-r from-[#9e0505] to-[#c91a1a] text-white py-3 px-4 rounded-xl font-semibold hover:shadow-xl transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-red-200 text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
               disabled={isLoading}
             >
               {isLoading ? (

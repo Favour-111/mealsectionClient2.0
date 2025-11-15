@@ -10,6 +10,7 @@ import { LuSparkles } from "react-icons/lu";
 import { FiSearch } from "react-icons/fi";
 import { MdOutlineSort } from "react-icons/md";
 import { GoPackage } from "react-icons/go";
+import { TfiPackage } from "react-icons/tfi";
 
 function Vendor() {
   const { products, vendors } = useAuthContext();
@@ -241,21 +242,24 @@ function Vendor() {
       {/* Pack selector */}
       {packs.length > 0 && (
         <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
-          <select
-            value={selectedPack || ""}
-            onChange={(e) => setSelectedPack(Number(e.target.value))}
-            className="flex-1 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-medium outline-none focus:ring-2 focus:ring-[var(--default)]"
-          >
-            {packs.map((pack) => (
-              <option key={pack.id} value={pack.id}>
-                {pack.name} ({pack.items.length}{" "}
-                {pack.items.length === 1 ? "item" : "items"})
-              </option>
-            ))}
-          </select>
+          <div className="inline-flex items-center w-[100%] gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm">
+            <TfiPackage className="text-gray-500" />
+            <select
+              value={selectedPack || ""}
+              onChange={(e) => setSelectedPack(Number(e.target.value))}
+              className="bg-transparent text-[9px] outline-none"
+            >
+              {packs.map((pack) => (
+                <option className="text-[9px]" key={pack.id} value={pack.id}>
+                  {pack.name} ({pack.items.length}{" "}
+                  {pack.items.length === 1 ? "item" : "items"})
+                </option>
+              ))}
+            </select>
+          </div>
           <button
             onClick={handleAddPack}
-            className="inline-flex items-center gap-2 whitespace-nowrap rounded-xl bg-gradient-to-r from-[#9e0505] to-[#c91a1a] px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:shadow-lg"
+            className="text-[12px] inline-flex items-center gap-2 whitespace-nowrap rounded-xl bg-gradient-to-r from-[#9e0505] to-[#c91a1a] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:shadow-lg"
           >
             <BiPlus size={18} />
             <span>Add Pack</span>
@@ -370,9 +374,9 @@ function Vendor() {
                       String(vendor?.Active).toLowerCase() !== "true"
                     }
                     onClick={() => handleAddToPack(product)}
-                    className={`w-full rounded-xl py-2.5 text-sm font-semibold transition-all ${
+                    className={`w-full rounded-xl py-2.5 text-[12px] font-semibold transition-all ${
                       inCart
-                        ? "bg-gray-100 text-gray-600 border-2 border-gray-300"
+                        ? "bg-gray-100 text-gray-600 border-1 border-gray-300"
                         : product.available &&
                           String(vendor?.Active).toLowerCase() === "true"
                         ? "bg-gradient-to-r from-[#9e0505] to-[#c91a1a] text-white hover:shadow-lg active:scale-[0.99]"

@@ -8,7 +8,7 @@ function InputField({ label, type, value, onChange, placeholder, name }) {
         name={name}
         onChange={onChange}
         placeholder={placeholder}
-        className="mt-1 block w-full rounded-[10px] border bg-gray-50 border-gray-300  p-3 placeholder:text-sm text-sm"
+        className="w-full placeholder:text-[12px] mt-2 rounded-[10px] border-1 border-gray-200 bg-gray-50/50 py-3 px-4 text-sm focus:border-[var(--default)] focus:ring-4 focus:ring-red-50 outline-none transition-all duration-300"
       />
     </div>
   );

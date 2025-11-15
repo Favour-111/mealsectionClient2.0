@@ -141,13 +141,13 @@ function Signup() {
       </div>
 
       {/* Hero / Branding */}
-      <div className="relative z-10 flex flex-col items-center mt-6 sm:mt-10 px-6">
+      <div className="relative z-10 flex flex-col items-center mt-6 sm:mt-10 sm:px-6 px-4">
         <div className="flex flex-col items-center text-center">
           <div className="rounded-2xl p-2 bg-gradient-to-br from-red-100 via-orange-100 to-yellow-50 flex items-center justify-center shadow-inner mb-4">
             <img
               src="https://favour-111.github.io/MEalSection-ComongSoon-2.0/WhatsApp%20Image%202024-08-24%20at%2020.18.12_988ce6f9.jpg"
               alt="MealSection Brand"
-              className="w-45 rounded-xl object-contain shadow-sm"
+              className="w-45 rounded-[10px] object-contain shadow-sm"
             />
           </div>
           <p className="text-xs sm:text-sm text-gray-500 max-w-sm leading-relaxed">
@@ -158,9 +158,9 @@ function Signup() {
       </div>
 
       {/* Form Card */}
-      <div className="relative z-10 mt-8 sm:mt-12 max-w-xl mx-auto px-6 pb-16">
+      <div className="relative z-10 mt-8 sm:mt-12 max-w-xl mx-auto px-3 pb-16">
         <div className="bg-white/90 backdrop-blur-md border border-gray-200 shadow-xl rounded-3xl overflow-hidden">
-          <div className="px-7 sm:px-10 py-8 sm:py-10 space-y-6">
+          <div className="px-6 sm:px-10 py-8 sm:py-10 space-y-6">
             <div className="grid gap-6">
               <div>
                 <InputField
@@ -233,14 +233,18 @@ function Signup() {
                   name="university"
                   value={form.university}
                   onChange={handleChange}
-                  className="mt-1 block w-full rounded-xl border border-gray-300 bg-gray-50/60 px-3 py-3 text-sm focus:ring-2 focus:ring-[var(--default)] focus:outline-none"
+                  className="w-full text-[12px] placeholder:text-[12px] rounded-[10px] border-1 border-gray-200 bg-gray-50/50 py-3 px-4 text-sm focus:border-[var(--default)] focus:ring-4 focus:ring-red-50 outline-none transition-all duration-300"
                   required
                 >
                   <option value="" disabled>
                     Select your university
                   </option>
                   {universities.map((item) => (
-                    <option key={item.name} value={item.name}>
+                    <option
+                      className="text-[12px]"
+                      key={item.name}
+                      value={item.name}
+                    >
                       {item.name}
                     </option>
                   ))}
