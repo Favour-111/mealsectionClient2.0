@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import useCart from "../hooks/useCart";
 import React, { useState, useEffect, useMemo } from "react";
+import axios from "axios";
 import { FaStar, FaFire, FaClock } from "react-icons/fa";
 import { FiUser, FiTrendingUp } from "react-icons/fi";
 import { LuDownload, LuRefreshCw } from "react-icons/lu";
@@ -116,32 +117,53 @@ function Home() {
   );
 
   const [promoIndex, setPromoIndex] = useState(0);
-  const promos = useMemo(
+  const [promotions, setPromotions] = useState([]);
+
+  // Gradient color options for promos
+  const gradientColors = useMemo(
     () => [
-      {
-        vendor: "Elegance Cuisine",
-        discount: "20%",
-        color: "from-red-500 via-orange-500 to-pink-500",
-        tagline: "Fresh gourmet delights",
-        code: "FRESH20",
-      },
-      {
-        vendor: "FastBite Express",
-        discount: "15%",
-        color: "from-purple-500 via-pink-500 to-red-500",
-        tagline: "Lightning fast delivery",
-        code: "SPEED15",
-      },
-      {
-        vendor: "QuickMeal Hub",
-        discount: "25%",
-        color: "from-blue-500 via-cyan-500 to-teal-500",
-        tagline: "Big flavors, small wait",
-        code: "QUICK25",
-      },
+      "from-red-500 via-orange-500 to-pink-500",
+      "from-purple-500 via-pink-500 to-red-500",
+      "from-blue-500 via-cyan-500 to-teal-500",
+      "from-emerald-500 via-green-500 to-teal-500",
+      "from-orange-500 via-red-500 to-pink-600",
+      "from-indigo-500 via-purple-500 to-pink-500",
+      "from-yellow-500 via-orange-500 to-red-500",
+      "from-teal-500 via-cyan-500 to-blue-500",
     ],
     []
   );
+
+  // Fetch active promotions
+  useEffect(() => {
+    const fetchPromotions = async () => {
+      try {
+        const { data } = await axios.get(
+          `${
+            import.meta.env.VITE_REACT_APP_API
+          }/api/promotions?status=active&university=${user?.university || ""}`
+        );
+        const activePromos = (data?.promotions || []).filter(
+          (promo) => promo.status === "active"
+        );
+        setPromotions(activePromos);
+      } catch (error) {
+        console.error("Failed to fetch promotions:", error);
+        setPromotions([]);
+      }
+    };
+    if (user?.university) {
+      fetchPromotions();
+    }
+  }, [user?.university]);
+
+  // Map promotions with random colors
+  const promos = useMemo(() => {
+    return promotions.map((promo, index) => ({
+      ...promo,
+      color: gradientColors[index % gradientColors.length],
+    }));
+  }, [promotions, gradientColors]);
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -274,7 +296,7 @@ function Home() {
 
         {/* Quick Stats */}
         <div
-          className="grid grid-cols-3 gap-3 animate-fadeIn"
+          className="grid grid-cols-3 gap-2 animate-fadeIn"
           style={{ animationDelay: "50ms" }}
         >
           {quickStats.map((stat, idx) => (
@@ -288,7 +310,9 @@ function Home() {
                 <span className="text-white">{stat.icon}</span>
               </div>
               <p className="text-2xl font-bold text-gray-800">{stat.value}</p>
-              <p className="text-xs text-gray-500 mt-1">{stat.label}</p>
+              <p className="text-xs whitespace-nowrap text-gray-500 mt-1 ">
+                {stat.label}
+              </p>
             </div>
           ))}
         </div>
@@ -306,7 +330,7 @@ function Home() {
               setOpen(e.target.value.length > 0);
             }}
             placeholder="Search vendors, meals, or cuisines..."
-            className="w-full bg-white border border-gray-200 rounded-2xl px-5 py-3 pl-11 text-sm focus:border-red-500 focus:ring-2 focus:ring-red-100 outline-none transition-all shadow-sm"
+            className="w-full placeholder:text-[12px] bg-white border border-gray-200 rounded-2xl px-5 py-3 pl-11 text-sm focus:border-red-500 focus:ring-2 focus:ring-red-100 outline-none transition-all shadow-sm"
           />
           <svg
             className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4"
@@ -446,64 +470,78 @@ function Home() {
         </div>
 
         {/* Promo Carousel - Compact */}
-        <div
-          className="relative animate-fadeIn"
-          style={{ animationDelay: "200ms" }}
-        >
-          <div className="overflow-hidden rounded-2xl">
-            <div
-              className="flex transition-transform duration-700"
-              style={{ transform: `translateX(-${promoIndex * 100}%)` }}
-            >
-              {promos.map((promo) => (
-                <div
-                  key={promo.vendor}
-                  className={`min-w-full bg-gradient-to-r ${promo.color} p-5 relative`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <MdLocalOffer className="text-white w-5 h-5" />
-                        <span className="bg-white/20 backdrop-blur-sm px-2 py-1 rounded-full text-white text-xs font-bold">
-                          Limited Time
-                        </span>
+        {promos.length > 0 && (
+          <div
+            className="relative animate-fadeIn"
+            style={{ animationDelay: "200ms" }}
+          >
+            <div className="overflow-hidden rounded-2xl">
+              <div
+                className="flex transition-transform duration-700"
+                style={{ transform: `translateX(-${promoIndex * 100}%)` }}
+              >
+                {promos.map((promo, index) => (
+                  <div
+                    key={promo._id || index}
+                    className={`min-w-full bg-gradient-to-r ${promo.color} p-5 relative`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <MdLocalOffer className="text-white w-5 h-5" />
+                          <span className="bg-white/20 backdrop-blur-sm px-2 py-1 rounded-full text-white text-xs font-bold">
+                            {promo.duration || "Limited Time"}
+                          </span>
+                        </div>
+                        <h3 className="text-white font-bold text-2xl mb-1">
+                          {promo.discount}% OFF
+                        </h3>
+                        <p className="text-white/90 text-sm mb-1">
+                          {promo.header}
+                        </p>
+                        <p className="text-white/80 text-xs mb-3">
+                          {promo.text}
+                        </p>
+                        <button
+                          onClick={() => {
+                            const vendorId =
+                              typeof promo.vendorId === "object"
+                                ? promo.vendorId?._id
+                                : promo.vendorId;
+                            if (vendorId) {
+                              navigate(`/vendor/${vendorId}`);
+                            } else {
+                              navigate("/vendors");
+                            }
+                          }}
+                          className="px-4 py-2 rounded-xl bg-white text-gray-800 text-xs font-semibold hover:shadow-lg transition-all"
+                        >
+                          Order Now from {promo.vendorName}
+                        </button>
                       </div>
-                      <h3 className="text-white font-bold text-2xl mb-1">
-                        {promo.discount} OFF
-                      </h3>
-                      <p className="text-white/90 text-sm mb-3">
-                        {promo.tagline} • Use code:{" "}
-                        <span className="font-bold">{promo.code}</span>
-                      </p>
-                      <button
-                        onClick={() => navigate("/vendors")}
-                        className="px-4 py-2 rounded-xl bg-white text-gray-800 text-xs font-semibold hover:shadow-lg transition-all"
-                      >
-                        Order Now
-                      </button>
+                      <img
+                        src="https://www.pngmart.com/files/23/Food-PNG-Isolated-Image.png"
+                        alt="Food"
+                        className="w-24 h-24 object-contain drop-shadow-2xl hidden sm:block"
+                      />
                     </div>
-                    <img
-                      src="https://www.pngmart.com/files/23/Food-PNG-Isolated-Image.png"
-                      alt="Food"
-                      className="w-24 h-24 object-contain drop-shadow-2xl hidden sm:block"
-                    />
                   </div>
-                </div>
+                ))}
+              </div>
+            </div>
+            <div className="flex justify-center mt-3 gap-1.5">
+              {promos.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setPromoIndex(i)}
+                  className={`w-2 h-2 rounded-full transition ${
+                    promoIndex === i ? "bg-red-600 scale-125" : "bg-gray-300"
+                  }`}
+                />
               ))}
             </div>
           </div>
-          <div className="flex justify-center mt-3 gap-1.5">
-            {promos.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setPromoIndex(i)}
-                className={`w-2 h-2 rounded-full transition ${
-                  promoIndex === i ? "bg-red-600 scale-125" : "bg-gray-300"
-                }`}
-              />
-            ))}
-          </div>
-        </div>
+        )}
 
         {/* Trending Now */}
         <div className="animate-fadeIn" style={{ animationDelay: "250ms" }}>

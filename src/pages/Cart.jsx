@@ -34,8 +34,32 @@ function Cart() {
   const [openError, setOpenError] = useState(false);
   const navigate = useNavigate();
   const [deliveryFee, setDeliveryFee] = useState(200);
+  const [promotions, setPromotions] = useState([]);
   const serviceFee = 200;
-  const grandTotal = totalAmount + serviceFee + deliveryFee;
+
+  // Fetch active promotions
+  useEffect(() => {
+    const fetchPromotions = async () => {
+      try {
+        const { data } = await axios.get(
+          `${
+            import.meta.env.VITE_REACT_APP_API
+          }/api/promotions?status=active&university=${user?.university || ""}`
+        );
+        // Extract promotions array from response and filter only active ones
+        const activePromotions = (data?.promotions || []).filter(
+          (promo) => promo.status === "active"
+        );
+        setPromotions(activePromotions);
+      } catch (error) {
+        console.error("Failed to fetch promotions:", error);
+        setPromotions([]);
+      }
+    };
+    if (user?.university) {
+      fetchPromotions();
+    }
+  }, [user?.university]);
 
   // Load saved delivery details on mount
   useEffect(() => {
@@ -44,6 +68,55 @@ function Cart() {
     if (savedAddress) setAddressInput(savedAddress);
     if (savedPhone) setPhoneNumber(savedPhone);
   }, []);
+
+  // Calculate vendor-specific discounts
+  const calculateDiscounts = () => {
+    const vendorDiscounts = {};
+
+    packs.forEach((pack) => {
+      if (!pack.vendorName && !pack.vendorId) return;
+
+      // Find applicable promotion for this vendor
+      const applicablePromo = promotions.find(
+        (promo) =>
+          (promo.vendorName === pack.vendorName ||
+            String(promo.vendorId) === String(pack.vendorId)) &&
+          promo.status === "active"
+      );
+
+      if (applicablePromo) {
+        // Calculate pack total
+        const packTotal = pack.items.reduce(
+          (sum, item) => sum + item.price * (item.quantity || 1),
+          0
+        );
+
+        // Calculate discount amount
+        const discountPercent = parseFloat(applicablePromo.discount) || 0;
+        const discountAmount = (packTotal * discountPercent) / 100;
+
+        const vendorKey = pack.vendorName || pack.vendorId;
+        if (!vendorDiscounts[vendorKey]) {
+          vendorDiscounts[vendorKey] = {
+            vendorName: pack.vendorName,
+            discountPercent,
+            discountAmount: 0,
+            header: applicablePromo.header,
+          };
+        }
+        vendorDiscounts[vendorKey].discountAmount += discountAmount;
+      }
+    });
+
+    return vendorDiscounts;
+  };
+
+  const vendorDiscounts = calculateDiscounts();
+  const totalDiscount = Object.values(vendorDiscounts).reduce(
+    (sum, v) => sum + v.discountAmount,
+    0
+  );
+  const grandTotal = totalAmount + serviceFee + deliveryFee - totalDiscount;
 
   // Save delivery details when they change
   const handleAddressChange = (e) => {
@@ -555,6 +628,36 @@ function Cart() {
                     ₦{deliveryFee.toLocaleString()}
                   </span>
                 </div>
+
+                {/* Vendor-specific Discounts */}
+                {Object.entries(vendorDiscounts).length > 0 && (
+                  <div className="pt-2 mt-2 border-t border-gray-200">
+                    <p className="text-xs font-semibold text-gray-700 mb-2 flex items-center gap-1">
+                      <span className="text-sm">🎉</span> Active Discounts
+                    </p>
+                    {Object.entries(vendorDiscounts).map(([key, discount]) => (
+                      <div
+                        key={key}
+                        className="flex justify-between items-center text-xs sm:text-sm mb-2 bg-green-50 px-2 py-1.5 rounded-lg"
+                      >
+                        <span className="text-green-700 flex items-center gap-2">
+                          <span className="w-1 h-1 rounded-full bg-green-500"></span>
+                          <span className="flex flex-col">
+                            <span className="font-medium">
+                              {discount.vendorName}
+                            </span>
+                            <span className="text-[10px] text-green-600">
+                              {discount.discountPercent}% off
+                            </span>
+                          </span>
+                        </span>
+                        <span className="font-semibold text-green-700">
+                          -₦{discount.discountAmount.toLocaleString()}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Delivery Fee Adjuster */}

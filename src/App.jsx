@@ -31,6 +31,7 @@ import Vendor from "./pages/Vendor";
 import OrderDetails from "./pages/OrderDetails";
 import SplashPage from "./pages/SplashPage";
 import Vendors from "./pages/Vendors";
+import Promotions from "./pages/Promotions";
 
 function App() {
   const { packs } = useCartContext();
@@ -54,6 +55,7 @@ function App() {
     "/orderdetails",
     "/wallet",
     "/profile",
+    "/promotions",
   ].filter(Boolean);
   const isHiddenLayout = hiddenRoutes.includes(location.pathname);
 
@@ -139,6 +141,7 @@ function App() {
               <Route path="/vendors" element={<Vendors />} />
               <Route path="/orders" element={<Orders />} />
               <Route path="/wallet" element={<Wallet />} />
+              <Route path="/promotions" element={<Promotions />} />
               <Route path="/vendor/:id" element={<Vendor />} />
               <Route path="/orderdetails" element={<OrderDetails />} />
             </>

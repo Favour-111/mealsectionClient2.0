@@ -18,6 +18,7 @@ import OrderDetails from "./pages/OrderDetails";
 import SplashPage from "./pages/SplashPage";
 import Vendors from "./pages/Vendors";
 import vendors from "./components/Vendors";
+import Promotions from "./pages/Promotions";
 
 const userId = localStorage.getItem("userId");
 const routes = [
@@ -33,6 +34,7 @@ const routes = [
   { path: "/vendors", element: <Vendors /> },
   { path: "/orders", element: <Orders /> },
   { path: "/contact", element: <Contact /> },
+  { path: "/promotions", element: <Promotions /> },
   { path: "/referral", element: <ReferralScreen /> },
   { path: "/reset-password", element: <ResetPassword /> },
   { path: "/wallet", element: <Wallet /> },

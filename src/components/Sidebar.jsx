@@ -8,7 +8,10 @@ import {
 } from "react-icons/ci";
 import { RiHistoryLine } from "react-icons/ri";
 import { useCartContext } from "../context/CartContext";
-
+import { GoHome } from "react-icons/go";
+import { FiUser } from "react-icons/fi";
+import { IoMailOutline } from "react-icons/io5";
+import { PiPackageLight } from "react-icons/pi";
 function Sidebar({ isOpen, toggleSidebar }) {
   const location = useLocation();
   const { packs } = useCartContext();
@@ -18,10 +21,14 @@ function Sidebar({ isOpen, toggleSidebar }) {
   );
 
   const menuItems = [
-    { path: "/", label: "Home", icon: <CiHome size={22} /> },
-    { path: "/orders", label: "Orders", icon: <RiHistoryLine size={22} /> },
-    { path: "/contact", label: "Contact Us", icon: <CiMail size={22} /> },
-    { path: "/profile", label: "Profile", icon: <CiUser size={22} /> },
+    { path: "/", label: "Home", icon: <GoHome size={18} /> },
+    { path: "/orders", label: "Orders", icon: <PiPackageLight size={18} /> },
+    {
+      path: "/contact",
+      label: "Contact Us",
+      icon: <IoMailOutline size={18} />,
+    },
+    { path: "/profile", label: "Profile", icon: <FiUser size={18} /> },
   ];
 
   return (
@@ -141,7 +148,7 @@ function Sidebar({ isOpen, toggleSidebar }) {
                 key={item.path}
                 to={item.path}
                 className={`
-                  group flex items-center gap-3.5 px-3.5 py-2.5 rounded-lg font-medium text-[15px]
+                  group flex items-center gap-2 px-3.5 py-2.5 rounded-lg font-medium text-[15px]
                   transition-all duration-300 
                   ${
                     isActive

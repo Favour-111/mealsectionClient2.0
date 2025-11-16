@@ -7,7 +7,7 @@ import { useAuthContext } from "../context/AuthContext";
 import { IoMdArrowBack } from "react-icons/io";
 import { FaRegHeart, FaHeart, FaStar } from "react-icons/fa";
 import { LuSparkles } from "react-icons/lu";
-import { FiSearch } from "react-icons/fi";
+import { FiPackage, FiSearch } from "react-icons/fi";
 import { MdOutlineSort } from "react-icons/md";
 import { GoPackage } from "react-icons/go";
 import { TfiPackage } from "react-icons/tfi";
@@ -23,6 +23,7 @@ function Vendor() {
   const [fav, setFav] = useState(false);
   const vendor = vendors?.find((v) => v._id === id);
   const [selectedPack, setSelectedPack] = useState(packs[0]?.id || "");
+  const [adding, setAdding] = useState({}); // per-product add spinner
   const formattedProducts = (products || []).map((p) => ({
     id: p._id,
     vendorId: p.vendorId,
@@ -67,9 +68,11 @@ function Vendor() {
     toast.success(`New pack "${newPack.name}" created`);
   };
   const handleAddToPack = (product) => {
+    setAdding((prev) => ({ ...prev, [product.id]: true }));
     const currentPack = packs.find((p) => p.id === selectedPack);
 
     if (!currentPack) {
+      setAdding((prev) => ({ ...prev, [product.id]: false }));
       toast.error("Please select or create a pack first");
       return;
     }
@@ -77,6 +80,7 @@ function Vendor() {
     // Store online check
     const isOnline = String(vendor?.Active).toLowerCase() === "true";
     if (!isOnline) {
+      setAdding((prev) => ({ ...prev, [product.id]: false }));
       toast.error("This store is offline. You can't add items right now.");
       return;
     }
@@ -89,6 +93,7 @@ function Vendor() {
 
     // ✅ Prevent mixing vendors
     if (currentPack.vendorName !== product.vendorName) {
+      setAdding((prev) => ({ ...prev, [product.id]: false }));
       toast.error(
         `You can only add items from ${currentPack.vendorName} to this pack.`
       );
@@ -100,6 +105,7 @@ function Vendor() {
       (item) => item.id === product.id
     );
     if (alreadyInPack) {
+      setAdding((prev) => ({ ...prev, [product.id]: false }));
       toast.error(`${product.name} is already in this pack.`);
       return;
     }
@@ -112,8 +118,14 @@ function Vendor() {
       quantity: 1,
     };
 
-    addToCart(productWithVendor, selectedPack);
-    toast.success(`${product.name} added to ${currentPack.name}`);
+    try {
+      addToCart(productWithVendor, selectedPack);
+      toast.success(`${product.name} added to ${currentPack.name}`);
+    } finally {
+      setTimeout(() => {
+        setAdding((prev) => ({ ...prev, [product.id]: false }));
+      }, 300);
+    }
   };
 
   const currentPack = packs.find((p) => p.id === selectedPack);
@@ -199,7 +211,7 @@ function Vendor() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search menu..."
-              className="w-full rounded-xl border border-gray-200 pl-9 pr-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-rose-500/20"
+              className="w-full placeholder:text-xs rounded-xl border border-gray-200 pl-9 pr-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-rose-500/20"
             />
           </div>
           <div>
@@ -208,11 +220,17 @@ function Vendor() {
               <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value)}
-                className="bg-transparent outline-none"
+                className="bg-transparent placeholder:text-xs text-xs outline-none"
               >
-                <option value="popular">Popular</option>
-                <option value="price-asc">Price: Low → High</option>
-                <option value="price-desc">Price: High → Low</option>
+                <option className="text-xs " value="popular">
+                  Popular
+                </option>
+                <option className="text-xs " value="price-asc">
+                  Price: Low → High
+                </option>
+                <option className="text-xs " value="price-desc">
+                  Price: High → Low
+                </option>
               </select>
             </div>
           </div>
@@ -314,7 +332,7 @@ function Vendor() {
                 key={product.id}
                 className="group relative overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg"
               >
-                <div className="relative h-44 w-full overflow-hidden">
+                <div className="relative w-full overflow-hidden aspect-[4/3]">
                   <img
                     src={product.image}
                     alt={product.name}
@@ -322,6 +340,10 @@ function Vendor() {
                     className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.05]"
                   />
                   <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-black/0 to-black/0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                  {/* Price chip */}
+                  <span className="absolute top-3 left-3 rounded-xl px-3 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-gray-900 to-gray-700/90 shadow-md">
+                    ₦{product.price.toLocaleString()}
+                  </span>
                   <span
                     className={`absolute top-3 right-3 rounded-xl px-3 py-1.5 text-xs font-semibold shadow-md ${
                       product.available === true
@@ -334,7 +356,10 @@ function Vendor() {
 
                   {/* Quick actions overlay */}
                   <div className="absolute inset-x-2 bottom-2 flex translate-y-3 items-center justify-between gap-2 rounded-xl bg-white/90 p-2 opacity-0 backdrop-blur transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-                    <Link className="flex-1 rounded-lg border border-gray-200 px-3 py-1.5 text-center text-[12px] font-semibold text-gray-700 hover:bg-gray-50">
+                    <Link
+                      to={`/meals/${product.id}`}
+                      className="flex-1 rounded-lg border border-gray-200 px-3 py-1.5 text-center text-[12px] font-semibold text-gray-700 hover:bg-gray-50"
+                    >
                       View
                     </Link>
                     <button
@@ -343,30 +368,64 @@ function Vendor() {
                         String(vendor?.Active).toLowerCase() !== "true"
                       }
                       onClick={() => handleAddToPack(product)}
-                      className={`flex-1 rounded-lg px-3 py-1.5 text-[12px] font-semibold transition ${
+                      className={`flex-1 rounded-lg px-3 py-1.5 text-[12px] font-semibold transition flex items-center justify-center gap-2 ${
                         product.available &&
                         String(vendor?.Active).toLowerCase() === "true"
                           ? "bg-gray-900 text-white hover:opacity-90"
                           : "bg-gray-200 text-gray-400 cursor-not-allowed"
                       }`}
                     >
-                      {String(vendor?.Active).toLowerCase() !== "true"
-                        ? "Offline"
-                        : "Add"}
+                      {String(vendor?.Active).toLowerCase() !== "true" ? (
+                        "Offline"
+                      ) : adding[product.id] ? (
+                        <>
+                          <svg
+                            className="animate-spin h-4 w-4 text-white"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                            ></path>
+                          </svg>
+                          <span>Adding</span>
+                        </>
+                      ) : (
+                        "Add"
+                      )}
                     </button>
                   </div>
+                  {!product.available && (
+                    <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px]" />
+                  )}
                 </div>
 
-                <div className="p-4">
-                  <p className="mb-1 text-xs font-medium text-gray-500">
+                <div className="p-3">
+                  <p className="mb-1 text-[11px] font-[300] text-gray-500">
                     {product.category}
                   </p>
-                  <h3 className="mb-2 line-clamp-2 text-sm font-bold text-gray-800">
+                  <h3 className="mb-2 line-clamp-2 text-[13px] font-bold text-gray-800">
                     {product.name}
                   </h3>
-                  <p className="mb-3 text-base font-bold text-[var(--default)]">
-                    ₦{product.price.toLocaleString()}
-                  </p>
+                  <div className="mb-3 flex items-center justify-between">
+                    <span className="text-sm font-bold text-[var(--default)]">
+                      ₦{product.price.toLocaleString()}
+                    </span>
+                    {inCart && (
+                      <span className="inline-flex items-center gap-1 rounded-lg bg-gray-100 px-2 py-1 text-[10px] font-semibold text-gray-700">
+                        <FiPackage /> In Pack
+                      </span>
+                    )}
+                  </div>
 
                   <button
                     disabled={
@@ -374,23 +433,56 @@ function Vendor() {
                       String(vendor?.Active).toLowerCase() !== "true"
                     }
                     onClick={() => handleAddToPack(product)}
-                    className={`w-full rounded-xl py-2.5 text-[12px] font-semibold transition-all ${
+                    className={`w-full rounded-[10px] py-2 text-[12px] font-semibold transition-all flex items-center justify-center gap-2 ${
                       inCart
-                        ? "bg-gray-100 text-gray-600 border-1 border-gray-300"
+                        ? "bg-gray-100 text-gray-600 border border-gray-200"
                         : product.available &&
                           String(vendor?.Active).toLowerCase() === "true"
                         ? "bg-gradient-to-r from-[#9e0505] to-[#c91a1a] text-white hover:shadow-lg active:scale-[0.99]"
                         : "bg-gray-200 text-gray-400 cursor-not-allowed"
                     }`}
                   >
-                    {inCart
-                      ? "✓ In Pack"
-                      : product.available &&
-                        String(vendor?.Active).toLowerCase() === "true"
-                      ? "Add to Pack"
-                      : String(vendor?.Active).toLowerCase() !== "true"
-                      ? "Store Offline"
-                      : "Out of Stock"}
+                    {inCart ? (
+                      <span className="flex items-center gap-1">
+                        {" "}
+                        <div>
+                          {" "}
+                          <FiPackage />
+                        </div>
+                        In Pack
+                      </span>
+                    ) : product.available &&
+                      String(vendor?.Active).toLowerCase() === "true" ? (
+                      adding[product.id] ? (
+                        <>
+                          <svg
+                            className="animate-spin h-4 w-4 text-white"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                            ></path>
+                          </svg>
+                          <span>Adding...</span>
+                        </>
+                      ) : (
+                        "Add to Pack"
+                      )
+                    ) : String(vendor?.Active).toLowerCase() !== "true" ? (
+                      "Store Offline"
+                    ) : (
+                      "Out of Stock"
+                    )}
                   </button>
                 </div>
               </div>
