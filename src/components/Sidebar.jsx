@@ -42,7 +42,9 @@ function Sidebar({ isOpen, toggleSidebar }) {
   useEffect(() => {
     const fetchPromotions = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/promotions");
+        const response = await fetch(
+          `${import.meta.env.VITE_REACT_APP_API}/api/promotions`
+        );
         const data = await response.json();
         // Filter only active promotions
         const activePromotions = (data.promotions || []).filter(
