@@ -35,6 +35,8 @@ function Cart() {
   const navigate = useNavigate();
   const [deliveryFee, setDeliveryFee] = useState(200);
   const [promotions, setPromotions] = useState([]);
+  const [savedAddresses, setSavedAddresses] = useState([]);
+  const [savedPhones, setSavedPhones] = useState([]);
   const serviceFee = 200;
 
   // Fetch active promotions
@@ -65,6 +67,18 @@ function Cart() {
   useEffect(() => {
     const savedAddress = localStorage.getItem("deliveryAddress");
     const savedPhone = localStorage.getItem("deliveryPhone");
+
+    // Load saved addresses history
+    const addressesHistory = localStorage.getItem("addressesHistory");
+    const phonesHistory = localStorage.getItem("phonesHistory");
+
+    if (addressesHistory) {
+      setSavedAddresses(JSON.parse(addressesHistory));
+    }
+    if (phonesHistory) {
+      setSavedPhones(JSON.parse(phonesHistory));
+    }
+
     if (savedAddress) setAddressInput(savedAddress);
     if (savedPhone) setPhoneNumber(savedPhone);
   }, []);
@@ -129,6 +143,40 @@ function Cart() {
     const value = e.target.value;
     setPhoneNumber(value);
     localStorage.setItem("deliveryPhone", value);
+  };
+
+  // Save to history when order is placed successfully
+  const saveToHistory = () => {
+    if (addressInput.trim()) {
+      const addressesHistory = JSON.parse(
+        localStorage.getItem("addressesHistory") || "[]"
+      );
+      // Add new address if it's not already in the list
+      if (!addressesHistory.includes(addressInput.trim())) {
+        const updatedAddresses = [
+          addressInput.trim(),
+          ...addressesHistory,
+        ].slice(0, 5); // Keep only 5 recent
+        localStorage.setItem(
+          "addressesHistory",
+          JSON.stringify(updatedAddresses)
+        );
+      }
+    }
+
+    if (phoneNumber.trim()) {
+      const phonesHistory = JSON.parse(
+        localStorage.getItem("phonesHistory") || "[]"
+      );
+      // Add new phone if it's not already in the list
+      if (!phonesHistory.includes(phoneNumber.trim())) {
+        const updatedPhones = [phoneNumber.trim(), ...phonesHistory].slice(
+          0,
+          5
+        ); // Keep only 5 recent
+        localStorage.setItem("phonesHistory", JSON.stringify(updatedPhones));
+      }
+    }
   };
 
   const handleOrder = async () => {

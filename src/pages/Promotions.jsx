@@ -184,8 +184,8 @@ const Promotions = () => {
             <div className="hidden sm:block w-24 h-24 rounded-full bg-gradient-to-br from-orange-200 to-red-200/70 blur-2xl opacity-70" />
           </div>
 
-          <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="flex items-center gap-2 w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white/80 backdrop-blur-sm text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all sm:col-span-2">
+          <div className="mt-5 flex flex-col gap-3">
+            <div className="flex items-center gap-2 w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white/80 backdrop-blur-sm text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all">
               <BiSearch className=" text-gray-400" size={16} />
               <input
                 value={search}
@@ -194,16 +194,47 @@ const Promotions = () => {
                 className="placeholder-gray-400 placeholder:text-[12px] bg-transparent w-full focus:outline-none"
               />
             </div>
-            <div className="flex items-center gap-2">
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="w-full sm:w-auto px-3 py-2 rounded-xl border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
-              >
-                <option value="endingSoon">Ending soon</option>
-                <option value="newest">Newest</option>
-                <option value="discountHigh">Highest discount</option>
-              </select>
+
+            {/* Sort Pills */}
+            <div className="flex flex-col gap-2">
+              <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">
+                Sort By
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => setSortBy("endingSoon")}
+                  className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-[11px] font-semibold transition-all ${
+                    sortBy === "endingSoon"
+                      ? "bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-md shadow-orange-200"
+                      : "bg-white/80 border border-gray-200 text-gray-700 hover:border-orange-300 hover:bg-orange-50"
+                  }`}
+                >
+                  <FiClock size={12} />
+                  Ending Soon
+                </button>
+                <button
+                  onClick={() => setSortBy("newest")}
+                  className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-[11px] font-semibold transition-all ${
+                    sortBy === "newest"
+                      ? "bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-md shadow-orange-200"
+                      : "bg-white/80 border border-gray-200 text-gray-700 hover:border-orange-300 hover:bg-orange-50"
+                  }`}
+                >
+                  <MdBolt size={12} />
+                  Newest
+                </button>
+                <button
+                  onClick={() => setSortBy("discountHigh")}
+                  className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-[11px] font-semibold transition-all ${
+                    sortBy === "discountHigh"
+                      ? "bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-md shadow-orange-200"
+                      : "bg-white/80 border border-gray-200 text-gray-700 hover:border-orange-300 hover:bg-orange-50"
+                  }`}
+                >
+                  <MdStar size={12} />
+                  Highest Discount
+                </button>
+              </div>
             </div>
           </div>
 
@@ -339,7 +370,7 @@ const Promotions = () => {
                     <div className="grid grid-cols-2 gap-2">
                       <button
                         onClick={() => handleGoVendor(p)}
-                        className="col-span-2 sm:col-span-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-white shadow-sm transition-all bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+                        className="text-[12px] col-span-2 sm:col-span-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-white shadow-sm transition-all bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
                       >
                         Order Now
                       </button>

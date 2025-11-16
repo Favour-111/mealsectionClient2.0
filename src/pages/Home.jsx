@@ -374,12 +374,16 @@ function Home() {
                       setOpen(false);
                     }}
                   >
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-100 to-orange-100 overflow-hidden flex-shrink-0">
-                      <img
-                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrWAQ2R-cEo2SpkEW3j0LP49tqBUCiJupF3g&s"
-                        className="w-full h-full object-cover"
-                        alt={item.storeName}
-                      />
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-100 to-orange-100 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                      {item.image ? (
+                        <img
+                          src={item.image}
+                          className="w-full h-full object-cover"
+                          alt={item.storeName}
+                        />
+                      ) : (
+                        <HiOutlineFire className="w-5 h-5 text-red-400" />
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-gray-800 text-sm truncate">
@@ -565,12 +569,21 @@ function Home() {
                 onClick={() => navigate(`/vendor/${vendor._id}`)}
                 className="bg-white rounded-2xl shadow-sm hover:shadow-lg cursor-pointer transition-all group overflow-hidden border border-gray-100 hover:-translate-y-1"
               >
-                <div className="relative h-32 bg-gradient-to-br from-red-100 to-orange-100 overflow-hidden">
-                  <img
-                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrWAQ2R-cEo2SpkEW3j0LP49tqBUCiJupF3g&s"
-                    alt={vendor.storeName}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
+                <div className="relative h-32 bg-gradient-to-br from-red-100 to-orange-100 overflow-hidden flex items-center justify-center">
+                  {vendor.image ? (
+                    <img
+                      src={vendor.image}
+                      alt={vendor.storeName}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center gap-2">
+                      <MdFastfood className="w-10 h-10 text-red-300" />
+                      <span className="text-xs text-red-400 font-medium">
+                        No Image
+                      </span>
+                    </div>
+                  )}
                   <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg flex items-center gap-1">
                     <FaStar color="#fbbf24" size={12} />
                     <span className="text-xs font-bold">4.5</span>
@@ -609,60 +622,67 @@ function Home() {
             </div>
 
             <div className="grid gap-3">
-              {newVendors?.map((vendor) => (
-                <div
-                  key={vendor._id}
-                  onClick={() => navigate(`/vendor/${vendor._id}`)}
-                  className="bg-white rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:shadow-lg transition-all group border border-gray-100"
-                >
-                  <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-red-100 to-orange-100 overflow-hidden flex-shrink-0">
-                    <img
-                      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrWAQ2R-cEo2SpkEW3j0LP49tqBUCiJupF3g&s"
-                      alt={vendor.storeName}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-bold text-gray-800 truncate group-hover:text-red-600 transition-colors">
-                        {vendor.storeName}
-                      </h3>
-                      <span className="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs font-bold rounded-full flex-shrink-0">
-                        NEW
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-3 text-xs text-gray-500">
-                      <div className="flex items-center gap-1">
-                        <FaStar color="#fbbf24" size={12} />
-                        <span>4.5</span>
-                      </div>
-                      <span>•</span>
-                      <span>15-30 min</span>
-                      {String(vendor.Active).toLowerCase() === "true" && (
-                        <>
-                          <span>•</span>
-                          <span className="text-green-600 font-medium">
-                            Online
-                          </span>
-                        </>
+              {newVendors
+                ?.slice()
+                .reverse()
+                .map((vendor) => (
+                  <div
+                    key={vendor._id}
+                    onClick={() => navigate(`/vendor/${vendor._id}`)}
+                    className="bg-white rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:shadow-lg transition-all group border border-gray-100"
+                  >
+                    <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-red-100 to-orange-100 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                      {vendor.image ? (
+                        <img
+                          src={vendor.image}
+                          alt={vendor.storeName}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                      ) : (
+                        <BiDish className="w-8 h-8 text-red-300" />
                       )}
                     </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-bold text-gray-800 truncate group-hover:text-red-600 transition-colors">
+                          {vendor.storeName}
+                        </h3>
+                        <span className="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs font-bold rounded-full flex-shrink-0">
+                          NEW
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3 text-xs text-gray-500">
+                        <div className="flex items-center gap-1">
+                          <FaStar color="#fbbf24" size={12} />
+                          <span>4.5</span>
+                        </div>
+                        <span>•</span>
+                        <span>15-30 min</span>
+                        {String(vendor.Active).toLowerCase() === "true" && (
+                          <>
+                            <span>•</span>
+                            <span className="text-green-600 font-medium">
+                              Online
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    <svg
+                      className="w-5 h-5 text-gray-400 group-hover:text-red-600 group-hover:translate-x-1 transition-all flex-shrink-0"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
                   </div>
-                  <svg
-                    className="w-5 h-5 text-gray-400 group-hover:text-red-600 group-hover:translate-x-1 transition-all flex-shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
-                </div>
-              ))}
+                ))}
             </div>
           </div>
         )}
@@ -686,12 +706,16 @@ function Home() {
                 onClick={() => navigate(`/vendor/${vendor._id}`)}
                 className="bg-white rounded-2xl p-3 flex items-center gap-3 cursor-pointer hover:shadow-lg transition-all group border border-gray-100"
               >
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-red-100 to-orange-100 overflow-hidden flex-shrink-0">
-                  <img
-                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrWAQ2R-cEo2SpkEW3j0LP49tqBUCiJupF3g&s"
-                    alt={vendor.storeName}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
+                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-red-100 to-orange-100 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                  {vendor.image ? (
+                    <img
+                      src={vendor.image}
+                      alt={vendor.storeName}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                  ) : (
+                    <MdFastfood className="w-7 h-7 text-red-300" />
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-bold text-sm text-gray-800 truncate group-hover:text-red-600 transition-colors">

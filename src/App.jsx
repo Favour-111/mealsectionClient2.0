@@ -71,7 +71,7 @@ function App() {
       {/* Header */}
       {!isHiddenLayout && (
         <header className="sm:hidden block sticky top-0 z-40 glass border-b border-gray-200/50 backdrop-blur-xl">
-          <div className="px-5 py-2 flex justify-between items-center max-w-7xl mx-auto">
+          <div className="px-3 py-2 flex justify-between items-center max-w-7xl mx-auto">
             <button
               onClick={toggleSidebar}
               className="p-2 rounded-xl hover:bg-red-50 transition-all duration-300 group"

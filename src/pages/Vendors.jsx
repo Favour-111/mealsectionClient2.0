@@ -253,11 +253,15 @@ function Vendors() {
                       setOpen(false);
                     }}
                   >
-                    <img
-                      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrWAQ2R-cEo2SpkEW3j0LP49tqBUCiJupF3g&s"
-                      className="w-12 h-12 rounded-xl object-cover shadow-sm group-hover:scale-105 transition-transform"
-                      alt={item.storeName}
-                    />
+                    {item.image ? (
+                      <img
+                        src={item.image}
+                        className="w-12 h-12 rounded-xl object-cover shadow-sm group-hover:scale-105 transition-transform"
+                        alt={item.storeName}
+                      />
+                    ) : (
+                      <MdFastfood className="w-7 h-7 text-red-300" />
+                    )}
                     <div className="flex-1">
                       <p className="text-sm font-semibold text-gray-800 group-hover:text-[var(--default)] transition-colors">
                         {item.storeName}
@@ -436,15 +440,19 @@ function Vendors() {
                       : "relative h-40"
                   }
                 >
-                  <img
-                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrWAQ2R-cEo2SpkEW3j0LP49tqBUCiJupF3g&s"
-                    alt={vendor.storeName}
-                    className={
-                      viewMode === "list"
-                        ? "w-full h-full object-cover group-hover:scale-105 transition-transform"
-                        : "w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    }
-                  />
+                  {vendor.image ? (
+                    <img
+                      src={vendor.image}
+                      alt={vendor.storeName}
+                      className={
+                        viewMode === "list"
+                          ? "w-full h-full object-cover group-hover:scale-105 transition-transform"
+                          : "w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      }
+                    />
+                  ) : (
+                    <MdFastfood className="w-10 h-10 text-red-300 mx-auto my-auto" />
+                  )}
                   {String(vendor.Active).toLowerCase() === "true" ? (
                     <span className="absolute top-2 left-2 px-2 py-1 bg-green-500 text-white text-[10px] font-bold rounded-full shadow-sm">
                       Online

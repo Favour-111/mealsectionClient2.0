@@ -7,10 +7,11 @@ import { useAuthContext } from "../context/AuthContext";
 import { IoMdArrowBack } from "react-icons/io";
 import { FaRegHeart, FaHeart, FaStar } from "react-icons/fa";
 import { LuSparkles } from "react-icons/lu";
-import { FiPackage, FiSearch } from "react-icons/fi";
-import { MdOutlineSort } from "react-icons/md";
+import { FiPackage, FiSearch, FiChevronDown } from "react-icons/fi";
+import { MdFastfood, MdOutlineSort } from "react-icons/md";
 import { GoPackage } from "react-icons/go";
 import { TfiPackage } from "react-icons/tfi";
+import { IoCheckmark } from "react-icons/io5";
 
 function Vendor() {
   const { products, vendors } = useAuthContext();
@@ -24,6 +25,7 @@ function Vendor() {
   const vendor = vendors?.find((v) => v._id === id);
   const [selectedPack, setSelectedPack] = useState(packs[0]?.id || "");
   const [adding, setAdding] = useState({}); // per-product add spinner
+  const [showPackDropdown, setShowPackDropdown] = useState(false);
   const formattedProducts = (products || []).map((p) => ({
     id: p._id,
     vendorId: p.vendorId,
@@ -141,14 +143,17 @@ function Vendor() {
 
       {/* Vendor Banner */}
       <div className="relative h-56 w-full overflow-hidden">
-        <img
-          src={
-            vendor?.banner ||
-            "https://images.unsplash.com/photo-1528952686551-542043782ab9?auto=format&fit=crop&w=1400&q=60"
-          }
-          alt="Vendor Banner"
-          className="h-full w-full object-cover"
-        />
+        {vendor?.image ? (
+          <img
+            src={vendor?.image}
+            alt={vendor.storeName}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-red-100 to-orange-100">
+            <MdFastfood className="w-20 h-20 text-red-300" />
+          </div>
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
         <div className="absolute inset-x-0 top-3 flex items-center justify-between px-4 text-white">
           <button
@@ -259,29 +264,106 @@ function Vendor() {
 
       {/* Pack selector */}
       {packs.length > 0 && (
-        <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
-          <div className="inline-flex items-center w-[100%] gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm">
-            <TfiPackage className="text-gray-500" />
-            <select
-              value={selectedPack || ""}
-              onChange={(e) => setSelectedPack(Number(e.target.value))}
-              className="bg-transparent text-[9px] outline-none"
+        <div className="mx-auto max-w-5xl px-4 py-3">
+          <div className="flex items-center gap-3">
+            {/* Custom Pack Selector Dropdown */}
+            <div className="relative flex-1">
+              <button
+                onClick={() => setShowPackDropdown(!showPackDropdown)}
+                className="w-full inline-flex items-center justify-between gap-3 rounded-full border border-gray-200 bg-white px-3 py-2 text-sm hover:border-gray-300 transition-all"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-rose-500 to-orange-500 text-white">
+                    <TfiPackage size={18} />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-[10px] text-gray-500 font-medium">
+                      Selected Pack
+                    </p>
+                    <p className="text-[13px] font-bold text-gray-900">
+                      {packs.find((p) => p.id === selectedPack)?.name ||
+                        "Select a pack"}
+                      <span className="text-gray-500 font-normal ml-1">
+                        (
+                        {packs.find((p) => p.id === selectedPack)?.items
+                          .length || 0}{" "}
+                        {packs.find((p) => p.id === selectedPack)?.items
+                          .length === 1
+                          ? "item"
+                          : "items"}
+                        )
+                      </span>
+                    </p>
+                  </div>
+                </div>
+                <FiChevronDown
+                  className={`text-gray-400 transition-transform ${
+                    showPackDropdown ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              {/* Dropdown Menu */}
+              {showPackDropdown && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg z-30 max-h-64 overflow-y-auto">
+                  {packs.map((pack) => (
+                    <button
+                      key={pack.id}
+                      onClick={() => {
+                        setSelectedPack(pack.id);
+                        setShowPackDropdown(false);
+                      }}
+                      className={`w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0 ${
+                        selectedPack === pack.id ? "bg-rose-50" : ""
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div
+                          className={`grid h-8 w-8 place-items-center rounded-lg ${
+                            selectedPack === pack.id
+                              ? "bg-gradient-to-br from-rose-500 to-orange-500 text-white"
+                              : "bg-gray-100 text-gray-500"
+                          }`}
+                        >
+                          <TfiPackage size={16} />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p
+                            className={`text-[13px] font-semibold truncate ${
+                              selectedPack === pack.id
+                                ? "text-rose-700"
+                                : "text-gray-900"
+                            }`}
+                          >
+                            {pack.name}
+                          </p>
+                          <p className="text-[11px] text-gray-500">
+                            {pack.items.length}{" "}
+                            {pack.items.length === 1 ? "item" : "items"}
+                            {pack.vendorName && ` · ${pack.vendorName}`}
+                          </p>
+                        </div>
+                      </div>
+                      {selectedPack === pack.id && (
+                        <div className="grid h-6 w-6 place-items-center rounded-full bg-rose-500 text-white flex-shrink-0">
+                          <IoCheckmark size={14} />
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Add Pack Button */}
+            <button
+              onClick={handleAddPack}
+              className="inline-flex items-center gap-2 whitespace-nowrap rounded-xl bg-gradient-to-r from-[#9e0505] to-[#c91a1a] px-4 py-3 text-[13px] font-semibold text-white shadow-sm transition hover:shadow-lg active:scale-[0.98]"
             >
-              {packs.map((pack) => (
-                <option className="text-[9px]" key={pack.id} value={pack.id}>
-                  {pack.name} ({pack.items.length}{" "}
-                  {pack.items.length === 1 ? "item" : "items"})
-                </option>
-              ))}
-            </select>
+              <BiPlus size={18} />
+              <span>New</span>
+            </button>
           </div>
-          <button
-            onClick={handleAddPack}
-            className="text-[12px] inline-flex items-center gap-2 whitespace-nowrap rounded-xl bg-gradient-to-r from-[#9e0505] to-[#c91a1a] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:shadow-lg"
-          >
-            <BiPlus size={18} />
-            <span>Add Pack</span>
-          </button>
         </div>
       )}
 
