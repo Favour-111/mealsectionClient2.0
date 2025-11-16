@@ -33,11 +33,65 @@ function Cart() {
   const [loading, setLoading] = useState(false);
   const [openError, setOpenError] = useState(false);
   const navigate = useNavigate();
-  const [deliveryFee, setDeliveryFee] = useState(200);
+  const [deliveryFee, setDeliveryFee] = useState(0);
+  const [deliveryFeesData, setDeliveryFeesData] = useState([]);
   const [promotions, setPromotions] = useState([]);
   const [savedAddresses, setSavedAddresses] = useState([]);
   const [savedPhones, setSavedPhones] = useState([]);
-  const serviceFee = 200;
+  // Service fee is now 10% of subtotal
+  const serviceFee = Math.round(totalAmount * 0.1);
+  // Fetch delivery fees for all vendors in the cart
+  useEffect(() => {
+    const fetchDeliveryFees = async () => {
+      try {
+        const API = import.meta.env.VITE_REACT_APP_API;
+        const { data } = await axios.get(`${API}/api/delivery`);
+        setDeliveryFeesData(data || []);
+      } catch (err) {
+        setDeliveryFeesData([]);
+      }
+    };
+    fetchDeliveryFees();
+  }, []);
+
+  // Calculate delivery fee range for all packs/vendors
+  const [deliveryFeeMin, setDeliveryFeeMin] = useState(0);
+  const [deliveryFeeMax, setDeliveryFeeMax] = useState(0);
+  useEffect(() => {
+    if (!packs.length || !deliveryFeesData.length) {
+      setDeliveryFee(0);
+      setDeliveryFeeMin(0);
+      setDeliveryFeeMax(0);
+      return;
+    }
+    // Get unique vendor IDs from packs
+    const vendorIds = Array.from(
+      new Set(
+        packs
+          .map((p) => p.vendorId || (p.vendor && p.vendor._id))
+          .filter(Boolean)
+      )
+    );
+    // For each vendor, find their delivery fee (use min/max)
+    let totalMin = 0;
+    let totalMax = 0;
+    vendorIds.forEach((vid) => {
+      const feeObj = deliveryFeesData.find(
+        (f) =>
+          (f.vendorId && (f.vendorId._id === vid || f.vendorId === vid)) ||
+          f.vendorId === vid
+      );
+      if (feeObj) {
+        totalMin += Number(feeObj.minimumDeliveryFee) || 0;
+        totalMax += Number(feeObj.maximumDeliveryFee) || 0;
+      }
+    });
+    setDeliveryFee((prev) =>
+      prev < totalMin ? totalMin : prev > totalMax ? totalMax : prev || totalMin
+    );
+    setDeliveryFeeMin(totalMin);
+    setDeliveryFeeMax(totalMax);
+  }, [packs, deliveryFeesData]);
 
   // Fetch active promotions
   useEffect(() => {
@@ -271,7 +325,7 @@ function Cart() {
 
         // 🧩 Log backend response
         console.log("✅ Order Response:", data);
-
+        localStorage.removeItem("packs");
         toast.success("Order placed successfully!");
 
         // ✅ Update user + UI
@@ -661,7 +715,8 @@ function Cart() {
                 <div className="flex justify-between items-center text-xs sm:text-sm">
                   <span className="text-gray-600 flex items-center gap-2">
                     <span className="w-1 h-1 rounded-full bg-gray-400"></span>
-                    Service Fee
+                    Service Fee{" "}
+                    <span className="text-[10px] text-gray-400">(10%)</span>
                   </span>
                   <span className="font-semibold text-gray-800">
                     ₦{serviceFee.toLocaleString()}
@@ -676,6 +731,46 @@ function Cart() {
                     ₦{deliveryFee.toLocaleString()}
                   </span>
                 </div>
+                {/* Delivery Fee Adjuster */}
+                {deliveryFeeMax > deliveryFeeMin && (
+                  <div>
+                    <div className="bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-xl p-3 sm:p-4 border border-gray-200">
+                      <label className="flex items-center justify-between text-xs sm:text-sm font-semibold text-gray-700 mb-3">
+                        <span>Adjust Delivery Fee</span>
+                        <span className="text-[var(--default)] bg-red-50 px-2 py-0.5 rounded-lg text-[10px] sm:text-xs">
+                          ₦{deliveryFee}
+                        </span>
+                      </label>
+                      <input
+                        type="range"
+                        min={deliveryFeeMin}
+                        max={deliveryFeeMax}
+                        value={deliveryFee}
+                        onChange={(e) => setDeliveryFee(Number(e.target.value))}
+                        className="w-full accent-[var(--default)] h-1.5 sm:h-2"
+                        style={{
+                          background: `linear-gradient(to right, #9e0505 0%, #9e0505 ${
+                            ((deliveryFee - deliveryFeeMin) /
+                              (deliveryFeeMax - deliveryFeeMin)) *
+                            100
+                          }%, #e5e7eb ${
+                            ((deliveryFee - deliveryFeeMin) /
+                              (deliveryFeeMax - deliveryFeeMin)) *
+                            100
+                          }%, #e5e7eb 100%)`,
+                        }}
+                      />
+                      <div className="flex justify-between text-[10px] sm:text-xs text-gray-500 mt-2">
+                        <span className="font-medium">
+                          Min ₦{deliveryFeeMin}
+                        </span>
+                        <span className="font-medium">
+                          Max ₦{deliveryFeeMax}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Vendor-specific Discounts */}
                 {Object.entries(vendorDiscounts).length > 0 && (
@@ -706,37 +801,6 @@ function Cart() {
                     ))}
                   </div>
                 )}
-              </div>
-
-              {/* Delivery Fee Adjuster */}
-              <div className="px-4 sm:px-6 pb-4">
-                <div className="bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-xl p-3 sm:p-4 border border-gray-200">
-                  <label className="flex items-center justify-between text-xs sm:text-sm font-semibold text-gray-700 mb-3">
-                    <span>Adjust Delivery Fee</span>
-                    <span className="text-[var(--default)] bg-red-50 px-2 py-0.5 rounded-lg text-[10px] sm:text-xs">
-                      ₦{deliveryFee}
-                    </span>
-                  </label>
-                  <input
-                    type="range"
-                    min="50"
-                    max="500"
-                    value={deliveryFee}
-                    onChange={(e) => setDeliveryFee(Number(e.target.value))}
-                    className="w-full accent-[var(--default)] h-1.5 sm:h-2"
-                    style={{
-                      background: `linear-gradient(to right, #9e0505 0%, #9e0505 ${
-                        ((deliveryFee - 50) / 450) * 100
-                      }%, #e5e7eb ${
-                        ((deliveryFee - 50) / 450) * 100
-                      }%, #e5e7eb 100%)`,
-                    }}
-                  />
-                  <div className="flex justify-between text-[10px] sm:text-xs text-gray-500 mt-2">
-                    <span className="font-medium">Min ₦50</span>
-                    <span className="font-medium">Max ₦500</span>
-                  </div>
-                </div>
               </div>
 
               {/* Total Section */}
