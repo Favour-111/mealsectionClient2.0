@@ -19,7 +19,7 @@ function Vendors() {
   const [form, setForm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [sortBy, setSortBy] = useState("name");
-  const [viewMode, setViewMode] = useState("grid");
+  const [viewMode, setViewMode] = useState("list");
   const [favorites, setFavorites] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem("vendor_favorites") || "[]");
