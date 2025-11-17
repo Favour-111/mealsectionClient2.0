@@ -4,6 +4,7 @@ import { IoIosArrowRoundBack } from "react-icons/io";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useAuthContext } from "../context/AuthContext";
+import { messaging, getToken } from "../config/firebase";
 
 function Login() {
   const { useFetch } = useAuthContext();
@@ -14,6 +15,41 @@ function Login() {
   const [errors, setErrors] = useState({});
 
   const navigate = useNavigate();
+
+  // Request notification permission and get FCM token
+  const requestNotificationPermission = async () => {
+    try {
+      console.log("👉 Requesting notification permission...");
+      const permission = await Notification.requestPermission();
+      console.log("🔔 Permission result:", permission);
+
+      if (permission !== "granted") {
+        console.log("🚫 Permission not granted, skipping token.");
+        return null;
+      }
+
+      if (!("serviceWorker" in navigator)) {
+        console.log("❌ Service workers not supported in this browser.");
+        return null;
+      }
+
+      // Wait for the service worker to be ready
+      const registration = await navigator.serviceWorker.ready;
+      console.log("🧾 Service worker ready:", registration);
+
+      const token = await getToken(messaging, {
+        vapidKey:
+          "BGRrHITgNaK202cuNVMwzxzc_9J8IJloWbYwC0YE2CMQvuYCYJfb-YmwQPueqaZhf8ElJqauT27Uw0z11oHcjMA",
+        serviceWorkerRegistration: registration,
+      });
+
+      console.log("🎯 FCM token:", token);
+      return token || null;
+    } catch (error) {
+      console.error("❌ Error getting FCM token:", error);
+      return null;
+    }
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -28,9 +64,12 @@ function Login() {
 
     setIsLoading(true);
     try {
+      // Get FCM token for push notifications
+      const fcmToken = await requestNotificationPermission();
+
       const { data } = await axios.post(
         `${import.meta.env.VITE_REACT_APP_API}/api/users/login`,
-        { email, password },
+        { email, password, fcmToken }, // Send FCM token to backend
         { headers: { "Content-Type": "application/json" } }
       );
 

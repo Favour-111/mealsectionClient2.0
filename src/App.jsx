@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
 import Footer from "./components/footer/Footer";
@@ -7,9 +7,11 @@ import "./App.css";
 import { HiOutlineMenu } from "react-icons/hi";
 import { IoCartOutline } from "react-icons/io5";
 import { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { useAuthContext } from "./context/AuthContext";
 import Loader from "./pages/Loader";
 import { useCartContext } from "./context/CartContext";
+import { messaging, onMessage } from "./config/firebase";
 
 // ✅ Import all pages here
 import Home from "./pages/Home";
@@ -43,6 +45,28 @@ function App() {
 
   const totalItems = packs.reduce((sum, pack) => sum + pack.items.length, 0);
   const userId = localStorage.getItem("userId");
+
+  // Listen for foreground notifications
+  useEffect(() => {
+    const unsubscribe = onMessage(messaging, (payload) => {
+      console.log("📬 Foreground notification received:", payload);
+
+      const title = payload.notification?.title || "New Notification";
+      const body = payload.notification?.body || "";
+
+      // Show toast notification
+      toast.success(`${title}\n${body}`, {
+        duration: 6000,
+        icon: "🔔",
+      });
+    });
+
+    return () => {
+      if (typeof unsubscribe === "function") {
+        unsubscribe();
+      }
+    };
+  }, []);
 
   // Hide header/footer on some pages
   const hiddenRoutes = [
@@ -128,6 +152,7 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/referral" element={<ReferralScreen />} />
           <Route path="/splashpage" element={<SplashPage />} />
+
           <Route path="/reset-password/:token" element={<Reset />} />
           {/* Dynamic Welcome/Home */}
           {userId ? (
