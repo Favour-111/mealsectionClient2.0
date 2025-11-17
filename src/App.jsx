@@ -32,6 +32,7 @@ import OrderDetails from "./pages/OrderDetails";
 import SplashPage from "./pages/SplashPage";
 import Vendors from "./pages/Vendors";
 import Promotions from "./pages/Promotions";
+import Reset from "./pages/Reset";
 
 function App() {
   const { packs } = useCartContext();
@@ -57,7 +58,12 @@ function App() {
     "/profile",
     "/promotions",
   ].filter(Boolean);
-  const isHiddenLayout = hiddenRoutes.includes(location.pathname);
+  // Hide layout for /reset-password and /reset-password/:token
+  const isResetPasswordRoute = /^\/reset-password(\/[^/]+)?$/.test(
+    location.pathname
+  );
+  const isHiddenLayout =
+    hiddenRoutes.includes(location.pathname) || isResetPasswordRoute;
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
@@ -122,7 +128,7 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/referral" element={<ReferralScreen />} />
           <Route path="/splashpage" element={<SplashPage />} />
-
+          <Route path="/reset-password/:token" element={<Reset />} />
           {/* Dynamic Welcome/Home */}
           {userId ? (
             <Route path="/" element={<Home />} />
@@ -143,6 +149,7 @@ function App() {
               <Route path="/wallet" element={<Wallet />} />
               <Route path="/promotions" element={<Promotions />} />
               <Route path="/vendor/:id" element={<Vendor />} />
+
               <Route path="/orderdetails" element={<OrderDetails />} />
             </>
           )}
