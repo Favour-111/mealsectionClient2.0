@@ -415,12 +415,23 @@ function Vendor() {
                 className="group relative overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg"
               >
                 <div className="relative w-full overflow-hidden aspect-[4/3]">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    loading="lazy"
-                    className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.05]"
-                  />
+                  {product.image ? (
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      loading="lazy"
+                      className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.05]"
+                    />
+                  ) : (
+                    <div className="h-full w-full bg-gradient-to-br from-orange-100 via-red-50 to-rose-100 flex items-center justify-center">
+                      <div className="text-center">
+                        <MdFastfood className="w-16 h-16 text-orange-300 mx-auto mb-2" />
+                        <p className="text-xs font-semibold text-gray-400">
+                          {product.name}
+                        </p>
+                      </div>
+                    </div>
+                  )}
                   <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-black/0 to-black/0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                   {/* Price chip */}
                   <span className="absolute top-3 left-3 rounded-xl px-3 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-gray-900 to-gray-700/90 shadow-md">
