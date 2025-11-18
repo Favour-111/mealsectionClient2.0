@@ -4,7 +4,12 @@ import { IoMdArrowBack } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import { CgTrash } from "react-icons/cg";
 import { BiMinus, BiPlus, BiPackage } from "react-icons/bi";
-import { MdOutlineLocationOn, MdPhone, MdLocalShipping } from "react-icons/md";
+import {
+  MdOutlineLocationOn,
+  MdPhone,
+  MdLocalShipping,
+  MdFastfood,
+} from "react-icons/md";
 import InputField from "../components/InputField";
 import {
   Dialog,
@@ -596,11 +601,19 @@ function Cart() {
                         key={item.id}
                         className="flex items-center gap-2 sm:gap-4 p-2 sm:p-4 rounded-xl hover:bg-gray-50 transition-colors border border-gray-100"
                       >
-                        <img
-                          src={item.image || "https://via.placeholder.com/80"}
-                          alt={item.name}
-                          className="w-12 sm:w-20 h-12 sm:h-20 rounded-xl object-cover shadow-sm"
-                        />
+                        <div className="w-12 sm:w-20 h-12 sm:h-20 rounded-xl overflow-hidden shadow-sm">
+                          {item.image ? (
+                            <img
+                              src={item.image}
+                              alt={item.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="h-full w-full bg-gradient-to-br from-orange-100 via-red-50 to-rose-100 flex items-center justify-center">
+                              <MdFastfood className="w-6 sm:w-8 h-6 sm:h-8 text-orange-300" />
+                            </div>
+                          )}
+                        </div>
                         <div className="flex-1 min-w-0">
                           <h3 className="font-semibold text-gray-800 truncate text-xs sm:text-base">
                             {item.name}

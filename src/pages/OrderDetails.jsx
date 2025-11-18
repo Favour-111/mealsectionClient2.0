@@ -15,6 +15,7 @@ import {
   FiHome,
   FiUser,
 } from "react-icons/fi";
+import { MdFastfood } from "react-icons/md";
 import toast from "react-hot-toast";
 
 const OrderDetails = () => {
@@ -362,11 +363,17 @@ const OrderDetails = () => {
                     {(pack.items || []).map((it) => (
                       <div key={it._id} className="flex items-center gap-3">
                         <div className="w-11 h-11 rounded-lg overflow-hidden bg-gray-50 border border-gray-100">
-                          <img
-                            src={it.image}
-                            alt={it.name}
-                            className="w-full h-full object-cover"
-                          />
+                          {it.image ? (
+                            <img
+                              src={it.image}
+                              alt={it.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="h-full w-full bg-gradient-to-br from-orange-100 via-red-50 to-rose-100 flex items-center justify-center">
+                              <MdFastfood className="w-5 h-5 text-orange-300" />
+                            </div>
+                          )}
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-xs font-medium text-gray-900 truncate">

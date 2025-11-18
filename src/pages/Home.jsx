@@ -172,16 +172,23 @@ function Home() {
     return () => clearInterval(id);
   }, [promos.length]);
 
-  const trendingVendors = useMemo(() => {
+  const onlineVendors = useMemo(() => {
     if (!uniFilteredVendors) return [];
-    return uniFilteredVendors
-      .filter((v) => String(v.Active).toLowerCase() === "true")
-      .slice(0, 6);
+    return uniFilteredVendors.filter(
+      (v) => String(v.Active).toLowerCase() === "true"
+    );
   }, [uniFilteredVendors]);
 
   const newVendors = useMemo(() => {
     if (!uniFilteredVendors) return [];
-    return uniFilteredVendors.slice(0, 3);
+    return [...uniFilteredVendors]
+      .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+      .slice(0, 3);
+  }, [uniFilteredVendors]);
+
+  const shuffledVendors = useMemo(() => {
+    if (!uniFilteredVendors) return [];
+    return [...uniFilteredVendors].sort(() => Math.random() - 0.5);
   }, [uniFilteredVendors]);
 
   return (
@@ -547,12 +554,14 @@ function Home() {
           </div>
         )}
 
-        {/* Trending Now */}
+        {/* Online Vendors */}
         <div className="animate-fadeIn" style={{ animationDelay: "250ms" }}>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <FaFire className="text-orange-500 w-5 h-5" />
-              <h2 className="text-xl font-bold text-gray-800">Trending Now</h2>
+              <h2 className="text-xl font-bold text-gray-800">
+                Online Vendors
+              </h2>
             </div>
             <button
               onClick={() => navigate("/vendors")}
@@ -563,7 +572,7 @@ function Home() {
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-            {trendingVendors?.map((vendor, i) => (
+            {onlineVendors?.map((vendor, i) => (
               <div
                 key={vendor._id}
                 onClick={() => navigate(`/vendor/${vendor._id}`)}
@@ -617,72 +626,69 @@ function Home() {
             <div className="flex items-center gap-2 mb-4">
               <GiShoppingCart className="text-purple-500 w-5 h-5" />
               <h2 className="text-xl font-bold text-gray-800">
-                New on MealSection
+                Latest Vendors
               </h2>
             </div>
 
             <div className="grid gap-3">
-              {newVendors
-                ?.slice()
-                .reverse()
-                .map((vendor) => (
-                  <div
-                    key={vendor._id}
-                    onClick={() => navigate(`/vendor/${vendor._id}`)}
-                    className="bg-white rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:shadow-lg transition-all group border border-gray-100"
-                  >
-                    <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-red-100 to-orange-100 overflow-hidden flex-shrink-0 flex items-center justify-center">
-                      {vendor.image ? (
-                        <img
-                          src={vendor.image}
-                          alt={vendor.storeName}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                        />
-                      ) : (
-                        <BiDish className="w-8 h-8 text-red-300" />
+              {newVendors?.map((vendor) => (
+                <div
+                  key={vendor._id}
+                  onClick={() => navigate(`/vendor/${vendor._id}`)}
+                  className="bg-white rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:shadow-lg transition-all group border border-gray-100"
+                >
+                  <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-red-100 to-orange-100 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                    {vendor.image ? (
+                      <img
+                        src={vendor.image}
+                        alt={vendor.storeName}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                    ) : (
+                      <BiDish className="w-8 h-8 text-red-300" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="font-bold text-gray-800 truncate group-hover:text-red-600 transition-colors">
+                        {vendor.storeName}
+                      </h3>
+                      <span className="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs font-bold rounded-full flex-shrink-0">
+                        NEW
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3 text-xs text-gray-500">
+                      <div className="flex items-center gap-1">
+                        <FaStar color="#fbbf24" size={12} />
+                        <span>4.5</span>
+                      </div>
+                      <span>•</span>
+                      <span>15-30 min</span>
+                      {String(vendor.Active).toLowerCase() === "true" && (
+                        <>
+                          <span>•</span>
+                          <span className="text-green-600 font-medium">
+                            Online
+                          </span>
+                        </>
                       )}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-bold text-gray-800 truncate group-hover:text-red-600 transition-colors">
-                          {vendor.storeName}
-                        </h3>
-                        <span className="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs font-bold rounded-full flex-shrink-0">
-                          NEW
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-3 text-xs text-gray-500">
-                        <div className="flex items-center gap-1">
-                          <FaStar color="#fbbf24" size={12} />
-                          <span>4.5</span>
-                        </div>
-                        <span>•</span>
-                        <span>15-30 min</span>
-                        {String(vendor.Active).toLowerCase() === "true" && (
-                          <>
-                            <span>•</span>
-                            <span className="text-green-600 font-medium">
-                              Online
-                            </span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                    <svg
-                      className="w-5 h-5 text-gray-400 group-hover:text-red-600 group-hover:translate-x-1 transition-all flex-shrink-0"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 5l7 7-7 7"
-                      />
-                    </svg>
                   </div>
-                ))}
+                  <svg
+                    className="w-5 h-5 text-gray-400 group-hover:text-red-600 group-hover:translate-x-1 transition-all flex-shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </div>
+              ))}
             </div>
           </div>
         )}
@@ -700,7 +706,7 @@ function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {uniFilteredVendors?.slice(0, 4).map((vendor) => (
+            {shuffledVendors?.slice(0, 4).map((vendor) => (
               <div
                 key={vendor._id}
                 onClick={() => navigate(`/vendor/${vendor._id}`)}
