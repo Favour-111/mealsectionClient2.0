@@ -66,6 +66,7 @@ const OrderDetails = () => {
 
   // Fetch assigned rider name when a valid rider is present
   const [riderName, setRiderName] = useState("");
+  const [riderPhone, setRiderPhone] = useState("");
   useEffect(() => {
     const loadRider = async () => {
       try {
@@ -79,6 +80,7 @@ const OrderDetails = () => {
           typeof order?.rider === "string" ? order.rider : order?.rider?._id;
         const match = list.find((r) => String(r?._id) === String(riderId));
         setRiderName(match?.userName || "");
+        setRiderPhone(match?.phoneNumber || "");
       } catch (err) {
         // Ignore errors, keep fallback label
       }
@@ -269,29 +271,53 @@ const OrderDetails = () => {
 
         {/* Rider Details */}
         {riderAssigned ? (
-          <section className="bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-100 shadow-sm p-5">
-            <h2 className="text-sm font-medium text-gray-900 mb-4">
-              Rider Details
-            </h2>
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-[#f6f6f6] flex items-center justify-center rounded-full overflow-hidden ring-2 ring-gray-100">
-                  <FiUser />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-900">
-                    {riderName || "Assigned Rider"}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-0.5">
-                    ID: {String(order?.rider).slice(0, 8)}…
-                  </p>
-                </div>
+          <section className="bg-gradient-to-br from-white to-gray-50/30 backdrop-blur-sm rounded-2xl border border-gray-100 shadow-md p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center">
+                <FiTruck size={16} className="text-blue-500" />
               </div>
+              <h2 className="text-sm font-semibold text-gray-900">
+                Your Delivery Rider
+              </h2>
+            </div>
+
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-14 h-14 bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center rounded-full overflow-hidden ring-2 ring-blue-200 ring-offset-2">
+                <FiUser size={24} className="text-blue-600" />
+              </div>
+              <div className="flex-1">
+                <p className="text-base font-semibold text-gray-900">
+                  {riderName || "Assigned Rider"}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  ID: {String(order?.rider).slice(0, 8)}…
+                </p>
+                {riderPhone && (
+                  <p className="text-xs text-gray-600 mt-0.5 flex items-center gap-1">
+                    <FiPhone size={10} /> {riderPhone}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              {riderPhone && (
+                <a
+                  href={`tel:${riderPhone}`}
+                  className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white text-sm font-medium shadow-sm hover:shadow-md transition-all active:scale-95"
+                >
+                  <FiPhone size={16} />
+                  <span>Call Rider</span>
+                </a>
+              )}
               <Link
                 to="/contact"
-                className="px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 text-xs font-medium text-gray-700 flex items-center gap-1.5 transition-all"
+                className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium transition-all active:scale-95 ${
+                  !riderPhone ? "col-span-2" : ""
+                }`}
               >
-                <FiMessageCircle size={14} /> Support
+                <FiMessageCircle size={16} />
+                <span>Support</span>
               </Link>
             </div>
           </section>
