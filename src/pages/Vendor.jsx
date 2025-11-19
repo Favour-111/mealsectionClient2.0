@@ -1,6 +1,6 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { BiPlus } from "react-icons/bi";
 import { useCartContext } from "../context/CartContext";
 import { useAuthContext } from "../context/AuthContext";
@@ -26,6 +26,8 @@ function Vendor() {
   const [selectedPack, setSelectedPack] = useState(packs[0]?.id || "");
   const [adding, setAdding] = useState({}); // per-product add spinner
   const [showPackDropdown, setShowPackDropdown] = useState(false);
+  const [displayCount, setDisplayCount] = useState(10); // Initial products to show
+  const loaderRef = useRef(null);
   const formattedProducts = (products || []).map((p) => ({
     id: p._id,
     vendorId: p.vendorId,
@@ -63,6 +65,40 @@ function Vendor() {
     // popular: keep original order for now
     return list;
   }, [formattedProducts, id, selectedCategory, query, sort]);
+
+  // Products to display (with pagination)
+  const displayedProducts = useMemo(() => {
+    return filteredProducts.slice(0, displayCount);
+  }, [filteredProducts, displayCount]);
+
+  const hasMore = displayCount < filteredProducts.length;
+
+  // Infinite scroll observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          setDisplayCount((prev) => prev + 10);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (loaderRef.current) {
+      observer.observe(loaderRef.current);
+    }
+
+    return () => {
+      if (loaderRef.current) {
+        observer.unobserve(loaderRef.current);
+      }
+    };
+  }, [hasMore]);
+
+  // Reset display count when filters change
+  useEffect(() => {
+    setDisplayCount(10);
+  }, [selectedCategory, query, sort]);
 
   const handleAddPack = () => {
     const newPack = addPack(); // calls your context to add a new pack
@@ -403,7 +439,7 @@ function Vendor() {
             </p>
           </div>
         ) : (
-          filteredProducts.map((product) => {
+          displayedProducts.map((product) => {
             const currentPack = packs.find((p) => p.id === selectedPack);
             const inCart = currentPack?.items.some(
               (item) => item.id === product.id
@@ -583,6 +619,43 @@ function Vendor() {
           })
         )}
       </main>
+
+      {/* Infinite Scroll Loader */}
+      {hasMore && filteredProducts.length > 0 && (
+        <div ref={loaderRef} className="flex justify-center py-8">
+          <div className="flex flex-col items-center gap-3">
+            <svg
+              className="animate-spin h-8 w-8 text-rose-500"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+              ></path>
+            </svg>
+            <p className="text-sm text-gray-500">Loading more products...</p>
+          </div>
+        </div>
+      )}
+
+      {/* End of results message */}
+      {!hasMore && filteredProducts.length > 10 && (
+        <div className="flex justify-center py-8">
+          <p className="text-sm text-gray-400">
+            You've reached the end • {filteredProducts.length} products shown
+          </p>
+        </div>
+      )}
+
       {/* Sticky pack summary bar */}
       {currentPack && (
         <div className="fixed inset-x-0 bottom-0 z-20 mx-auto mb-3 max-w-5xl px-4">
