@@ -485,10 +485,7 @@ function Vendor() {
 
                   {/* Quick actions overlay */}
                   <div className="absolute inset-x-2 bottom-2 flex translate-y-3 items-center justify-between gap-2 rounded-xl bg-white/90 p-2 opacity-0 backdrop-blur transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-                    <Link
-                      to={`/meals/${product.id}`}
-                      className="flex-1 rounded-lg border border-gray-200 px-3 py-1.5 text-center text-[12px] font-semibold text-gray-700 hover:bg-gray-50"
-                    >
+                    <Link className="flex-1 rounded-lg border border-gray-200 px-3 py-1.5 text-center text-[12px] font-semibold text-gray-700 hover:bg-gray-50">
                       View
                     </Link>
                     <button

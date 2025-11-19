@@ -52,3 +52,21 @@ self.addEventListener("notificationclick", (event) => {
       })
   );
 });
+
+// Fallback push handler (for browsers that don't trigger FCM background handler)
+self.addEventListener("push", (event) => {
+  try {
+    const data = event.data ? event.data.json() : {};
+    const title = data.notification?.title || data.title || "MealSection";
+    const options = {
+      body: data.notification?.body || data.body || "",
+      icon:
+        data.notification?.icon ||
+        "https://favour-111.github.io/MEalSection-ComongSoon-2.0/WhatsApp%20Image%202024-08-24%20at%2020.18.12_988ce6f9.jpg",
+      data: data.data || {},
+    };
+    event.waitUntil(self.registration.showNotification(title, options));
+  } catch (e) {
+    // no-op
+  }
+});

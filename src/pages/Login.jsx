@@ -19,6 +19,16 @@ function Login() {
   // Request notification permission and get FCM token
   const requestNotificationPermission = async () => {
     try {
+      const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+      const isStandalone =
+        window.matchMedia &&
+        window.matchMedia("(display-mode: standalone)").matches;
+      // Safari iOS only supports Web Push for installed PWAs
+      if (isIOS && !isStandalone) {
+        toast("For notifications on iPhone, add MealSection to Home Screen.");
+        return null;
+      }
+
       console.log("👉 Requesting notification permission...");
       const permission = await Notification.requestPermission();
       console.log("🔔 Permission result:", permission);
