@@ -630,12 +630,12 @@ function Home() {
               </h2>
             </div>
 
-            <div className="grid gap-3">
+            <div className="flex flex-col gap-3">
               {newVendors?.map((vendor) => (
                 <div
                   key={vendor._id}
                   onClick={() => navigate(`/vendor/${vendor._id}`)}
-                  className="bg-white rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:shadow-lg transition-all group border border-gray-100"
+                  className="bg-white w-[100%] rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:shadow-lg transition-all group border border-gray-100"
                 >
                   <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-red-100 to-orange-100 overflow-hidden flex-shrink-0 flex items-center justify-center">
                     {vendor.image ? (
@@ -653,7 +653,7 @@ function Home() {
                       <h3 className="font-bold text-gray-800 truncate group-hover:text-red-600 transition-colors">
                         {vendor.storeName}
                       </h3>
-                      <span className="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs font-bold rounded-full flex-shrink-0">
+                      <span className="px-2 py-0.5 bg-purple-100 text-purple-700 text-[11px] font-bold rounded-full flex-shrink-0">
                         NEW
                       </span>
                     </div>
@@ -706,7 +706,7 @@ function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {shuffledVendors?.slice(0, 4).map((vendor) => (
+            {shuffledVendors?.map((vendor) => (
               <div
                 key={vendor._id}
                 onClick={() => navigate(`/vendor/${vendor._id}`)}
