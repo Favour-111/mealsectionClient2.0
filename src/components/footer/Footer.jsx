@@ -38,7 +38,7 @@ const Footer = () => {
           {/* Company Info */}
           <div className="space-y-4">
             <img
-              src="https://www.mealsection.com/WhatsApp%20Image%202024-08-24%20at%2020.18.12_988ce6f9.jpg"
+              src="https://github.com/Favour-111/my-asset/blob/main/images%20(2).jpeg?raw=true"
               alt="MealSection Logo"
               className="w-40 hover:scale-105 transition-transform duration-300"
             />

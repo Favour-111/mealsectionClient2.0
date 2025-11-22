@@ -42,7 +42,7 @@ export default function Loader({
           aria-label="MealSection loading"
         >
           <img
-            src="https://www.mealsection.com/WhatsApp%20Image%202024-08-24%20at%2020.18.12_988ce6f9.jpg"
+            src="https://github.com/Favour-111/my-asset/blob/main/images%20(2).jpeg?raw=true"
             alt="MealSection logo"
             className="w-30 rounded-[8px]  object-contain scale-105 group-hover:scale-110 transition-transform duration-700"
           />

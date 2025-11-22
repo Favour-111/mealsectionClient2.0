@@ -85,7 +85,7 @@ function Sidebar({ isOpen, toggleSidebar }) {
         <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
             <img
-              src="https://www.mealsection.com/WhatsApp%20Image%202024-08-24%20at%2020.18.12_988ce6f9.jpg"
+              src="https://github.com/Favour-111/my-asset/blob/main/images%20(2).jpeg?raw=true"
               alt="MealSection Logo"
               className="w-32 hover:scale-105 transition-transform duration-300"
             />
@@ -159,7 +159,7 @@ function Sidebar({ isOpen, toggleSidebar }) {
         <div className="flex items-center justify-between p-4 border-b border-gray-100">
           <Link to="/" className="flex-1">
             <img
-              src="https://www.mealsection.com/WhatsApp%20Image%202024-08-24%20at%2020.18.12_988ce6f9.jpg"
+              src="https://github.com/Favour-111/my-asset/blob/main/images%20(2).jpeg?raw=true"
               alt="MealSection Logo"
               className="w-28 hover:scale-105 transition-transform duration-300"
             />
