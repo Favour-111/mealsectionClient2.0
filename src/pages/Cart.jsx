@@ -362,7 +362,7 @@ function Cart() {
         description={PAGE_SEO.cart.description}
         keywords={PAGE_SEO.cart.keywords}
       />
-      {/* Decorative background shapes for visual interest */}}
+      {/* Decorative background shapes for visual interest */}
       <div className="absolute -top-20 -left-20 w-72 h-72 bg-[var(--default)]/10 rounded-full blur-2xl z-0" />
       <div className="absolute top-1/2 right-0 w-40 h-40 bg-orange-200/20 rounded-full blur-2xl z-0" />
       {/* Header */}
@@ -486,7 +486,7 @@ function Cart() {
                 </button>
               </div>
               {/* Suggested Vendors Mock */}
-              <div className="space-y-2 sm:space-y-4">
+              {/* <div className="space-y-2 sm:space-y-4">
                 <h4 className="text-xs sm:text-sm font-bold text-gray-700 flex items-center gap-2">
                   <span className="text-lg sm:text-xl">🔥</span> Popular Picks
                   Today
@@ -542,7 +542,7 @@ function Cart() {
                     </button>
                   ))}
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         ) : (
