@@ -30,7 +30,7 @@ const WelcomeScreen = () => {
       {/* Top bar with logo and Skip */}
       <div className="relative z-10 flex items-center justify-between p-5">
         <img
-          src="https://favour-111.github.io/MEalSection-ComongSoon-2.0/WhatsApp%20Image%202024-08-24%20at%2020.18.12_988ce6f9.jpg"
+          src="https://github.com/Favour-111/my-asset/blob/main/images%20(2).jpeg?raw=true"
           alt="MealSection Logo"
           className="w-36 md:w-44"
         />

@@ -56,7 +56,7 @@ function Onboarding() {
       {/* Header */}
       <div className="flex justify-between items-center px-5 md:px-8 py-4 border-b border-gray-100 bg-white/70 backdrop-blur">
         <img
-          src="https://favour-111.github.io/MEalSection-ComongSoon-2.0/WhatsApp%20Image%202024-08-24%20at%2020.18.12_988ce6f9.jpg"
+          src="https://github.com/Favour-111/my-asset/blob/main/images%20(2).jpeg?raw=true"
           alt="MealSection"
           className="w-32 md:w-36"
         />

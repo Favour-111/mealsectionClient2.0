@@ -71,7 +71,7 @@ function ResetPassword() {
         <div className="flex flex-col items-center text-center">
           <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-red-100 via-orange-100 to-yellow-50 flex items-center justify-center shadow-inner mb-4">
             <img
-              src="https://favour-111.github.io/MEalSection-ComongSoon-2.0/WhatsApp%20Image%202024-08-24%20at%2020.18.12_988ce6f9.jpg"
+              src="https://github.com/Favour-111/my-asset/blob/main/images%20(2).jpeg?raw=true"
               alt="MealSection Brand"
               className="w-16 h-16 rounded-xl object-cover shadow-sm"
             />

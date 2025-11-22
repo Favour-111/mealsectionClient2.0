@@ -133,7 +133,7 @@ function Login() {
         >
           <div className="rounded-2xl p-2 bg-gradient-to-br from-red-100 via-orange-100 to-yellow-50 flex items-center justify-center shadow-inner mb-4">
             <img
-              src="https://favour-111.github.io/MEalSection-ComongSoon-2.0/WhatsApp%20Image%202024-08-24%20at%2020.18.12_988ce6f9.jpg"
+              src="https://github.com/Favour-111/my-asset/blob/main/images%20(2).jpeg?raw=true"
               alt="MealSection Brand"
               className="w-45 rounded-[10px] object-contain shadow-sm"
             />
