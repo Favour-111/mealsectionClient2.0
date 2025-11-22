@@ -16,6 +16,8 @@ function OrderCard({ order }) {
   const statusColor =
     order?.currentStatus === "Pending"
       ? "text-amber-700 bg-amber-50 border-amber-200"
+      : order?.currentStatus === "Cancelled"
+      ? "text-red-700 bg-red-50 border-red-200"
       : "text-emerald-700 bg-emerald-50 border-emerald-200";
 
   const itemCount = order.packs.reduce(
@@ -103,6 +105,7 @@ function Orders() {
     if (filter === "All") return true;
     if (filter === "Pending") return order.currentStatus === "Pending";
     if (filter === "Delivered") return order.currentStatus === "Delivered";
+    if (filter === "Cancelled") return order.currentStatus === "Cancelled";
     return true;
   });
   console.log(orders);
@@ -183,6 +186,27 @@ function Orders() {
           >
             (
             {orders?.filter((o) => o.currentStatus === "Delivered")?.length ||
+              0}
+            )
+          </span>
+        </button>
+
+        <button
+          onClick={() => setFilter("Cancelled")}
+          className={`px-4 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-all duration-200 ${
+            filter === "Cancelled"
+              ? "bg-gradient-to-r from-red-500 to-rose-500 text-white shadow-md shadow-red-200"
+              : "bg-white text-red-600 border border-red-200 hover:border-red-300 hover:bg-red-50"
+          }`}
+        >
+          Cancelled
+          <span
+            className={`ml-1.5 ${
+              filter === "Cancelled" ? "text-white/90" : "text-red-500"
+            }`}
+          >
+            (
+            {orders?.filter((o) => o.currentStatus === "Cancelled")?.length ||
               0}
             )
           </span>

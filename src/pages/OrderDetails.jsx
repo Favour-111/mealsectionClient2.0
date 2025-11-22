@@ -38,16 +38,7 @@ const OrderDetails = () => {
       ),
     [order]
   );
-  const allAccepted = useMemo(
-    () =>
-      (order?.packs || []).length > 0 &&
-      (order?.packs || []).every((p) => p?.accepted === true),
-    [order]
-  );
-  const hasRejected = useMemo(
-    () => (order?.packs || []).some((p) => p?.accepted === false),
-    [order]
-  );
+
   const riderAssigned = useMemo(() => {
     const r = order?.rider;
     if (r == null) return false;
@@ -57,12 +48,12 @@ const OrderDetails = () => {
     }
     return Boolean(r);
   }, [order]);
-  const delivered =
-    String(order?.currentStatus || "").toLowerCase() === "successful" ||
-    String(order?.currentStatus || "").toLowerCase() === "delivered";
+
   const statusLC = String(order?.currentStatus || "").toLowerCase();
-  const onTheWay =
-    riderAssigned && (statusLC === "on the way" || statusLC === "on my way");
+
+  const delivered = statusLC === "delivered";
+  const onTheWay = statusLC === "processing";
+  const cancelled = statusLC === "cancelled";
 
   // Fetch assigned rider name when a valid rider is present
   const [riderName, setRiderName] = useState("");
@@ -70,8 +61,7 @@ const OrderDetails = () => {
   useEffect(() => {
     const loadRider = async () => {
       try {
-        const base =
-          import.meta.env.VITE_REACT_APP_API || "http://localhost:5000";
+        const base = import.meta.env.VITE_REACT_APP_API;
         const res = await fetch(`${base}/api/riders/allRiders`);
         if (!res.ok) return;
         const data = await res.json();
@@ -89,30 +79,36 @@ const OrderDetails = () => {
   }, [riderAssigned, order]);
 
   // Build dynamic timeline according to rules:
-  // - Pending: always marked
-  // - Processing: when ALL vendors have responded (accepted is not null - either true or false)
-  // - Rider Assigned: when rider id present
-  // - On the way: when rider assigned and not delivered
-  // - Delivered: when status is Successful/Delivered
-  const timelineData = [
-    { status: "Pending", time: null, completed: true },
-    {
-      status: "Processing",
-      time: null,
-      completed: allVendorsResponded,
-    },
-    {
-      status: "Rider Assigned",
-      time: null,
-      completed: delivered || riderAssigned,
-    },
-    {
-      status: "On the way",
-      time: null,
-      completed: delivered || onTheWay,
-    },
-    { status: "Delivered", time: null, completed: delivered },
-  ];
+  // 1. Pending: always marked
+  // 2. Processing: when ALL vendors have responded (accepted is not null - either true or false)
+  // 3. Rider Assigned: when rider is assigned (not "Not assigned")
+  // 4. On the way: when currentStatus is "Processing"
+  // 5. Delivered: when currentStatus is "Delivered"
+  // 6. If cancelled, only show Pending and Cancelled
+  const timelineData = cancelled
+    ? [
+        { status: "Pending", time: null, completed: true },
+        { status: "Cancelled", time: null, completed: true },
+      ]
+    : [
+        { status: "Pending", time: null, completed: true },
+        {
+          status: "Processing",
+          time: null,
+          completed: allVendorsResponded,
+        },
+        {
+          status: "Rider Assigned",
+          time: null,
+          completed: riderAssigned,
+        },
+        {
+          status: "On the way",
+          time: null,
+          completed: onTheWay || delivered,
+        },
+        { status: "Delivered", time: null, completed: delivered },
+      ];
 
   // Flatten items from packs
   const items = useMemo(() => {
@@ -171,13 +167,16 @@ const OrderDetails = () => {
 
   const completedSteps = timelineData.filter((t) => t.completed).length;
   const progressPct = Math.round((completedSteps / timelineData.length) * 100);
+
   const headerStatus = delivered
     ? "Delivered"
+    : cancelled
+    ? "Cancelled"
     : onTheWay
     ? "On the way"
     : riderAssigned
     ? "Rider Assigned"
-    : allAccepted
+    : allVendorsResponded
     ? "Processing"
     : "Pending";
 

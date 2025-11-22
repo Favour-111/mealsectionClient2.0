@@ -553,73 +553,6 @@ function Home() {
             </div>
           </div>
         )}
-
-        {/* Online Vendors */}
-        <div className="animate-fadeIn" style={{ animationDelay: "250ms" }}>
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <FaFire className="text-orange-500 w-5 h-5" />
-              <h2 className="text-xl font-bold text-gray-800">
-                Online Vendors
-              </h2>
-            </div>
-            <button
-              onClick={() => navigate("/vendors")}
-              className="text-sm font-semibold text-red-600 hover:text-red-700 flex items-center gap-1"
-            >
-              View All <span>→</span>
-            </button>
-          </div>
-
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-            {onlineVendors?.map((vendor, i) => (
-              <div
-                key={vendor._id}
-                onClick={() => navigate(`/vendor/${vendor._id}`)}
-                className="bg-white rounded-2xl shadow-sm hover:shadow-lg cursor-pointer transition-all group overflow-hidden border border-gray-100 hover:-translate-y-1"
-              >
-                <div className="relative h-32 bg-gradient-to-br from-red-100 to-orange-100 overflow-hidden flex items-center justify-center">
-                  {vendor.image ? (
-                    <img
-                      src={vendor.image}
-                      alt={vendor.storeName}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                  ) : (
-                    <div className="flex flex-col items-center gap-2">
-                      <MdFastfood className="w-10 h-10 text-red-300" />
-                      <span className="text-xs text-red-400 font-medium">
-                        No Image
-                      </span>
-                    </div>
-                  )}
-                  <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg flex items-center gap-1">
-                    <FaStar color="#fbbf24" size={12} />
-                    <span className="text-xs font-bold">4.5</span>
-                  </div>
-                  {String(vendor.Active).toLowerCase() === "true" && (
-                    <div className="absolute top-2 left-2 bg-green-500 px-2 py-1 rounded-lg flex items-center gap-1">
-                      <div className="w-1 h-1 bg-white rounded-full animate-pulse" />
-                      <span className="text-white text-xs font-bold">
-                        Online
-                      </span>
-                    </div>
-                  )}
-                </div>
-                <div className="p-3">
-                  <h3 className="font-bold text-sm text-gray-800 truncate group-hover:text-red-600 transition-colors">
-                    {vendor.storeName}
-                  </h3>
-                  <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
-                    <FaClock className="w-3 h-3" />
-                    <span>15-30 min</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* New Vendors */}
         {newVendors.length > 0 && (
           <div className="animate-fadeIn" style={{ animationDelay: "300ms" }}>
@@ -692,6 +625,72 @@ function Home() {
             </div>
           </div>
         )}
+
+        {/* Online Vendors */}
+        <div className="animate-fadeIn" style={{ animationDelay: "250ms" }}>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <FaFire className="text-orange-500 w-5 h-5" />
+              <h2 className="text-xl font-bold text-gray-800">
+                Online Vendors
+              </h2>
+            </div>
+            <button
+              onClick={() => navigate("/vendors")}
+              className="text-sm font-semibold text-red-600 hover:text-red-700 flex items-center gap-1"
+            >
+              View All <span>→</span>
+            </button>
+          </div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+            {onlineVendors?.map((vendor, i) => (
+              <div
+                key={vendor._id}
+                onClick={() => navigate(`/vendor/${vendor._id}`)}
+                className="bg-white rounded-2xl shadow-sm hover:shadow-lg cursor-pointer transition-all group overflow-hidden border border-gray-100 hover:-translate-y-1"
+              >
+                <div className="relative h-32 bg-gradient-to-br from-red-100 to-orange-100 overflow-hidden flex items-center justify-center">
+                  {vendor.image ? (
+                    <img
+                      src={vendor.image}
+                      alt={vendor.storeName}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center gap-2">
+                      <MdFastfood className="w-10 h-10 text-red-300" />
+                      <span className="text-xs text-red-400 font-medium">
+                        No Image
+                      </span>
+                    </div>
+                  )}
+                  <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg flex items-center gap-1">
+                    <FaStar color="#fbbf24" size={12} />
+                    <span className="text-xs font-bold">4.5</span>
+                  </div>
+                  {String(vendor.Active).toLowerCase() === "true" && (
+                    <div className="absolute top-2 left-2 bg-green-500 px-2 py-1 rounded-lg flex items-center gap-1">
+                      <div className="w-1 h-1 bg-white rounded-full animate-pulse" />
+                      <span className="text-white text-xs font-bold">
+                        Online
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <div className="p-3">
+                  <h3 className="font-bold text-sm text-gray-800 truncate group-hover:text-red-600 transition-colors">
+                    {vendor.storeName}
+                  </h3>
+                  <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                    <FaClock className="w-3 h-3" />
+                    <span>15-30 min</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
         {/* All Vendors - Compact Grid */}
         <div className="animate-fadeIn" style={{ animationDelay: "350ms" }}>

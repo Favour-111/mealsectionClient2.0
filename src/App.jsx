@@ -12,6 +12,7 @@ import { useAuthContext } from "./context/AuthContext";
 import Loader from "./pages/Loader";
 import { useCartContext } from "./context/CartContext";
 import { messaging, onMessage } from "./config/firebase";
+import { useNotifications } from "./hooks/useNotifications";
 
 // ✅ Import all pages here
 import Home from "./pages/Home";
@@ -46,7 +47,10 @@ function App() {
   const totalItems = packs.reduce((sum, pack) => sum + pack.items.length, 0);
   const userId = localStorage.getItem("userId");
 
-  // Listen for foreground notifications
+  // ✅ Socket-based in-app notifications (reliable fallback for FCM)
+  useNotifications(userId);
+
+  // Listen for foreground FCM notifications (if available)
   useEffect(() => {
     const unsubscribe = onMessage(messaging, (payload) => {
       console.log("📬 Foreground notification received:", payload);

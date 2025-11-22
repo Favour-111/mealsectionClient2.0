@@ -28,6 +28,9 @@ function Vendor() {
   const [showPackDropdown, setShowPackDropdown] = useState(false);
   const [displayCount, setDisplayCount] = useState(10); // Initial products to show
   const loaderRef = useRef(null);
+  const hasRedirected = useRef(false); // Prevent duplicate redirects
+  const [isRedirecting, setIsRedirecting] = useState(false); // Show redirecting loader
+
   const formattedProducts = (products || []).map((p) => ({
     id: p._id,
     vendorId: p.vendorId,
@@ -100,7 +103,44 @@ function Vendor() {
     setDisplayCount(10);
   }, [selectedCategory, query, sort]);
 
+  // ✅ Check if user is locked to a different vendor
+  useEffect(() => {
+    const existingVendor = packs.find(
+      (pack) => pack.items.length > 0 && pack.vendorName
+    );
+
+    if (existingVendor && existingVendor.vendorName !== vendor?.storeName) {
+      if (!hasRedirected.current) {
+        hasRedirected.current = true; // Mark as executed
+        setIsRedirecting(true); // Show loader
+        toast.error(
+          `You have items from ${existingVendor.vendorName}. Complete that order first.`,
+          { duration: 4000 }
+        );
+        setTimeout(() => {
+          navigate(`/vendor/${existingVendor.vendorId}`, { replace: true }); // Redirect to the vendor they have items from
+        }, 1500);
+      }
+    } else {
+      // Reset if we're on the correct vendor page
+      hasRedirected.current = false;
+      setIsRedirecting(false);
+    }
+  }, [vendor, packs, navigate]);
+
   const handleAddPack = () => {
+    // ✅ Check if user already has items from a different vendor
+    const existingVendor = packs.find(
+      (pack) => pack.items.length > 0 && pack.vendorName
+    );
+
+    if (existingVendor && existingVendor.vendorName !== vendor?.storeName) {
+      toast.error(
+        `You already have items from ${existingVendor.vendorName}. You can only order from one vendor at a time.`
+      );
+      return;
+    }
+
     const newPack = addPack(); // calls your context to add a new pack
     setSelectedPack(newPack.id); // automatically switch to it
     toast.success(`New pack "${newPack.name}" created`);
@@ -123,13 +163,29 @@ function Vendor() {
       return;
     }
 
+    // ✅ Check if any pack already has items from a different vendor
+    const packWithDifferentVendor = packs.find(
+      (pack) =>
+        pack.items.length > 0 &&
+        pack.vendorName &&
+        pack.vendorName !== product.vendorName
+    );
+
+    if (packWithDifferentVendor) {
+      setAdding((prev) => ({ ...prev, [product.id]: false }));
+      toast.error(
+        `You already have items from ${packWithDifferentVendor.vendorName}. You can only order from one vendor at a time.`
+      );
+      return;
+    }
+
     // ✅ If pack has no vendor yet, assign it
     if (!currentPack.vendorName) {
       currentPack.vendorName = product.vendorName;
       currentPack.vendorId = product.vendorId;
     }
 
-    // ✅ Prevent mixing vendors
+    // ✅ Prevent mixing vendors in the same pack
     if (currentPack.vendorName !== product.vendorName) {
       setAdding((prev) => ({ ...prev, [product.id]: false }));
       toast.error(
@@ -170,6 +226,43 @@ function Vendor() {
   // const inCart = currentPack?.items.some(
   //   (item) => item.id === vendorProducts.id
   // );
+
+  // ✅ Show redirecting loader if user is being redirected
+  if (isRedirecting) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/95 backdrop-blur-sm">
+        <div className="text-center">
+          <div className="inline-flex items-center justify-center w-16 h-16 mb-4 rounded-full bg-gradient-to-br from-rose-500 to-orange-500 animate-pulse">
+            <svg
+              className="w-8 h-8 text-white animate-spin"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+          </div>
+          <h3 className="text-lg font-bold text-gray-900 mb-2">
+            Redirecting...
+          </h3>
+          <p className="text-sm text-gray-600">
+            Taking you back to your selected vendor
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 pb-28">
@@ -299,10 +392,10 @@ function Vendor() {
       </div>
 
       {/* Pack selector */}
-      {packs.length > 0 && (
-        <div className="mx-auto max-w-5xl px-4 py-3">
-          <div className="flex items-center gap-3">
-            {/* Custom Pack Selector Dropdown */}
+      <div className="mx-auto max-w-5xl px-4 py-3">
+        <div className="flex items-center gap-3">
+          {/* Show pack selector only if packs exist */}
+          {packs.length > 0 ? (
             <div className="relative flex-1">
               <button
                 onClick={() => setShowPackDropdown(!showPackDropdown)}
@@ -390,18 +483,44 @@ function Vendor() {
                 </div>
               )}
             </div>
+          ) : (
+            <div className="flex-1 flex items-center gap-3 rounded-xl bg-gradient-to-r from-red-50 to-orange-50 border border-red-200/50 px-4 py-3 shadow-sm">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white shadow-sm">
+                <svg
+                  className="h-5 w-5 text-red-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                  />
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-gray-800">
+                  No packs created yet
+                </p>
+                <p className="text-xs text-gray-600">
+                  Click "New" to create pack
+                </p>
+              </div>
+            </div>
+          )}
 
-            {/* Add Pack Button */}
-            <button
-              onClick={handleAddPack}
-              className="inline-flex items-center gap-2 whitespace-nowrap rounded-xl bg-gradient-to-r from-[#9e0505] to-[#c91a1a] px-4 py-3 text-[13px] font-semibold text-white shadow-sm transition hover:shadow-lg active:scale-[0.98]"
-            >
-              <BiPlus size={18} />
-              <span>New</span>
-            </button>
-          </div>
+          {/* Add Pack Button - Always visible */}
+          <button
+            onClick={handleAddPack}
+            className="inline-flex items-center gap-2 whitespace-nowrap rounded-xl bg-gradient-to-r from-[#9e0505] to-[#c91a1a] px-4 py-3 text-[13px] font-semibold text-white shadow-sm transition hover:shadow-lg active:scale-[0.98]"
+          >
+            <BiPlus size={18} />
+            <span>New</span>
+          </button>
         </div>
-      )}
+      </div>
 
       {/* Offline banner */}
       {String(vendor?.Active).toLowerCase() !== "true" && (
