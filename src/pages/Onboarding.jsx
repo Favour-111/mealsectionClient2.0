@@ -18,7 +18,16 @@ function Onboarding() {
       return;
     }
     localStorage.setItem("preferredUniversity", university);
-    navigate("/login");
+
+    // Redirect based on role
+    if (role === "rider") {
+      window.location.href = "https://rider-admin.mealsection.com";
+    } else if (role === "vendor") {
+      window.location.href = "https://vendor-admin.mealsection.com";
+    } else {
+      // Customer goes to login form
+      navigate("/login");
+    }
   };
 
   useEffect(() => {
@@ -60,21 +69,6 @@ function Onboarding() {
           alt="MealSection"
           className="w-32 md:w-36"
         />
-        <div className="text-xs md:text-sm">
-          <Link
-            to="/login"
-            className="text-[var(--default)] font-medium hover:underline"
-          >
-            Login
-          </Link>
-          <span className="mx-1">/</span>
-          <Link
-            to="/signup"
-            className="text-[var(--default)] font-medium hover:underline"
-          >
-            Sign Up
-          </Link>
-        </div>
       </div>
 
       {/* Hero */}
