@@ -168,7 +168,7 @@ function Contact() {
         description={PAGE_SEO.contact.description}
         keywords={PAGE_SEO.contact.keywords}
       />
-      {/* Local animations */}}
+      {/* Local animations */}
       <style>{`
         @keyframes fadeUp { from { opacity: 0; transform: translateY(6px) } to { opacity: 1; transform: translateY(0) } }
         .contact-reveal { opacity: 0; animation: fadeUp .5s ease-out forwards }

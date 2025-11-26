@@ -111,8 +111,9 @@ export function useNotifications(userId) {
     const handleBalanceUpdated = (data) => {
       if (data.userId === userId) {
         playNotificationSound();
+        const balance = data.newBalance ?? data.availableBal ?? 0;
         toast.success(
-          `💰 Balance updated: ₦${data.newBalance?.toLocaleString()}`,
+          `💰 Balance updated: ₦${Number(balance).toLocaleString()}`,
           {
             duration: 4000,
             style: {

@@ -75,7 +75,7 @@ function Profile() {
         description={PAGE_SEO.profile.description}
         keywords={PAGE_SEO.profile.keywords}
       />
-      {/* Sleek Header */}}
+
       <div className="border-b border-gray-200 sticky top-0 z-50 backdrop-blur-xl bg-white/95">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">

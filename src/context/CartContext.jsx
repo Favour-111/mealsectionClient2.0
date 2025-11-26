@@ -13,6 +13,8 @@ export const CartProvider = ({ children }) => {
             id: Date.now(),
             name: "Pack 1",
             items: [],
+            packType: null, // 'small' or 'big'
+            packPrice: 0,
           },
         ];
   });
@@ -28,9 +30,19 @@ export const CartProvider = ({ children }) => {
       id: Date.now(),
       name: `Pack ${packs.length + 1}`,
       items: [],
+      packType: null,
+      packPrice: 0,
     };
     setPacks((prev) => [...prev, newPack]);
     return newPack;
+  };
+  // --- Update pack type and price ---
+  const updatePackType = (packId, packType, packPrice) => {
+    setPacks((prev) =>
+      prev.map((pack) =>
+        pack.id === packId ? { ...pack, packType, packPrice } : pack
+      )
+    );
   };
   // --- Delete pack ---
   const deletePack = (packId) => {
@@ -109,6 +121,7 @@ export const CartProvider = ({ children }) => {
         updateQuantity,
         deletePack,
         totalAmount,
+        updatePackType,
       }}
     >
       {children}

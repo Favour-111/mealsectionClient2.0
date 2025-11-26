@@ -93,7 +93,7 @@ function Wallet() {
         description={PAGE_SEO.wallet.description}
         keywords={PAGE_SEO.wallet.keywords}
       />
-      {/* Ambient background orbs */}}
+
       <div className="pointer-events-none absolute -top-24 -left-24 h-72 w-72 rounded-full bg-gradient-to-br from-rose-500/20 to-orange-400/20 blur-3xl animate-pulse" />
       <div className="pointer-events-none absolute -bottom-24 -right-24 h-80 w-80 rounded-full bg-gradient-to-br from-purple-500/20 to-blue-400/20 blur-3xl animate-pulse [animation-delay:400ms]" />
 

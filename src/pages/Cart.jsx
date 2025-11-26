@@ -25,6 +25,9 @@ import { MdErrorOutline } from "react-icons/md";
 import toast from "react-hot-toast";
 import axios from "axios";
 function Cart() {
+  // Note state
+  const [deliveryNote, setDeliveryNote] = useState("");
+  const [vendorNote, setVendorNote] = useState("");
   const {
     packs,
     addPack,
@@ -32,7 +35,49 @@ function Cart() {
     deletePack,
     updateQuantity,
     totalAmount,
+    updatePackType,
   } = useCartContext();
+  // --- Pack prices state ---
+  const [packPrices, setPackPrices] = useState({}); // { vendorId: { smallPackPrice, bigPackPrice } }
+  // --- Fetch pack prices for all vendors in cart ---
+  useEffect(() => {
+    const fetchAllPackPrices = async () => {
+      const vendorIds = Array.from(
+        new Set(
+          packs
+            .map((p) => p.vendorId || (p.vendor && p.vendor._id))
+            .filter(Boolean)
+        )
+      );
+      if (vendorIds.length === 0) return;
+      try {
+        const API = import.meta.env.VITE_REACT_APP_API;
+        const results = await Promise.all(
+          vendorIds.map((id) =>
+            axios
+              .get(`${API}/api/pack-prices/${id}`)
+              .then((res) => ({
+                vendorId: id,
+                ...res.data,
+              }))
+              .catch(() => ({ vendorId: id }))
+          )
+        );
+        // Build { vendorId: { smallPackPrice, bigPackPrice } }
+        const pricesObj = {};
+        results.forEach((r) => {
+          pricesObj[r.vendorId] = {
+            smallPackPrice: r.smallPackPrice || 0,
+            bigPackPrice: r.bigPackPrice || 0,
+          };
+        });
+        setPackPrices(pricesObj);
+      } catch (err) {
+        setPackPrices({});
+      }
+    };
+    fetchAllPackPrices();
+  }, [packs]);
   const { user, userFetch } = useAuthContext();
   const [open, setOpen] = useState(false);
   const [addressInput, setAddressInput] = useState("");
@@ -46,7 +91,26 @@ function Cart() {
   const [savedAddresses, setSavedAddresses] = useState([]);
   const [savedPhones, setSavedPhones] = useState([]);
   // Service fee is now 10% of subtotal
-  const serviceFee = Math.round(totalAmount * 0.1);
+  // Calculate total pack price
+  const totalPackPrice = packs.reduce(
+    (sum, pack) => sum + (pack.packPrice || 0),
+    0
+  );
+  // Service fee logic by subtotal tiers
+  const subtotal = totalAmount + totalPackPrice;
+  let serviceFeePercent = 0.1;
+  if (subtotal <= 999) {
+    serviceFeePercent = 0.25;
+  } else if (subtotal <= 1999) {
+    serviceFeePercent = 0.1;
+  } else if (subtotal <= 2999) {
+    serviceFeePercent = 0.07;
+  } else if (subtotal <= 4999) {
+    serviceFeePercent = 0.06;
+  } else {
+    serviceFeePercent = 0.05;
+  }
+  const serviceFee = Math.round(subtotal * serviceFeePercent);
   // Fetch delivery fees for all vendors in the cart
   useEffect(() => {
     const fetchDeliveryFees = async () => {
@@ -191,7 +255,8 @@ function Cart() {
     (sum, v) => sum + v.discountAmount,
     0
   );
-  const grandTotal = totalAmount + serviceFee + deliveryFee - totalDiscount;
+  const grandTotal =
+    totalAmount + totalPackPrice + serviceFee + deliveryFee - totalDiscount;
 
   // Save delivery details when they change
   const handleAddressChange = (e) => {
@@ -250,6 +315,14 @@ function Cart() {
       toast.error("Please input a valid phone number");
     } else {
       // Block checkout if any pack vendor is offline
+      // --- Require packType selection for packs with protein+carb ---
+      const requiredPack = packs.find(
+        (p) => p.vendorId && packPrices[p.vendorId] && p.items.length > 0
+      );
+      if (requiredPack && !requiredPack.packType) {
+        toast.error("You didn't select a pack for one or more items.");
+        return;
+      }
       try {
         const API = import.meta.env.VITE_REACT_APP_API;
         // Fetch fresh vendors to ensure up-to-date status
@@ -276,13 +349,13 @@ function Cart() {
         return;
       }
 
-      const subtotal = totalAmount;
-      const serviceFee = 200;
+      const subtotal = totalAmount + totalPackPrice;
+      const serviceFeeValue = serviceFee;
       const deliveryFeeValue = deliveryFee;
-      const grandTotal = subtotal + serviceFee + deliveryFeeValue;
+      const grandTotalValue = subtotal + serviceFeeValue + deliveryFeeValue;
 
       // ✅ Check for sufficient funds
-      if (user?.availableBal < grandTotal) {
+      if (user?.availableBal < grandTotalValue) {
         setOpen(false);
         setOpenError(true);
         return;
@@ -295,15 +368,19 @@ function Cart() {
         // ✅ Construct payload
         const payload = {
           subtotal,
-          serviceFee,
+          serviceFee: serviceFeeValue,
           deliveryFee: deliveryFeeValue,
           Address: addressInput,
           PhoneNumber: phoneNumber,
           university: user?.university,
+          vendorNote,
+          deliveryNote,
           packs: packs.map((p) => ({
             name: p.name,
             vendorName: p.vendorName || null,
             vendorId: p.vendorId || null,
+            packType: p.packType || null,
+            packPrice: p.packPrice || 0,
             items: p.items.map((i) => ({
               name: i.name,
               price: i.price,
@@ -580,6 +657,90 @@ function Cart() {
                     Delete Pack
                   </button>
                 </div>
+                {/* Pack Type Selection UI - Dropdown */}
+                {pack.vendorId && packPrices[pack.vendorId] &&
+                  pack.items.some(
+                    (item) =>
+                      item.category &&
+                      ["carbohydrate", "protein"].includes(
+                        item.category.toLowerCase()
+                      )
+                  ) && (
+                    <div className="px-4 py-2 flex flex-col gap-1">
+                      <span className="font-semibold text-gray-700 text-xs mb-1">
+                        Choose Pack Type:
+                      </span>
+                      <div className="flex gap-2">
+                        {/* Small Pack Card */}
+                        <button
+                          type="button"
+                          className={`flex-1 flex flex-col items-center justify-center rounded-lg border px-2 py-1 transition-all shadow-sm text-[11px] font-semibold cursor-pointer
+                            ${
+                              pack.packType === "small"
+                                ? "border-[var(--default)] bg-red-50"
+                                : "border-gray-200 bg-white hover:border-[var(--default)]"
+                            }`}
+                          onClick={() =>
+                            updatePackType(
+                              pack.id,
+                              "small",
+                              packPrices[pack.vendorId].smallPackPrice
+                            )
+                          }
+                        >
+                          <BiPackage
+                            size={16}
+                            className="mb-0.5 text-[var(--default)]"
+                          />
+                          <span>Small Pack</span>
+                          <span className="font-bold text-[var(--default)] mt-0.5">
+                            ₦{packPrices[pack.vendorId].smallPackPrice}
+                          </span>
+                          {pack.packType === "small" && (
+                            <span className="text-[9px] text-green-600 mt-0.5">
+                              Selected
+                            </span>
+                          )}
+                        </button>
+                        {/* Big Pack Card */}
+                        <button
+                          type="button"
+                          className={`flex-1 flex flex-col items-center justify-center rounded-lg border px-2 py-1 transition-all shadow-sm text-[11px] font-semibold cursor-pointer
+                            ${
+                              pack.packType === "big"
+                                ? "border-[var(--default)] bg-red-50"
+                                : "border-gray-200 bg-white hover:border-[var(--default)]"
+                            }`}
+                          onClick={() =>
+                            updatePackType(
+                              pack.id,
+                              "big",
+                              packPrices[pack.vendorId].bigPackPrice
+                            )
+                          }
+                        >
+                          <BiPackage
+                            size={18}
+                            className="mb-0.5 text-[var(--default)]"
+                          />
+                          <span>Big Pack</span>
+                          <span className="font-bold text-[var(--default)] mt-0.5">
+                            ₦{packPrices[pack.vendorId].bigPackPrice}
+                          </span>
+                          {pack.packType === "big" && (
+                            <span className="text-[9px] text-green-600 mt-0.5">
+                              Selected
+                            </span>
+                          )}
+                        </button>
+                      </div>
+                      {pack.packType && (
+                        <span className="ml-1 text-[var(--default)] font-bold text-[11px]">
+                          +₦{pack.packPrice} added to total
+                        </span>
+                      )}
+                    </div>
+                  )}
                 <div className="p-3 sm:p-6 space-y-3 sm:space-y-4">
                   {pack.items.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-6 sm:py-10">
@@ -711,6 +872,45 @@ function Cart() {
                 </div>
               </div>
             </div>
+            {/* Notes Box for Vendor & Rider */}
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6 mt-4 mb-2 space-y-4">
+              <h3 className="font-bold text-gray-800 flex items-center gap-2 mb-4 text-sm sm:text-base">
+                <MdFastfood size={18} className="text-[var(--default)]" />
+                Add Notes for Vendor & Rider
+              </h3>
+              <div className="flex flex-col sm:flex-row gap-x-4 gap-y-0">
+                <div className="flex-1 mb-4 sm:mb-0">
+                  <label className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+                    <span className="w-5 h-5 bg-orange-100 rounded-full flex items-center justify-center mr-1">
+                      <MdFastfood size={14} className="text-orange-500" />
+                    </span>
+                    Note to Vendor{" "}
+                    <span className="text-gray-400 text-xs">(optional)</span>
+                  </label>
+                  <textarea
+                    className="w-full placeholder:text-[12px] text-[12px] rounded-lg border border-gray-200 bg-gray-50/50 py-2 px-3 text-xs sm:text-sm focus:border-[var(--default)] focus:ring-2 focus:ring-red-50 outline-none transition-all duration-300 resize-none min-h-[40px]"
+                    placeholder="E.g. Please add extra sauce, no onions, etc."
+                    value={vendorNote}
+                    onChange={(e) => setVendorNote(e.target.value)}
+                  />
+                </div>
+                <div className="flex-1">
+                  <label className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+                    <span className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center mr-1">
+                      <MdLocalShipping size={14} className="text-blue-500" />
+                    </span>
+                    Note to Rider{" "}
+                    <span className="text-gray-400 text-xs">(optional)</span>
+                  </label>
+                  <textarea
+                    className="w-full placeholder:text-[12px] text-[12px] rounded-lg border border-gray-200 bg-gray-50/50 py-2 px-3 text-xs sm:text-sm focus:border-[var(--default)] focus:ring-2 focus:ring-blue-50 outline-none transition-all duration-300 resize-none min-h-[40px]"
+                    placeholder="E.g. Call me when you arrive, deliver to gate, etc."
+                    value={deliveryNote}
+                    onChange={(e) => setDeliveryNote(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
             {/* Order Summary */}
             <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
               {/* Header */}
@@ -791,7 +991,6 @@ function Cart() {
                     </div>
                   </div>
                 )}
-
                 {/* Vendor-specific Discounts */}
                 {Object.entries(vendorDiscounts).length > 0 && (
                   <div className="pt-2 mt-2 border-t border-gray-200">

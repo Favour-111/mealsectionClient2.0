@@ -124,7 +124,7 @@ function Vendors() {
         description={PAGE_SEO.vendors.description}
         keywords={PAGE_SEO.vendors.keywords}
       />
-      {/* Enhanced Ambient background shapes */}}
+      {/* Enhanced Ambient background shapes */}
       <div className="pointer-events-none absolute inset-0 opacity-30">
         <div
           className="absolute -top-32 -left-32 w-[500px] h-[500px] bg-gradient-to-br from-[#9e0505]/25 to-[#c91a1a]/15 rounded-full blur-3xl animate-pulse"
