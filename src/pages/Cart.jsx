@@ -658,7 +658,8 @@ function Cart() {
                   </button>
                 </div>
                 {/* Pack Type Selection UI - Dropdown */}
-                {pack.vendorId && packPrices[pack.vendorId] &&
+                {pack.vendorId &&
+                  packPrices[pack.vendorId] &&
                   pack.items.some(
                     (item) =>
                       item.category &&
