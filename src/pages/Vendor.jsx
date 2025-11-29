@@ -1,4 +1,5 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
+import { fetchProductsByVendor } from "../services/productService";
 import toast from "react-hot-toast";
 import { useState, useMemo, useEffect, useRef } from "react";
 import { BiPlus } from "react-icons/bi";
@@ -16,7 +17,8 @@ import SEO from "../components/SEO";
 import { generateStructuredData, SITE_CONFIG } from "../utils/seo";
 
 function Vendor() {
-  const { products, vendors } = useAuthContext();
+  const { vendors } = useAuthContext();
+  const [products, setProducts] = useState([]);
   const { packs, addPack, addToCart } = useCartContext();
   const { id } = useParams();
   const navigate = useNavigate();
@@ -44,6 +46,14 @@ function Vendor() {
     inStock: p.stock === "in",
     vendorName: vendor?.storeName || "", // prevent null
   }));
+  // Fetch products for this vendor
+  useEffect(() => {
+    if (id) {
+      fetchProductsByVendor(id)
+        .then(setProducts)
+        .catch(() => toast.error("Failed to load products"));
+    }
+  }, [id]);
 
   const categories = [
     "All",
@@ -269,18 +279,30 @@ function Vendor() {
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 pb-28">
       <SEO
-        title={`${vendor?.storeName || 'Vendor'} - Order Food Online | ${SITE_CONFIG.name}`}
+        title={`${vendor?.storeName || "Vendor"} - Order Food Online | ${
+          SITE_CONFIG.name
+        }`}
         description={`Browse ${vendor?.storeName}'s menu and order delicious meals for campus delivery. Fast service, great food, and exclusive deals.`}
-        keywords={['vendor menu', vendor?.storeName, 'food ordering', 'campus restaurant', 'meal delivery']}
+        keywords={[
+          "vendor menu",
+          vendor?.storeName,
+          "food ordering",
+          "campus restaurant",
+          "meal delivery",
+        ]}
         image={vendor?.image || SITE_CONFIG.image}
         type="restaurant"
-        structuredData={vendor ? generateStructuredData('restaurant', {
-          name: vendor.storeName,
-          image: vendor.image,
-          address: vendor.location,
-          servesCuisine: 'University Food',
-          priceRange: '₦'
-        }) : null}
+        structuredData={
+          vendor
+            ? generateStructuredData("restaurant", {
+                name: vendor.storeName,
+                image: vendor.image,
+                address: vendor.location,
+                servesCuisine: "University Food",
+                priceRange: "₦",
+              })
+            : null
+        }
       />
       {/* Ambient orbs */}
       <div className="pointer-events-none absolute -top-20 -left-20 h-60 w-60 rounded-full bg-gradient-to-br from-rose-500/15 to-orange-400/15 blur-3xl" />

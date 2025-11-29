@@ -252,17 +252,17 @@ function Sidebar({ isOpen, toggleSidebar }) {
 
               <div className="relative z-10">
                 {/* Header */}
-                <div className="flex items-start justify-between mb-2">
+                <div className=" mb-2">
                   <div>
-                    <h3 className="font-bold text-gray-800 text-sm mb-0.5">
+                    <div className="w-fit bg-[var(--default)] whi text-white text-xs font-bold px-2.5 py-1 rounded-lg shadow-sm">
+                      {currentPromo.discount}%
+                    </div>
+                    <h3 className="mt-2 font-bold text-gray-800 text-sm mb-0.5">
                       {currentPromo.header}
                     </h3>
                     <p className="text-[11px] text-gray-600 font-medium">
                       {currentPromo.vendorName}
                     </p>
-                  </div>
-                  <div className="bg-[var(--default)] text-white text-xs font-bold px-2.5 py-1 rounded-lg shadow-sm">
-                    {currentPromo.discount}% OFF
                   </div>
                 </div>
 

@@ -97,7 +97,16 @@ function Cart() {
     0
   );
   // Service fee logic by subtotal tiers
-  const subtotal = totalAmount + totalPackPrice;
+  // Add selected pack price to subtotal
+  let selectedPackPrice = 0;
+  if (packs && packs.length) {
+    packs.forEach((pack) => {
+      if (pack.selected) {
+        selectedPackPrice += pack.packPrice || 0;
+      }
+    });
+  }
+  const subtotal = totalAmount + totalPackPrice + selectedPackPrice;
   let serviceFeePercent = 0.1;
   if (subtotal <= 999) {
     serviceFeePercent = 0.25;
@@ -315,9 +324,17 @@ function Cart() {
       toast.error("Please input a valid phone number");
     } else {
       // Block checkout if any pack vendor is offline
-      // --- Require packType selection for packs with protein+carb ---
+      // --- Require packType selection ONLY for packs with protein or carbohydrate ---
       const requiredPack = packs.find(
-        (p) => p.vendorId && packPrices[p.vendorId] && p.items.length > 0
+        (p) =>
+          p.vendorId &&
+          packPrices[p.vendorId] &&
+          p.items.length > 0 &&
+          p.items.some(
+            (item) =>
+              item.category &&
+              ["protein", "carbohydrate"].includes(item.category.toLowerCase())
+          )
       );
       if (requiredPack && !requiredPack.packType) {
         toast.error("You didn't select a pack for one or more items.");
@@ -930,7 +947,7 @@ function Cart() {
                     Subtotal
                   </span>
                   <span className="font-semibold text-gray-800">
-                    ₦{totalAmount.toLocaleString()}
+                    ₦{(totalAmount + totalPackPrice).toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between items-center text-xs sm:text-sm">
