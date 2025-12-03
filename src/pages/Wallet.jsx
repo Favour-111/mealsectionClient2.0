@@ -36,6 +36,15 @@ function Wallet() {
   // Animated count-up for balance
   const displayBalance = useCountUp(Number(balance || user?.availableBal || 0));
 
+  // Calculate Paystack charge
+  const calculatePaystackCharge = (amt) => {
+    const amountNum = Number(amt);
+    if (isNaN(amountNum) || amountNum <= 0) return 0;
+    const percentCharge = amountNum * 0.015;
+    const extraFee = amountNum >= 2500 ? 100 : 0;
+    return Math.round(percentCharge + extraFee);
+  };
+
   const handleSuccess = async (reference) => {
     toast.success("Payment successful!");
     console.log("Payment success reference:", reference);
@@ -43,9 +52,13 @@ function Wallet() {
     try {
       const token = localStorage.getItem("token");
       const userId = user?._id;
+      const charge = calculatePaystackCharge(amount);
+      const netAmount = Number(amount) - charge;
+
+      // Add balance minus charge
       const { data } = await axios.post(
         `${import.meta.env.VITE_REACT_APP_API}/api/users/add-balance`,
-        { amount: Number(amount), userId, reference: reference?.reference },
+        { amount: netAmount, userId, reference: reference?.reference, charge },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -55,9 +68,10 @@ function Wallet() {
       );
 
       setBalance(data.user.availableBal);
+      // ...existing code...
       await userFetch();
 
-      toast.success("Wallet updated successfully!");
+      toast.success(`Wallet updated! Paystack charge: ₦${charge.toLocaleString()}`);
       setSuccessPulse(true);
       setTimeout(() => setSuccessPulse(false), 1200);
     } catch (error) {
@@ -80,7 +94,7 @@ function Wallet() {
     email,
     amount: Number(amount) * 100, // kobo (Paystack works in lowest currency unit)
     publicKey,
-    text: "Pay Now",
+    text: `Pay Now (₦${amount}${amount > 0 ? ` + ₦${calculatePaystackCharge(amount)} fee` : ""})`,
     onSuccess: handleSuccess,
     onClose: handleClose,
   };
@@ -467,6 +481,7 @@ function filteredTx(list = [], filter = "all") {
 
 function labelForTx(t) {
   const id = t?._id ? String(t._id).slice(0, 6) : "000000";
+  // ...existing code...
   return t?.type === "in" ? `Top‑up #${id}` : `Order #${id}`;
 }
 
