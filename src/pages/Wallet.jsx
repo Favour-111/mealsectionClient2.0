@@ -90,11 +90,13 @@ function Wallet() {
   };
 
   // Paystack payment configuration
+  const charge = calculatePaystackCharge(amount);
+  const totalToPay = Number(amount) + charge;
   const componentProps = {
     email,
-    amount: Number(amount) * 100, // kobo (Paystack works in lowest currency unit)
+    amount: totalToPay * 100, // kobo (Paystack works in lowest currency unit)
     publicKey,
-    text: `Pay Now (₦${amount}${amount > 0 ? ` + ₦${calculatePaystackCharge(amount)} fee` : ""})`,
+    text: `Pay Now (₦${Number(amount).toLocaleString()} + ₦${charge} fee = ₦${totalToPay.toLocaleString()})`,
     onSuccess: handleSuccess,
     onClose: handleClose,
   };
