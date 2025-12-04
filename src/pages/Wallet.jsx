@@ -53,12 +53,12 @@ function Wallet() {
       const token = localStorage.getItem("token");
       const userId = user?._id;
       const charge = calculatePaystackCharge(amount);
-      const netAmount = Number(amount) - charge;
+      const totalToPay = Number(amount) + charge;
 
-      // Add balance minus charge
+      // Add full amount paid
       const { data } = await axios.post(
         `${import.meta.env.VITE_REACT_APP_API}/api/users/add-balance`,
-        { amount: netAmount, userId, reference: reference?.reference, charge },
+        { amount: totalToPay, userId, reference: reference?.reference, charge },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -68,10 +68,11 @@ function Wallet() {
       );
 
       setBalance(data.user.availableBal);
-      // ...existing code...
       await userFetch();
 
-      toast.success(`Wallet updated! Paystack charge: ₦${charge.toLocaleString()}`);
+      toast.success(
+        `Wallet updated! Paystack charge: ₦${charge.toLocaleString()}`
+      );
       setSuccessPulse(true);
       setTimeout(() => setSuccessPulse(false), 1200);
     } catch (error) {
@@ -96,7 +97,9 @@ function Wallet() {
     email,
     amount: totalToPay * 100, // kobo (Paystack works in lowest currency unit)
     publicKey,
-    text: `Pay Now (₦${Number(amount).toLocaleString()} + ₦${charge} fee = ₦${totalToPay.toLocaleString()})`,
+    text: `Pay Now (₦${Number(
+      amount
+    ).toLocaleString()} + ₦${charge} fee = ₦${totalToPay.toLocaleString()})`,
     onSuccess: handleSuccess,
     onClose: handleClose,
   };

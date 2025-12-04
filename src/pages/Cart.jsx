@@ -315,30 +315,40 @@ function Cart() {
   };
 
   const handleOrder = async () => {
+    // Immediately set loading to true to prevent double click
+    setLoading(true);
     // Prevent order if packs, discounts, or delivery fee are not fetched
     if (!packs || packs.length === 0) {
       toast.error("Please add items to your cart before placing an order.");
+      setLoading(false);
       return;
     }
     if (!deliveryFeesData || deliveryFeesData.length === 0) {
       toast.error(
         "Delivery fee information is not available. Please wait or refresh."
       );
+      setLoading(false);
       return;
     }
     if (!promotions) {
       toast.error(
         "Discount information is not available. Please wait or refresh."
       );
+      setLoading(false);
       return;
     }
     if (!user?._id) {
       toast.error("You must be logged in to place an order.");
+      setLoading(false);
       return;
     } else if (addressInput === "" || phoneNumber === "") {
       toast.error("please input address and PhoneNumber");
+      setLoading(false);
+      return;
     } else if (isNaN(phoneNumber) || phoneNumber.length < 10) {
       toast.error("Please input a valid phone number");
+      setLoading(false);
+      return;
     } else {
       // Block checkout if any pack vendor is offline
       // --- Require packType selection ONLY for packs with protein or carbohydrate ---
