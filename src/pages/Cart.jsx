@@ -374,8 +374,10 @@ function Cart() {
         const token = localStorage.getItem("token");
 
         // ✅ Construct payload
+        const subtotalBeforeDiscount = totalAmount + totalPackPrice;
+        const subtotalWithDiscount = Math.round(subtotalBeforeDiscount - totalDiscount);
         const payload = {
-          subtotal: totalAmount + totalPackPrice,
+          subtotal: subtotalWithDiscount,
           serviceFee: serviceFee,
           deliveryFee: deliveryFee,
           Address: addressInput,
