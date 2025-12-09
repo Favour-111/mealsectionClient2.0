@@ -264,8 +264,9 @@ function Cart() {
     (sum, v) => sum + v.discountAmount,
     0
   );
-  const grandTotal =
-    totalAmount + totalPackPrice + serviceFee + deliveryFee - totalDiscount;
+  const grandTotal = Math.round(
+    totalAmount + totalPackPrice + serviceFee + deliveryFee - totalDiscount
+  );
 
   // Save delivery details when they change
   const handleAddressChange = (e) => {
@@ -362,7 +363,8 @@ function Cart() {
 
       // ✅ Check for sufficient funds BEFORE attempting to process
       // Use grandTotal which already includes discount subtraction
-      if (user?.availableBal < grandTotal) {
+      const requiredFunds = Math.round(grandTotal);
+      if (user?.availableBal < requiredFunds) {
         setOpen(false);
         setOpenError(true);
         return;
