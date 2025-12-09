@@ -315,42 +315,34 @@ function Cart() {
   };
 
   const handleOrder = async () => {
-    // Immediately set loading to true to prevent double click
-    setLoading(true);
+    // Don't set loading immediately - validate first
     // Prevent order if packs, discounts, or delivery fee are not fetched
     if (!packs || packs.length === 0) {
       toast.error("Please add items to your cart before placing an order.");
-      setLoading(false);
       return;
     }
     if (!deliveryFeesData || deliveryFeesData.length === 0) {
       toast.error(
         "Delivery fee information is not available. Please wait or refresh."
       );
-      setLoading(false);
       return;
     }
     if (!promotions) {
       toast.error(
         "Discount information is not available. Please wait or refresh."
       );
-      setLoading(false);
       return;
     }
     if (!user?._id) {
       toast.error("You must be logged in to place an order.");
-      setLoading(false);
       return;
     } else if (addressInput === "" || phoneNumber === "") {
       toast.error("please input address and PhoneNumber");
-      setLoading(false);
       return;
     } else if (isNaN(phoneNumber) || phoneNumber.length < 10) {
       toast.error("Please input a valid phone number");
-      setLoading(false);
       return;
     } else {
-      // Block checkout if any pack vendor is offline
       // --- Require packType selection ONLY for packs with protein or carbohydrate ---
       const requiredPack = packs.find(
         (p) =>
@@ -367,53 +359,23 @@ function Cart() {
         toast.error("You didn't select a pack for one or more items.");
         return;
       }
-      try {
-        const API = import.meta.env.VITE_REACT_APP_API;
-        // Fetch fresh vendors to ensure up-to-date status
-        const { data: vendorsList } = await axios.get(`${API}/api/vendors/all`);
-        const offlinePacks = (packs || []).filter((p) => {
-          if (!p.vendorId && !p.vendorName) return false; // no vendor assigned
-          const v = vendorsList.find(
-            (it) =>
-              String(it._id) === String(p.vendorId) ||
-              it.storeName === p.vendorName
-          );
-          if (!v) return false;
-          return String(v.Active).toLowerCase() !== "true";
-        });
-        if (offlinePacks.length > 0) {
-          toast.error(
-            "Your cart contains items from an offline store. Remove them to continue."
-          );
-          return;
-        }
-      } catch (err) {
-        console.error("Vendor status check failed:", err);
-        toast.error("Could not verify vendor status. Please try again.");
-        return;
-      }
 
-      const subtotal = totalAmount + totalPackPrice;
-      const serviceFeeValue = serviceFee;
-      const deliveryFeeValue = deliveryFee;
-      const grandTotalValue = subtotal + serviceFeeValue + deliveryFeeValue;
-
-      // ✅ Check for sufficient funds
-      if (user?.availableBal < grandTotalValue) {
+      // ✅ Check for sufficient funds BEFORE attempting to process
+      // Use grandTotal which already includes discount subtraction
+      if (user?.availableBal < grandTotal) {
         setOpen(false);
         setOpenError(true);
         return;
       }
-
       try {
         setLoading(true);
         const token = localStorage.getItem("token");
 
         // ✅ Construct payload
         const payload = {
-          subtotal,
-          serviceFee: serviceFeeValue,
-          deliveryFee: deliveryFeeValue,
+          subtotal: totalAmount + totalPackPrice,
+          serviceFee: serviceFee,
+          deliveryFee: deliveryFee,
           Address: addressInput,
           PhoneNumber: phoneNumber,
           university: user?.university,
