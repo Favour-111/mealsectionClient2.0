@@ -10,9 +10,10 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [vendors, setVendors] = useState(null);
   const [userLoader, setUserLoader] = useState(false);
+  const [orderLoader, setOrderLoader] = useState(false);
   const [products, setVendorProducts] = useState(false);
   const [orders, setAllOrders] = useState([]);
-  const userId = localStorage.getItem("userId"); // ✅ move this up
+  const userId = localStorage.getItem("userId");
 
   const userFetch = async () => {
     if (!userId) return; // ✅ only fetch when userId exists
@@ -76,13 +77,20 @@ export const AuthProvider = ({ children }) => {
   };
 
   const useGetOrders = async () => {
-    const response = await axios.get(
-      `${import.meta.env.VITE_REACT_APP_API}/api/users/orders`
-    );
-    if (response) {
-      setAllOrders(response.data.orders);
-    } else {
+    setOrderLoader(true);
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_REACT_APP_API}/api/users/orders`
+      );
+      if (response) {
+        setAllOrders(response.data.orders);
+      } else {
+        toast.error("error fetching Orders Please try again");
+      }
+    } catch (error) {
       toast.error("error fetching Orders Please try again");
+    } finally {
+      setOrderLoader(false);
     }
   };
   useEffect(() => {
@@ -142,6 +150,7 @@ export const AuthProvider = ({ children }) => {
         products,
         vendors,
         userLoader,
+        orderLoader,
         userFetch,
         setUser,
       }}

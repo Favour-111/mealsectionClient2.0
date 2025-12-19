@@ -45,12 +45,14 @@ function Home() {
   const currentUniversity = user?.university || "";
   const uniFilteredVendors = useMemo(() => {
     if (!vendors) return [];
-    if (!currentUniversity) return vendors;
-    return vendors.filter((v) => v.university === currentUniversity);
+    // Only vendors with valid === true
+    const validVendors = vendors.filter((v) => v.valid === true);
+    if (!currentUniversity) return validVendors;
+    return validVendors.filter((v) => v.university === currentUniversity);
   }, [vendors, currentUniversity]);
 
   // Generate structured data for home page
-  const structuredData = useMemo(() => generateStructuredData('website'), []);
+  const structuredData = useMemo(() => generateStructuredData("website"), []);
 
   // Quick stats with icons
   const quickStats = useMemo(() => {

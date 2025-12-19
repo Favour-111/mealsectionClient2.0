@@ -33,9 +33,11 @@ function Vendors() {
   // Scope vendors to the user's university
   const uniFilteredVendors = React.useMemo(() => {
     if (!vendors) return [];
+    // Only vendors with valid === true
+    const validVendors = vendors.filter((v) => v.valid === true);
     const userUni = (user?.university || "").trim().toLowerCase();
-    if (!userUni) return vendors;
-    return vendors.filter(
+    if (!userUni) return validVendors;
+    return validVendors.filter(
       (v) => (v.university || "").trim().toLowerCase() === userUni
     );
   }, [vendors, user?.university]);

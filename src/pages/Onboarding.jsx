@@ -256,7 +256,7 @@ function Onboarding() {
             </button>
             <button
               onClick={() => handleRoleSelect("rider")}
-              className="group relative overflow-hidden px-4 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600 transition-all text-sm font-semibold shadow-md disabled:opacity-40 disabled:cursor-not-allowed"
+              className="group relative overflow-hidden px-4 py-3 rounded-xl border-2 border-gray-200 text-gray-800 hover:border-orange-400 transition-all text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed"
               disabled={!university}
             >
               <div className="flex items-center justify-center gap-2">

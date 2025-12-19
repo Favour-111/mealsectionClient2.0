@@ -27,6 +27,7 @@ function Wallet() {
   const [autoTopUp, setAutoTopUp] = useState(false);
   const [spendLimit, setSpendLimit] = useState(0);
   const [successPulse, setSuccessPulse] = useState(false);
+  const [loadingTopup, setLoadingTopup] = useState(false);
   const navigate = useNavigate();
 
   const { user, userFetch } = useAuthContext();
@@ -49,16 +50,19 @@ function Wallet() {
     toast.success("Payment successful!");
     console.log("Payment success reference:", reference);
 
+    setLoadingTopup(true);
+    const token = localStorage.getItem("token");
+    const userId = user?._id;
+    const charge = calculatePaystackCharge(amount);
+    const totalToPay = Number(amount) + charge;
+    const ref = reference?.reference;
+    let verified = false;
+    let data;
     try {
-      const token = localStorage.getItem("token");
-      const userId = user?._id;
-      const charge = calculatePaystackCharge(amount);
-      const totalToPay = Number(amount) + charge;
-
-      // Add full amount paid
-      const { data } = await axios.post(
-        `${import.meta.env.VITE_REACT_APP_API}/api/users/add-balance`,
-        { amount: totalToPay, userId, reference: reference?.reference, charge },
+      // 1. Verify transaction with backend (which should verify with Paystack)
+      const verifyRes = await axios.post(
+        `${import.meta.env.VITE_REACT_APP_API}/api/users/verify-paystack`,
+        { reference: ref, userId },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -66,10 +70,30 @@ function Wallet() {
           },
         }
       );
+      if (verifyRes.data?.status === "success" || verifyRes.data?.verified) {
+        verified = true;
+      }
+    } catch (err) {
+      // If verification fails, still try to update wallet, but warn user
+      console.error("Paystack verification failed:", err);
+      toast.error("Could not verify payment, but will try to update wallet.");
+    }
 
+    try {
+      // 2. Update wallet balance regardless, backend should check reference idempotency
+      const res = await axios.post(
+        `${import.meta.env.VITE_REACT_APP_API}/api/users/add-balance`,
+        { amount: totalToPay, userId, reference: ref, charge },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      data = res.data;
       setBalance(data.user.availableBal);
       await userFetch();
-
       toast.success(
         `Wallet updated! Paystack charge: ₦${charge.toLocaleString()}`
       );
@@ -77,8 +101,17 @@ function Wallet() {
       setTimeout(() => setSuccessPulse(false), 1200);
     } catch (error) {
       console.error("Error updating balance:", error);
-      toast.error("Payment verified, but failed to update wallet.");
+      if (verified) {
+        toast.error(
+          "Payment verified, but failed to update wallet. Please contact support with your payment reference."
+        );
+      } else {
+        toast.error(
+          "Payment could not be verified or wallet not updated. Please contact support."
+        );
+      }
     } finally {
+      setLoadingTopup(false);
       setModal(false);
       setAmount("");
     }
@@ -385,6 +418,7 @@ function Wallet() {
               onClick={() => setModal(false)}
               className="absolute right-2 top-2 rounded-full p-2 text-gray-600 hover:bg-black/5"
               aria-label="Close"
+              disabled={loadingTopup}
             >
               <MdOutlineClose />
             </button>
@@ -402,6 +436,7 @@ function Wallet() {
                 placeholder="Enter amount"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
+                disabled={loadingTopup}
               />
               <div className="mt-2 flex flex-wrap gap-2 text-[12px]">
                 {[1000, 2000, 5000, 10000].map((v) => (
@@ -409,6 +444,7 @@ function Wallet() {
                     key={v}
                     onClick={() => setAmount(String(v))}
                     className="rounded-full border border-gray-200 px-3 py-1 font-semibold text-gray-700 hover:bg-gray-50"
+                    disabled={loadingTopup}
                   >
                     ₦{v.toLocaleString()}
                   </button>
@@ -416,8 +452,15 @@ function Wallet() {
               </div>
             </div>
 
-            <div className="mt-4">
-              {amount > 0 ? (
+            <div className="mt-4 min-h-[48px] flex items-center justify-center">
+              {loadingTopup ? (
+                <div className="flex flex-col items-center w-full">
+                  <div className="w-8 h-8 border-4 border-rose-400 border-t-transparent rounded-full animate-spin mb-2"></div>
+                  <span className="text-sm text-gray-700">
+                    Adding funds to wallet...
+                  </span>
+                </div>
+              ) : amount > 0 ? (
                 <PaystackButton
                   {...componentProps}
                   className="w-full rounded-xl bg-gradient-to-r from-rose-600 to-orange-500 p-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 active:scale-[0.99]"

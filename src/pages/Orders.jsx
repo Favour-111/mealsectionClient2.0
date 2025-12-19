@@ -98,7 +98,7 @@ function OrderCard({ order }) {
 }
 
 function Orders() {
-  const { orders } = useAuthContext();
+  const { orders, orderLoader } = useAuthContext();
   const navigate = useNavigate();
   const [filter, setFilter] = useState("All");
   const [filteredOrders, setFilteredOrders] = useState([]);
@@ -116,10 +116,28 @@ function Orders() {
   useEffect(() => {
     const userId = localStorage.getItem("userId");
     if (userId) {
-      const userOrders = orders.filter((order) => order.userId === userId);
+      const userOrders = orders.filter((order) => {
+        // order.userId can be a string or an object (populated)
+        if (!order.userId) return false;
+        if (typeof order.userId === "string") return order.userId === userId;
+        if (typeof order.userId === "object" && order.userId._id)
+          return order.userId._id === userId;
+        return false;
+      });
       setFilteredOrders(userOrders);
     }
   }, [orders]);
+
+  if (orderLoader) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 via-white to-gray-50">
+        <div className="w-16 h-16 border-4 border-red-200 border-t-red-500 rounded-full animate-spin mb-4"></div>
+        <h3 className="text-base font-medium text-gray-700 mb-1">
+          Loading Orders...
+        </h3>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-gradient-to-br from-slate-50 via-white to-gray-50 min-h-screen pb-6">
@@ -181,7 +199,9 @@ function Orders() {
               filter === "Pending" ? "text-white/90" : "text-amber-500"
             }`}
           >
-            ({filteredOrders?.filter((o) => o.currentStatus === "Pending")?.length || 0}
+            (
+            {filteredOrders?.filter((o) => o.currentStatus === "Pending")
+              ?.length || 0}
             )
           </span>
         </button>
@@ -201,8 +221,8 @@ function Orders() {
             }`}
           >
             (
-            {filteredOrders?.filter((o) => o.currentStatus === "Delivered")?.length ||
-              0}
+            {filteredOrders?.filter((o) => o.currentStatus === "Delivered")
+              ?.length || 0}
             )
           </span>
         </button>
@@ -222,8 +242,8 @@ function Orders() {
             }`}
           >
             (
-            {filteredOrders?.filter((o) => o.currentStatus === "Cancelled")?.length ||
-              0}
+            {filteredOrders?.filter((o) => o.currentStatus === "Cancelled")
+              ?.length || 0}
             )
           </span>
         </button>
@@ -232,18 +252,15 @@ function Orders() {
       {/* Orders List */}
       <div className="px-5 space-y-3">
         {ordersToDisplay?.length > 0 ? (
-          ordersToDisplay
-            .slice()
-            .reverse()
-            .map((order, idx) => (
-              <div
-                key={order._id}
-                className="animate-fadeIn"
-                style={{ animationDelay: `${idx * 50}ms` }}
-              >
-                <OrderCard order={order} />
-              </div>
-            ))
+          ordersToDisplay.slice().map((order, idx) => (
+            <div
+              key={order._id}
+              className="animate-fadeIn"
+              style={{ animationDelay: `${idx * 50}ms` }}
+            >
+              <OrderCard order={order} />
+            </div>
+          ))
         ) : (
           <div className="text-center py-20 animate-fadeIn">
             <div className="w-20 h-20 mx-auto bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl flex items-center justify-center mb-4">
