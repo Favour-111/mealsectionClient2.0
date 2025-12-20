@@ -46,18 +46,13 @@ function Wallet() {
     return Math.round(percentCharge + extraFee);
   };
 
+  // Only verify payment, do NOT call /add-balance. Wallet will be credited by webhook.
   const handleSuccess = async (reference) => {
     toast.success("Payment successful!");
-    console.log("Payment success reference:", reference);
-
     setLoadingTopup(true);
     const token = localStorage.getItem("token");
     const userId = user?._id;
-    const charge = calculatePaystackCharge(amount);
-    const totalToPay = Number(amount) + charge;
     const ref = reference?.reference;
-    let verified = false;
-    let data;
     try {
       // 1. Verify transaction with backend (which should verify with Paystack)
       const verifyRes = await axios.post(
@@ -71,49 +66,23 @@ function Wallet() {
         }
       );
       if (verifyRes.data?.status === "success" || verifyRes.data?.verified) {
-        verified = true;
+        toast.success("Payment verified! Wallet will be credited shortly.");
+      } else {
+        toast.error("Payment could not be verified. Please contact support.");
       }
     } catch (err) {
-      // If verification fails, still try to update wallet, but warn user
       console.error("Paystack verification failed:", err);
-      toast.error("Could not verify payment, but will try to update wallet.");
-    }
-
-    try {
-      // 2. Update wallet balance regardless, backend should check reference idempotency
-      const res = await axios.post(
-        `${import.meta.env.VITE_REACT_APP_API}/api/users/add-balance`,
-        { amount: totalToPay, userId, reference: ref, charge },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      data = res.data;
-      setBalance(data.user.availableBal);
-      await userFetch();
-      toast.success(
-        `Wallet updated! Paystack charge: ₦${charge.toLocaleString()}`
-      );
-      setSuccessPulse(true);
-      setTimeout(() => setSuccessPulse(false), 1200);
-    } catch (error) {
-      console.error("Error updating balance:", error);
-      if (verified) {
-        toast.error(
-          "Payment verified, but failed to update wallet. Please contact support with your payment reference."
-        );
-      } else {
-        toast.error(
-          "Payment could not be verified or wallet not updated. Please contact support."
-        );
-      }
+      toast.error("Could not verify payment. Please contact support.");
     } finally {
-      setLoadingTopup(false);
-      setModal(false);
-      setAmount("");
+      // Wait a moment for webhook to process, then refresh user balance
+      setTimeout(async () => {
+        await userFetch();
+        setLoadingTopup(false);
+        setModal(false);
+        setAmount("");
+        setSuccessPulse(true);
+        setTimeout(() => setSuccessPulse(false), 1200);
+      }, 2000);
     }
   };
 
