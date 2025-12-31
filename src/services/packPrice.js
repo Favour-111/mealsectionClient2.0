@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // Add ngrok-skip-browser-warning header globally
-axios.defaults.headers.common['ngrok-skip-browser-warning'] = 'true';
+axios.defaults.headers.common["ngrok-skip-browser-warning"] = "true";
 
 const API = import.meta.env.VITE_REACT_APP_API;
 
