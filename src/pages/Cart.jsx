@@ -375,7 +375,9 @@ function Cart() {
 
         // ✅ Construct payload
         const subtotalBeforeDiscount = totalAmount + totalPackPrice;
-        const subtotalWithDiscount = Math.round(subtotalBeforeDiscount - totalDiscount);
+        const subtotalWithDiscount = Math.round(
+          subtotalBeforeDiscount - totalDiscount
+        );
         const payload = {
           subtotal: subtotalWithDiscount,
           serviceFee: serviceFee,

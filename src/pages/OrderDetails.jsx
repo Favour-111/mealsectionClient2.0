@@ -87,27 +87,31 @@ const OrderDetails = () => {
   // 6. If cancelled, only show Pending and Cancelled
   const timelineData = cancelled
     ? [
-        { status: "Pending", time: null, completed: true },
-        { status: "Cancelled", time: null, completed: true },
+        { status: "Order placed", time: null, completed: true },
+        { status: "Order cancelled", time: null, completed: true },
       ]
     : [
-        { status: "Pending", time: null, completed: true },
+        { status: "Order placed", time: null, completed: true },
         {
-          status: "Processing",
+          status: "Vendors are checking your order",
           time: null,
           completed: allVendorsResponded,
         },
         {
-          status: "Rider Assigned",
+          status: "Delivery rider found",
           time: null,
           completed: riderAssigned,
         },
         {
-          status: "On the way",
+          status: "Your food is on the way",
           time: null,
           completed: onTheWay || delivered,
         },
-        { status: "Delivered", time: null, completed: delivered },
+        {
+          status: "Order delivered! Enjoy your meal",
+          time: null,
+          completed: delivered,
+        },
       ];
 
   // Flatten items from packs
@@ -169,16 +173,16 @@ const OrderDetails = () => {
   const progressPct = Math.round((completedSteps / timelineData.length) * 100);
 
   const headerStatus = delivered
-    ? "Delivered"
+    ? "Order delivered! Enjoy your meal"
     : cancelled
-    ? "Cancelled"
+    ? "Order cancelled"
     : onTheWay
-    ? "On the way"
+    ? "Your food is on the way"
     : riderAssigned
-    ? "Rider Assigned"
+    ? "Delivery rider found"
     : allVendorsResponded
-    ? "Processing"
-    : "Pending";
+    ? "Vendors are checking your order"
+    : "Order placed, waiting for vendors";
 
   const copyOrderId = async () => {
     try {
@@ -365,6 +369,11 @@ const OrderDetails = () => {
                 rejected: "bg-red-50 border-red-200 text-red-700",
                 pending: "bg-amber-50 border-amber-200 text-amber-700",
               };
+              const packStatusLabels = {
+                accepted: "✓ Vendor accepted your order",
+                rejected: "✗ Vendor couldn't fulfill your order",
+                pending: "⏳ Waiting for vendor's response",
+              };
               return (
                 <div
                   key={pack._id || packIdx}
@@ -377,11 +386,7 @@ const OrderDetails = () => {
                     <span
                       className={`text-[10px] px-2 py-1 rounded-lg border font-medium ${statusStyles[packStatus]}`}
                     >
-                      {packStatus === "accepted"
-                        ? "✓ Accepted"
-                        : packStatus === "rejected"
-                        ? "✗ Rejected"
-                        : "⏳ Pending"}
+                      {packStatusLabels[packStatus]}
                     </span>
                   </div>
                   <div className="space-y-2.5">

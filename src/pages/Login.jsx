@@ -154,9 +154,7 @@ function Login() {
         {/* Form Card */}
         <div className="glass rounded-3xl shadow-xl w-full sm:px-8 px-6 py-10 mt-auto mb-8 border border-white/50 animate-scaleIn">
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">
-              Sign In MealSection
-            </h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">Sign In</h2>
             <p className="text-gray-500 text-sm">
               Enter your credentials to continue
             </p>

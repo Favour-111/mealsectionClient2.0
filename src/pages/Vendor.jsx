@@ -7,7 +7,7 @@ import { useCartContext } from "../context/CartContext";
 import { useAuthContext } from "../context/AuthContext";
 import { IoMdArrowBack } from "react-icons/io";
 import { FaRegHeart, FaHeart, FaStar } from "react-icons/fa";
-import { LuSparkles } from "react-icons/lu";
+import { LuPackagePlus, LuSparkles } from "react-icons/lu";
 import { FiPackage, FiSearch, FiChevronDown } from "react-icons/fi";
 import { MdFastfood, MdOutlineSort } from "react-icons/md";
 import { GoPackage } from "react-icons/go";
@@ -17,6 +17,11 @@ import SEO from "../components/SEO";
 import { generateStructuredData, SITE_CONFIG } from "../utils/seo";
 
 function Vendor() {
+  // Floating add pack button handler
+  const handleFloatingAddPack = () => {
+    addPack();
+    toast.success("Pack added successfully");
+  };
   const { vendors } = useAuthContext();
   const [products, setProducts] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
@@ -281,6 +286,16 @@ function Vendor() {
 
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 pb-28">
+      {/* Floating Add Pack Button - only when no packs exist */}
+      {packs.length === 0 && (
+        <button
+          onClick={handleFloatingAddPack}
+          className="fixed bottom-6 right-6 z-50 animate-bounce bg-gradient-to-br from-[#9e0505] to-[#c91a1a] text-white rounded-full shadow-xl p-3 cursor-pointer flex items-center justify-center hover:scale-110 transition-all border-4 border-white drop-shadow-xl"
+          aria-label="Add Pack"
+        >
+          <LuPackagePlus size={22} />
+        </button>
+      )}
       <SEO
         title={`${vendor?.storeName || "Vendor"} - Order Food Online | ${
           SITE_CONFIG.name
