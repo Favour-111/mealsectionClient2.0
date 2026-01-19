@@ -46,8 +46,8 @@ function Cart() {
         new Set(
           packs
             .map((p) => p.vendorId || (p.vendor && p.vendor._id))
-            .filter(Boolean)
-        )
+            .filter(Boolean),
+        ),
       );
       if (vendorIds.length === 0) return;
       try {
@@ -60,8 +60,8 @@ function Cart() {
                 vendorId: id,
                 ...res.data,
               }))
-              .catch(() => ({ vendorId: id }))
-          )
+              .catch(() => ({ vendorId: id })),
+          ),
         );
         // Build { vendorId: { smallPackPrice, bigPackPrice } }
         const pricesObj = {};
@@ -84,6 +84,8 @@ function Cart() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [loading, setLoading] = useState(false);
   const [openError, setOpenError] = useState(false);
+  const [openPackTypeModal, setOpenPackTypeModal] = useState(false);
+  const [packsNeedingType, setPacksNeedingType] = useState([]);
   const navigate = useNavigate();
   const [deliveryFee, setDeliveryFee] = useState(0);
   const [deliveryFeesData, setDeliveryFeesData] = useState([]);
@@ -94,7 +96,7 @@ function Cart() {
   // Calculate total pack price
   const totalPackPrice = packs.reduce(
     (sum, pack) => sum + (pack.packPrice || 0),
-    0
+    0,
   );
   // Service fee logic by subtotal tiers
   // Add selected pack price to subtotal
@@ -149,8 +151,8 @@ function Cart() {
       new Set(
         packs
           .map((p) => p.vendorId || (p.vendor && p.vendor._id))
-          .filter(Boolean)
-      )
+          .filter(Boolean),
+      ),
     );
     // For each vendor, find their delivery fee (use min/max)
     let totalMin = 0;
@@ -159,7 +161,7 @@ function Cart() {
       const feeObj = deliveryFeesData.find(
         (f) =>
           (f.vendorId && (f.vendorId._id === vid || f.vendorId === vid)) ||
-          f.vendorId === vid
+          f.vendorId === vid,
       );
       if (feeObj) {
         totalMin += Number(feeObj.minimumDeliveryFee) || 0;
@@ -167,7 +169,11 @@ function Cart() {
       }
     });
     setDeliveryFee((prev) =>
-      prev < totalMin ? totalMin : prev > totalMax ? totalMax : prev || totalMin
+      prev < totalMin
+        ? totalMin
+        : prev > totalMax
+          ? totalMax
+          : prev || totalMin,
     );
     setDeliveryFeeMin(totalMin);
     setDeliveryFeeMax(totalMax);
@@ -180,11 +186,11 @@ function Cart() {
         const { data } = await axios.get(
           `${
             import.meta.env.VITE_REACT_APP_API
-          }/api/promotions?status=active&university=${user?.university || ""}`
+          }/api/promotions?status=active&university=${user?.university || ""}`,
         );
         // Extract promotions array from response and filter only active ones
         const activePromotions = (data?.promotions || []).filter(
-          (promo) => promo.status === "active"
+          (promo) => promo.status === "active",
         );
         setPromotions(activePromotions);
       } catch (error) {
@@ -229,14 +235,14 @@ function Cart() {
         (promo) =>
           (promo.vendorName === pack.vendorName ||
             String(promo.vendorId) === String(pack.vendorId)) &&
-          promo.status === "active"
+          promo.status === "active",
       );
 
       if (applicablePromo) {
         // Calculate pack total
         const packTotal = pack.items.reduce(
           (sum, item) => sum + item.price * (item.quantity || 1),
-          0
+          0,
         );
 
         // Calculate discount amount
@@ -262,10 +268,10 @@ function Cart() {
   const vendorDiscounts = calculateDiscounts();
   const totalDiscount = Object.values(vendorDiscounts).reduce(
     (sum, v) => sum + v.discountAmount,
-    0
+    0,
   );
   const grandTotal = Math.round(
-    totalAmount + totalPackPrice + serviceFee + deliveryFee - totalDiscount
+    totalAmount + totalPackPrice + serviceFee + deliveryFee - totalDiscount,
   );
 
   // Save delivery details when they change
@@ -285,7 +291,7 @@ function Cart() {
   const saveToHistory = () => {
     if (addressInput.trim()) {
       const addressesHistory = JSON.parse(
-        localStorage.getItem("addressesHistory") || "[]"
+        localStorage.getItem("addressesHistory") || "[]",
       );
       // Add new address if it's not already in the list
       if (!addressesHistory.includes(addressInput.trim())) {
@@ -295,20 +301,20 @@ function Cart() {
         ].slice(0, 5); // Keep only 5 recent
         localStorage.setItem(
           "addressesHistory",
-          JSON.stringify(updatedAddresses)
+          JSON.stringify(updatedAddresses),
         );
       }
     }
 
     if (phoneNumber.trim()) {
       const phonesHistory = JSON.parse(
-        localStorage.getItem("phonesHistory") || "[]"
+        localStorage.getItem("phonesHistory") || "[]",
       );
       // Add new phone if it's not already in the list
       if (!phonesHistory.includes(phoneNumber.trim())) {
         const updatedPhones = [phoneNumber.trim(), ...phonesHistory].slice(
           0,
-          5
+          5,
         ); // Keep only 5 recent
         localStorage.setItem("phonesHistory", JSON.stringify(updatedPhones));
       }
@@ -324,13 +330,13 @@ function Cart() {
     }
     if (!deliveryFeesData || deliveryFeesData.length === 0) {
       toast.error(
-        "Delivery fee information is not available. Please wait or refresh."
+        "Delivery fee information is not available. Please wait or refresh.",
       );
       return;
     }
     if (!promotions) {
       toast.error(
-        "Discount information is not available. Please wait or refresh."
+        "Discount information is not available. Please wait or refresh.",
       );
       return;
     }
@@ -344,8 +350,8 @@ function Cart() {
       toast.error("Please input a valid phone number");
       return;
     } else {
-      // --- Require packType selection ONLY for packs with protein or carbohydrate ---
-      const requiredPack = packs.find(
+      // --- Find ALL packs that need packType selection ---
+      const packsMissingType = packs.filter(
         (p) =>
           p.vendorId &&
           packPrices[p.vendorId] &&
@@ -353,11 +359,15 @@ function Cart() {
           p.items.some(
             (item) =>
               item.category &&
-              ["protein", "carbohydrate"].includes(item.category.toLowerCase())
-          )
+              ["protein", "carbohydrate"].includes(item.category.toLowerCase()),
+          ) &&
+          !p.packType,
       );
-      if (requiredPack && !requiredPack.packType) {
-        toast.error("You didn't select a pack for one or more items.");
+
+      // ✅ If there are packs needing type, show modal to select all of them
+      if (packsMissingType.length > 0) {
+        setPacksNeedingType(packsMissingType);
+        setOpenPackTypeModal(true);
         return;
       }
 
@@ -376,7 +386,7 @@ function Cart() {
         // ✅ Construct payload
         const subtotalBeforeDiscount = totalAmount + totalPackPrice;
         const subtotalWithDiscount = Math.round(
-          subtotalBeforeDiscount - totalDiscount
+          subtotalBeforeDiscount - totalDiscount,
         );
         const payload = {
           subtotal: subtotalWithDiscount,
@@ -416,7 +426,7 @@ function Cart() {
               Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
             },
-          }
+          },
         );
 
         // 🧩 Log backend response
@@ -437,7 +447,7 @@ function Cart() {
         console.error("❌ Order error:", err);
         console.error("📨 Server response:", err.response?.data);
         toast.error(
-          err.response?.data?.message || "Failed to place order. Try again."
+          err.response?.data?.message || "Failed to place order. Try again.",
         );
       } finally {
         setLoading(false);
@@ -676,8 +686,8 @@ function Cart() {
                     (item) =>
                       item.category &&
                       ["carbohydrate", "protein"].includes(
-                        item.category.toLowerCase()
-                      )
+                        item.category.toLowerCase(),
+                      ),
                   ) && (
                     <div className="px-4 py-2 flex flex-col gap-1">
                       <span className="font-semibold text-gray-700 text-xs mb-1">
@@ -697,7 +707,7 @@ function Cart() {
                             updatePackType(
                               pack.id,
                               "small",
-                              packPrices[pack.vendorId].smallPackPrice
+                              packPrices[pack.vendorId].smallPackPrice,
                             )
                           }
                         >
@@ -728,7 +738,7 @@ function Cart() {
                             updatePackType(
                               pack.id,
                               "big",
-                              packPrices[pack.vendorId].bigPackPrice
+                              packPrices[pack.vendorId].bigPackPrice,
                             )
                           }
                         >
@@ -1210,6 +1220,195 @@ function Cart() {
                   className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-[#9e0505] to-[#c91a1a] text-white font-semibold rounded-xl hover:shadow-lg transition-all text-xs sm:text-base"
                 >
                   Add Funds
+                </button>
+              </div>
+            </DialogPanel>
+          </div>
+        </div>
+      </Dialog>
+
+      {/* Pack Type Selection Modal - For Multiple Packs */}
+      <Dialog
+        open={openPackTypeModal}
+        onClose={setOpenPackTypeModal}
+        className="relative z-50"
+      >
+        <DialogBackdrop
+          transition
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in"
+        />
+
+        <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-2 sm:p-4">
+            <DialogPanel
+              transition
+              className="relative transform overflow-hidden rounded-3xl bg-white shadow-2xl transition-all data-closed:translate-y-4 data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in w-full max-w-xs sm:max-w-md data-closed:sm:translate-y-0 data-closed:sm:scale-95 max-h-[90vh] overflow-y-auto"
+            >
+              <div className="bg-white px-4 sm:px-6 pt-6 sm:pt-8 pb-4 sm:pb-6">
+                <div className="text-center">
+                  <div className="mx-auto w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-full flex items-center justify-center mb-3 sm:mb-4">
+                    <BiPackage
+                      size={24}
+                      className="sm:size-[32px] text-blue-600"
+                    />
+                  </div>
+                  <DialogTitle className="text-lg sm:text-xl font-bold text-gray-800 mb-2 sm:mb-3">
+                    Select Pack Type for All
+                  </DialogTitle>
+                  <p className="text-gray-600 mb-3 sm:mb-4 text-xs sm:text-sm">
+                    Choose small or big pack for{" "}
+                    <span className="font-bold">{packsNeedingType.length}</span>{" "}
+                    pack{packsNeedingType.length === 1 ? "" : "s"}
+                  </p>
+                </div>
+              </div>
+
+              {/* Packs List */}
+              <div className="px-4 sm:px-6 py-4 space-y-4 max-h-96 overflow-y-auto">
+                {packsNeedingType.map((pack) => (
+                  <div
+                    key={pack.id}
+                    className="bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-200 rounded-2xl p-3 sm:p-4"
+                  >
+                    <div className="flex items-start gap-2 sm:gap-3 mb-3">
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-bold text-gray-800 text-xs sm:text-sm truncate">
+                          {pack.name}
+                        </h4>
+                        <p className="text-[10px] sm:text-xs text-gray-500">
+                          {pack.vendorName} • {pack.items.length} item
+                          {pack.items.length === 1 ? "" : "s"}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Pack Type Options */}
+                    <div className="flex gap-2">
+                      {/* Small Pack Button */}
+                      <button
+                        type="button"
+                        className={`flex-1 flex flex-col items-center justify-center rounded-lg border px-2 py-2 transition-all shadow-sm text-[10px] sm:text-xs font-semibold cursor-pointer
+                          ${
+                            pack.packType === "small"
+                              ? "border-[var(--default)] bg-red-50"
+                              : "border-gray-300 bg-white hover:border-[var(--default)]"
+                          }`}
+                        onClick={() => {
+                          updatePackType(
+                            pack.id,
+                            "small",
+                            packPrices[pack.vendorId].smallPackPrice,
+                          );
+                          // Update local state
+                          setPacksNeedingType((prev) =>
+                            prev.map((p) =>
+                              p.id === pack.id
+                                ? {
+                                    ...p,
+                                    packType: "small",
+                                    packPrice:
+                                      packPrices[pack.vendorId].smallPackPrice,
+                                  }
+                                : p,
+                            ),
+                          );
+                        }}
+                      >
+                        <BiPackage
+                          size={14}
+                          className="mb-1 text-[var(--default)]"
+                        />
+                        <span className="leading-tight">Small</span>
+                        <span className="font-bold text-[var(--default)] text-[9px] sm:text-[10px]">
+                          ₦{packPrices[pack.vendorId]?.smallPackPrice || 0}
+                        </span>
+                        {pack.packType === "small" && (
+                          <span className="text-[8px] text-green-600 mt-0.5">
+                            ✓
+                          </span>
+                        )}
+                      </button>
+
+                      {/* Big Pack Button */}
+                      <button
+                        type="button"
+                        className={`flex-1 flex flex-col items-center justify-center rounded-lg border px-2 py-2 transition-all shadow-sm text-[10px] sm:text-xs font-semibold cursor-pointer
+                          ${
+                            pack.packType === "big"
+                              ? "border-[var(--default)] bg-red-50"
+                              : "border-gray-300 bg-white hover:border-[var(--default)]"
+                          }`}
+                        onClick={() => {
+                          updatePackType(
+                            pack.id,
+                            "big",
+                            packPrices[pack.vendorId].bigPackPrice,
+                          );
+                          // Update local state
+                          setPacksNeedingType((prev) =>
+                            prev.map((p) =>
+                              p.id === pack.id
+                                ? {
+                                    ...p,
+                                    packType: "big",
+                                    packPrice:
+                                      packPrices[pack.vendorId].bigPackPrice,
+                                  }
+                                : p,
+                            ),
+                          );
+                        }}
+                      >
+                        <BiPackage
+                          size={16}
+                          className="mb-1 text-[var(--default)]"
+                        />
+                        <span className="leading-tight">Big</span>
+                        <span className="font-bold text-[var(--default)] text-[9px] sm:text-[10px]">
+                          ₦{packPrices[pack.vendorId]?.bigPackPrice || 0}
+                        </span>
+                        {pack.packType === "big" && (
+                          <span className="text-[8px] text-green-600 mt-0.5">
+                            ✓
+                          </span>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="px-4 sm:px-6 py-4 sm:py-6 border-t border-gray-200 flex gap-2 sm:gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpenPackTypeModal(false);
+                    setPacksNeedingType([]);
+                  }}
+                  className="flex-1 px-4 sm:px-6 py-2 sm:py-3 border-2 border-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-all text-xs sm:text-base"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    // Check if all packs have been assigned a type
+                    const allAssigned = packsNeedingType.every(
+                      (p) => p.packType,
+                    );
+                    if (!allAssigned) {
+                      toast.error("Please select pack type for all items");
+                      return;
+                    }
+                    setOpenPackTypeModal(false);
+                    setPacksNeedingType([]);
+                    // Trigger the order placement again
+                    setTimeout(() => setOpen(true), 100);
+                  }}
+                  className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-[#9e0505] to-[#c91a1a] text-white font-semibold rounded-xl hover:shadow-lg transition-all text-xs sm:text-base"
+                >
+                  Continue
                 </button>
               </div>
             </DialogPanel>
